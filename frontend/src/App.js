@@ -16,10 +16,10 @@ function App() {
       <Routes>
       <Route path="/" element={<Layout />}> 
         <Route index elements={<IndexPage />}/>
+      </Route>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/register" element={<RegisterPage/>}/>
         <Route path="/create" element={<CreatePost />} />
-      </Route>
     </Routes>
     </UserContextProvider>
   );
