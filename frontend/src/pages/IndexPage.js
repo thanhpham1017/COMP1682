@@ -11,11 +11,11 @@ export default function IndexPage(){
         });
     }, []);
     return(
-    <>
-        {posts.length > 0 && posts.map(post => (
-            <Post {...post} />
-        ))}
-    </>
+        <div className="post-wrapper"> 
+            {posts.length > 0 && posts.map(post => (
+            <Post key={post.id} {...post} /> 
+            ))}
+        </div>
     );
     //mongoose.connect('mongodb+srv://foodmap:webne123@cluster0.escyyuf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 }

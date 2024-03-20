@@ -1,9 +1,10 @@
 import {Link} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
 import {UserContext} from "./UserContext";
-
+import logoImage from '../src/img/logo.png';
 export default function Header() {
   const {setUserInfo,userInfo} = useContext(UserContext);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   useEffect(() => {
     fetch('http://localhost:4000/profile', {
       credentials: 'include',
@@ -25,21 +26,29 @@ export default function Header() {
   const username = userInfo?.username;
 
   return (
-    <header>
-      <Link to="/" className="logo">MyBlog</Link>
+    <header className="top-bar">
+      <div className="logo">
+        <Link to="/" className="logo">
+          <img src={logoImage} alt="MyBlog Logo" /> 
+        </Link>
+      </div>
       <nav>
-        {username && (
-          <>
-            <Link to="/create">Create new post</Link>
-            <a onClick={logout}>Logout ({username})</a>
-          </>
-        )}
-        {!username && (
-          <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
-          </>
-        )}
+          {username ? (
+              <div className="user-info">
+                  <div className="username" onClick={() => setDropdownOpen(!dropdownOpen)}>{username}</div>
+                  {dropdownOpen && (
+                      <div className="dropdown-menu">
+                          <Link to="/create" className="create-post">Create new post</Link>
+                          <button onClick={logout} className="logout-btn">Logout</button>
+                      </div>
+                  )}
+              </div>
+          ) : (
+              <div className="auth-links">
+                  <Link to="/login" className="login">Login</Link>
+                  <Link to="/register" className="register">Register</Link>
+              </div>
+          )}
       </nav>
     </header>
   );
