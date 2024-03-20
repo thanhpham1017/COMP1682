@@ -43,7 +43,7 @@ export default function RegisterPage() {
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
           </div>
-          <div className="password-input-container" style={{ position: "relative" }}>
+          {/* <div className="password-input-container" style={{ position: "relative" }}>
                     <input 
                         type={showPassword ? "text" : "password"} 
                         placeholder="Confirm password" 
@@ -56,7 +56,7 @@ export default function RegisterPage() {
                     >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
-          </div>
+          </div> */}
           <button className="custom-button">Register</button>
           <p>Already have an account? <Link to="/Login">Login</Link></p>
           <div className="alternative-login-options">
