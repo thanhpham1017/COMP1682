@@ -6,8 +6,31 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  function validatePassword(password) {
+      if (password.length < 8) {
+        return "password must be at least 8 characters"
+      }
+
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasDigit = /\d/.test(password);
+    const hasSpecialChar = /[^a-zA-Z0-9\s]/.test(password);
+
+    if (!hasUppercase || !hasLowercase || !hasDigit || !hasSpecialChar) {
+      return "Password must contain at least one uppercase letter, lowercase letter, number, and special character.";
+    }
+
+    return null;
+  }
+
   async function register(ev) {
     ev.preventDefault();
+    const validation = validatePassword(password);
+    if (validation) {
+      alert(validation);
+      return; 
+    }
     const response = await fetch('http://localhost:4000/register', {
       method: 'POST',
       body: JSON.stringify({username,password}),
@@ -57,6 +80,9 @@ export default function RegisterPage() {
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
           </div> */}
+          {validatePassword(password) && (
+            <p className="validation-error">{validatePassword(password)}</p>
+          )}
           <button className="custom-button">Register</button>
           <p>Already have an account? <Link to="/Login">Login</Link></p>
           <div className="alternative-login-options">
