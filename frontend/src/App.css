@@ -382,9 +382,10 @@ div.post-page a.edit-btn {
   border-radius: 5px;
   text-decoration: none;
 }
+
 .create-post-container,
 .edit-post-container,
-.profile-container {
+.profile-username-container {
   max-width: 600px;
   margin: 50px auto; /* Để tránh bị che bởi header */
   padding: 20px;
@@ -523,7 +524,14 @@ footer a {
   display: flex;
   gap: 200px;
 }
-
+.profile-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 .setting-bar {
   display: flex;
   flex-direction: column;
@@ -539,10 +547,6 @@ footer a {
 
 .setting-item:hover {
   color: #007bff;
-}
-
-.user-info {
-  margin-top: 30px;
 }
 
 .username {

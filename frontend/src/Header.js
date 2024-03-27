@@ -44,7 +44,7 @@ export default function Header() {
                   {dropdownOpen && (
                       <div className="dropdown-menu">
                           <Link to="/create" className="create-post">Create new post</Link>
-                          <Link to="/profile/settings" className="profile">Profile</Link>
+                          <Link to="/profile/settings" className="profile-username">Profile</Link>
                           <button onClick={logout} className="logout-btn">Logout</button>
                       </div>
                   )}
