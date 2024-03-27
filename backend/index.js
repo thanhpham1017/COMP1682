@@ -135,5 +135,7 @@ app.get('/post/:id', async (req, res) => {
   res.json(postDoc);
 })
 
-
+app.get('/profile/settings', async (req,res) => {
+  
+});
 app.listen(4000);
