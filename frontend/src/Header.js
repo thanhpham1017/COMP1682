@@ -32,6 +32,11 @@ export default function Header() {
           <img src={logoImage} alt="MyBlog Logo" /> 
         </Link>
       </div>
+      <div className="menu">
+          <a href="/">Home</a>
+          <a href="#">Blog</a>
+          <a href="#">Food Map</a>
+      </div>
       <nav>
           {username ? (
               <div className="user-info">
