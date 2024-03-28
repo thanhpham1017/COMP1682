@@ -34,14 +34,14 @@ export default function IndexPage(){
                       mapId: "280b1ee7c20535a0",
                     })
                   );
-                    // const marker = new google.maps.marker.AdvancedMarkerElement({
-                    //   map,
-                    //   position: positiontest,
-                    //   title: "Test Marker", // Set your desired title
-                    //   content: {
-                    //     header: <h3>Test Marker</h3>,
-                    //   },
-                    // });
+                    const marker = new google.maps.marker.AdvancedMarkerElement({
+                      map,
+                      position: userLocation,
+                      title: "Test Marker", // Set your desired title
+                      content: {
+                        header: <h3>Test Marker</h3>,
+                      },
+                    });
                 },
                 (error) => {
                   console.error("Error getting user location:", error);
