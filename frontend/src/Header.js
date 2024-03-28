@@ -32,6 +32,11 @@ export default function Header() {
           <img src={logoImage} alt="MyBlog Logo" /> 
         </Link>
       </div>
+      <div className="menu">
+          <a href="/">Home</a>
+          <a href="#">Blog</a>
+          <a href="#">Food Map</a>
+      </div>
       <nav>
           {username ? (
               <div className="user-info">
@@ -39,6 +44,7 @@ export default function Header() {
                   {dropdownOpen && (
                       <div className="dropdown-menu">
                           <Link to="/create" className="create-post">Create new post</Link>
+                          <Link to="/profile/settings" className="profile-username">Profile</Link>
                           <button onClick={logout} className="logout-btn">Logout</button>
                       </div>
                   )}
