@@ -14,6 +14,7 @@ const postRouter = require('./routes/post');
 const mapRouter = require('./routes/map');
 
 const app = express();
+const pinRoute = require("./routes/pin");
 
 
 
@@ -70,7 +71,7 @@ app.post('/logout', (req, res) => {
   res.cookie('token', '').json('ok');
 })
 
+app.use(pinRoute);
 app.use(postRouter);
 app.use(mapRouter);
-
 app.listen(4000);

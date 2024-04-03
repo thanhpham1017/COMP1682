@@ -11,7 +11,7 @@ export default function ProfilePage() {
                     <div className="setting-item"><FaQuestionCircle /> Help</div>
                 </div>
                 <div className="user-info">
-                    <div className="username"><FaUser /> JohnDoe</div>
+                    <div className="username"><FaUser /> Ngoc123</div>
                     <div className="user-level">Level 5</div>
                 </div>
             </div>
