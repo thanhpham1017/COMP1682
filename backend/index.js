@@ -11,9 +11,9 @@ const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 
 const postRouter = require('./routes/post');
+const pinRoute = require("./routes/pin");
 
 const app = express();
-const pinRoute = require("./routes/pin");
 
 
 
@@ -72,6 +72,5 @@ app.post('/logout', (req, res) => {
 
 app.use(pinRoute);
 app.use(postRouter);
-//app.use(mapRouter);
 
 app.listen(4000);
