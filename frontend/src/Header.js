@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
-import {UserContext} from "./pages/UserContext";
+import {UserContext} from "./UserContext";
 import logoImage from '../src/img/logo.png';
 export default function Header() {
   const {setUserInfo,userInfo} = useContext(UserContext);

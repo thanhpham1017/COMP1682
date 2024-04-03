@@ -261,7 +261,7 @@ label {
 .post-wrapper {
   display: flex;
   flex-wrap: wrap;
-  margin-top: 50px;
+  gap: 100px; /* Adjust the gap between posts */
 }
 @media screen and (min-width: 700px) {
   div.post {
@@ -573,54 +573,4 @@ footer a {
 .fa-question-circle,
 .fa-user {
   font-size: 1.2rem;
-}
-.card {
-  background-color: #ffffff;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
-
-.card label {
-  font-size: 16px;
-  font-weight: bold;
-  color: #333333;
-}
-
-.card .ratings {
-  display: flex;
-  align-items: center;
-}
-
-.card .ratings .star {
-  color: #ffd700; /* Yellow color for stars */
-  margin-right: 5px;
-}
-
-.formCard {
-  padding: 20px;
-  border-radius: 5px;
-  width: 300px;
-}
-
-.formInput {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.formSubmitButton {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.formSubmitButton:hover {
-  background-color: #0056b3;
 }
