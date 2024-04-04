@@ -103,7 +103,7 @@ export default function IndexPage(){
             initialViewState={{
             ...viewport
             }}
-            style={{width: 1440, height: 700}}
+            style={{width: 1750, height: 500}}
             mapStyle="mapbox://styles/mapbox/streets-v9"
             onDblClick={handleAddClick}
             transitionDuration = "200"
@@ -194,8 +194,8 @@ export default function IndexPage(){
               </Popup>      
             } 
         </MapGL>
+        <h1>Blog</h1>
         <div className="post-wrapper">
-            <div id="map"></div>
             {posts.length > 0 && posts.map((post) => (
               <Post key={post.id} {...post} />
             ))}

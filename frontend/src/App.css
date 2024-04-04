@@ -1,6 +1,11 @@
+body {
+  margin: 0;
+  /* padding: 0; */
+}
 main {
-  padding: 20px;
-  max-width: 1400px;
+  /* padding: 20px;
+  max-width: 1400px; */
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -13,7 +18,7 @@ main {
   padding: 10px 20px;
   width: 100%;
   z-index: 1000;
-  margin-bottom: 50px;
+  margin-bottom: 10px;
 }
 
 .top-bar .logo {
@@ -55,6 +60,7 @@ main {
 .top-bar nav {
   display: flex;
   align-items: center;
+  margin-right: 30px;
 }
 
 .top-bar .user-info {
@@ -261,7 +267,8 @@ label {
 .post-wrapper {
   display: flex;
   flex-wrap: wrap;
-  margin-top: 50px;
+  /* margin-top: 250px; */
+  margin-bottom: 100px;
 }
 @media screen and (min-width: 700px) {
   div.post {
@@ -276,7 +283,8 @@ label {
   display: flex;
   flex-direction: column; /* Sắp xếp các phần tử con theo chiều dọc */
   max-width: 400px; /* Đặt chiều rộng tối đa của bài đăng */
-  margin-bottom: 30px; /* Khoảng cách giữa các bài đăng */
+  margin-right: 150px;
+  margin-bottom: 200px; 
 }
 .post-container .image {
   width: 100%; /* Ensure the image container takes the full width */
