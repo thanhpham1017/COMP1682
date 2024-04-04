@@ -1,7 +1,9 @@
 import Post from "../Post";
-import { useEffect, useState,useContext } from "react";
-import MapGL,{Marker, Popup} from 'react-map-gl';
+import { useEffect, useState,useContext, useRef } from "react";
+import MapGL, {Marker, Popup} from 'react-map-gl';
 import {UserContext} from "./UserContext";
+import { GeolocateControl } from 'react-map-gl';
+
 // import axios from "axios";
 import { FaMapMarker,FaStar  } from 'react-icons/fa';
 
@@ -17,10 +19,10 @@ export default function IndexPage(){
     const [star, setStar] = useState(0);
     const {userInfo } = useContext(UserContext);
     const [viewport, setViewport] = useState({
-      latitude: 21.03,    // Vĩ độ của Hà Nội
-      longitude: 105.85, // Kinh độ của Hà Nội
-      zoom: 10
+
+      zoom: 13,
     });
+    const GeolocateController = useRef();
 
     useEffect(() => {
         fetch('http://localhost:4000/post').then(reponse => {
@@ -29,6 +31,8 @@ export default function IndexPage(){
             });
         });
     }, []);
+
+    
 
     useEffect(() => {
       console.log("pins:", pins);
@@ -46,7 +50,10 @@ export default function IndexPage(){
         }
       };
       getPins();
-    }, []);
+
+      GeolocateControl.current?.trigger()
+    }, [currentPlaceId, pins, viewport, GeolocateController]);
+    
     const handleMarkerClick = (id,lat,long) => {
         console.log("Marker clicked with id:", id);
         setSelectedPin(pins.find(pin => pin._id === id));
@@ -76,7 +83,7 @@ export default function IndexPage(){
         long: newPlace.long,
       };
     
-      try {
+      try { 
         const response = await fetch("http://localhost:4000/pinCreate", {
           method: 'POST',
           headers: {
@@ -108,6 +115,7 @@ export default function IndexPage(){
             onDblClick={handleAddClick}
             transitionDuration = "200"
           >
+            <GeolocateControl positionOptions={{ enableHighAccuracy: true }} trackUserLocation={true} ref = {GeolocateController} />
             {pins.map(p => (
               <>
                 <Marker 
