@@ -632,3 +632,45 @@ footer a {
 .formSubmitButton:hover {
   background-color: #0056b3;
 }
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px; /* Đặt chiều rộng của sidebar */
+  height: 200px; /* Đặt chiều cao của sidebar */
+  background-color: #f9f9f9; /* Đặt màu nền của sidebar */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
+  padding: 20px; /* Đặt padding để tạo khoảng cách giữa nội dung và biên của sidebar */
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng bóng đổ cho sidebar */
+  z-index: 1000; /* Đảm bảo sidebar hiển thị trên các phần tử khác */
+}
+
+.sidebar h2 {
+  font-size: 1.5rem; /* Đặt kích thước font cho tiêu đề */
+  margin-bottom: 10px; /* Đặt margin dưới cho tiêu đề */
+}
+
+.sidebar p {
+  margin-bottom: 10px; /* Đặt margin dưới cho các đoạn văn bản */
+}
+
+.sidebar .price {
+  font-weight: bold; /* Đặt chữ in đậm cho giá cả */
+}
+
+.sidebar .ratings {
+  margin-top: 10px; /* Đặt margin trên cho phần đánh giá */
+}
+
+.sidebar .ratings .star {
+  color: #ffd700; /* Đặt màu cho sao */
+  margin-right: 5px; /* Đặt khoảng cách bên phải giữa các sao */
+}
+
+.sidebar a {
+  color: #007bff; /* Đặt màu cho các liên kết */
+  text-decoration: none; /* Loại bỏ gạch chân cho liên kết */
+  display: block; /* Hiển thị liên kết như một khối */
+  margin-top: 10px; /* Đặt margin trên cho mỗi liên kết */
+}
+
