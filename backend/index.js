@@ -70,6 +70,16 @@ app.post('/logout', (req, res) => {
   res.cookie('token', '').json('ok');
 })
 
+app.get('/editprofile', async (req, res) => {
+  const userId = req.params;
+  const userDoc = await User.findById(userId);
+  res.json(userDoc);
+});
+
+// app.put('/editprofile', async (req, res) => {
+//   const  = req.body;
+// });
+
 app.use(pinRoute);
 app.use(postRouter);
 

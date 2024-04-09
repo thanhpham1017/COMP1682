@@ -211,25 +211,3 @@ export default function IndexPage(){
 
 
 
-// {/* <Popup 
-//                     key={currentPlaceId}
-//                     longitude={selectedPin &&selectedPin.long} 
-//                     latitude={selectedPin &&selectedPin.lat}
-//                     anchor="left"
-//                     onClose={() => setCurrentPlaceId(null)}
-//                   >
-//                     {console.log("Popup is rendered")} {/* In ra console để kiểm tra xem Popup có được render hay không */}
-//                     <div className="card">
-//                       <label>{selectedPin && selectedPin.title}</label><br />
-//                       <label>{selectedPin && selectedPin.desc}</label><br />
-//                       <label>{selectedPin && selectedPin.price}</label><br />
-//                       <div>
-//                           <a href="link-to-youtube">Youtube</a> // <a href="link-to-instagram">Instagram</a> // <a href="link-to-tiktok">Tiktok</a>
-//                       </div>
-//                       <div className="ratings">
-//                           {Array(selectedPin && selectedPin.rating).fill(<FaStar className="star" />)}
-//                           {/*<label>{selectedPin && selectedPin.rating}</label>*/}
-//                       </div>
-//                       <label>{selectedPin && selectedPin.username}</label><br />
-//                   </div>
-//                   </Popup> */}
