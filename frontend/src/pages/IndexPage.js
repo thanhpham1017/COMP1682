@@ -1,9 +1,9 @@
 import Post from "../Post";
-import { useEffect, useState,useContext, useRef } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import MapGL, {Marker, Popup} from 'react-map-gl';
 import {UserContext} from "./UserContext";
 import { GeolocateControl } from 'react-map-gl';
-
+import Dropzone from 'react-dropzone';
 // import axios from "axios";
 import { FaMapMarker,FaStar,FaTimes   } from 'react-icons/fa';
 
@@ -19,6 +19,7 @@ export default function IndexPage(){
   const [star, setStar] = useState(0);
   const {userInfo } = useContext(UserContext);
   const [selectedMarkerInfo, setSelectedMarkerInfo] = useState(null);
+  const [image, setImage] = useState(null); 
   const [viewport, setViewport] = useState({
     zoom: 13,
   });
@@ -69,6 +70,16 @@ export default function IndexPage(){
   }
   const currentUser = userInfo?.username;
 
+  const handleImageDrop = (acceptedFiles) => {
+    // Xử lý khi người dùng tải lên hình ảnh
+    const file = acceptedFiles[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+        setImage(reader.result); // Lưu trữ hình ảnh dưới dạng Base64 vào trạng thái
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newPin = {
@@ -79,6 +90,7 @@ export default function IndexPage(){
       rating: star,
       lat: newPlace.lat,
       long: newPlace.long,
+      image: image // Thêm trường hình ảnh vào dữ liệu mới
     };
   
     try { 
@@ -164,6 +176,18 @@ export default function IndexPage(){
                   <div>
                     <a href="link-to-youtube">Youtube</a> // <a href="link-to-instagram">Instagram</a> // <a href="link-to-tiktok">Tiktok</a>
                   </div>
+                  <Dropzone onDrop={handleImageDrop} accept="image/*" multiple={false}>
+                    {({ getRootProps, getInputProps }) => (
+                      <div {...getRootProps()} style={{ cursor: 'pointer', border: '1px dashed #ccc', padding: '20px', textAlign: 'center' }}>
+                        <input {...getInputProps()} />
+                        {image ? (
+                          <img src={image} alt="Selected" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover' }} />
+                        ) : (
+                          <p>Drag 'n' drop an image here, or click to select image</p>
+                        )}
+                      </div>
+                    )}
+                  </Dropzone>
                   <label>Rating:</label><br />
                   <select className="formInput" onChange={(e) => setStar(e.target.value)}>
                     <option value="1">1</option>
@@ -180,11 +204,12 @@ export default function IndexPage(){
         </MapGL>
         {isMarkerSelected && (
           <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "300px", height: "460px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto"}}>
-            <button onClick={handleCloseSidebar} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "10px", right: "10px"}}>
+            <button onClick={handleCloseSidebar} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "0", right: "10px"}}>
               <FaTimes style={{fontSize: "1.5rem"}} />
             </button>
             {selectedMarkerInfo && (
               <div className="marker-info">
+                <img src={selectedMarkerInfo.image} alt="Marker" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover' }} />
                 <h2>{selectedMarkerInfo.title}</h2>
                 <p>{selectedMarkerInfo.desc}</p>
                 <p>Price: {selectedMarkerInfo.price}</p>
@@ -208,6 +233,3 @@ export default function IndexPage(){
     </div>
   );
 }
-
-
-
