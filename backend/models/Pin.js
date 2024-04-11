@@ -39,6 +39,10 @@ const PinSchema = new mongoose.Schema(
         type: [String],
         required: true,
     },
+    comments: {
+        type: [String],
+        required: true,
+    },
 },
 { timestamps: true }
 );

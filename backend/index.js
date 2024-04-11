@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require("mongoose");
 const User = require('./models/User');
@@ -20,6 +21,10 @@ const app = express();
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'bnxbcvxcnbvvcxvxcv';
+
+// Sử dụng body-parser với giới hạn kích thước tệp
+app.use(bodyParser.json({ limit: '500mb' }));
+app.use(bodyParser.urlencoded({ limit: '500mb', extended: true }));
 
 app.use(cors({credentials:true,origin:'http://localhost:3000'}));
 app.use(express.json());
