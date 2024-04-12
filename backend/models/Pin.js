@@ -35,6 +35,10 @@ const PinSchema = new mongoose.Schema(
         type: Number,
         required: true,
     },
+    address: {
+        type: String,
+        required: true,
+    },
     image: {
         type: [String],
         required: true,
@@ -43,6 +47,8 @@ const PinSchema = new mongoose.Schema(
         type: [String],
         required: true,
     },
+    category:{type:Schema.Types.ObjectId, ref:'Category'},
+    
 },
 { timestamps: true }
 );
