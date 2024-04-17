@@ -8,12 +8,12 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
+const router = require("express").Router();
 
+const AdminModel = require('../models/Admin');
+const UserModel = require('../models/User');
 
-const AdminModel = require('./models/Admin');
-const UserModel = require('./models/User');
-
-const {checkAdminSession, verifyToken} = require('./middlewares/auth');
+const {checkAdminSession, verifyToken} = require('../middlewares/auth');
 
 
 const salt = bcrypt.genSaltSync(10);
@@ -21,16 +21,16 @@ const secret = 'bnxbcvxcnbvvcxvxcv';
 
 // //-------------------------------------------------------------------------
 // // Multer configuration
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, './public/images/'); // Set the destination folder where uploaded files will be stored
-//     },
-//     filename: function (req, file, cb) {
-//         cb(null, file.fieldname + '-' + Date.now()); // Set the filename to avoid name conflicts
-//     }
-// });
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/images/'); // Set the destination folder where uploaded files will be stored
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now()); // Set the filename to avoid name conflicts
+    }
+});
 
-// const upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
 
 //-----------------------------------------------------------------------------------------------
 //for Admin

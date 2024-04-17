@@ -1,6 +1,6 @@
 import Post from "../Post";
 import React, { useEffect, useState, useContext, useRef } from "react";
-import MapGL, {Marker} from 'react-map-gl';
+import MapGL, {Marker, Source, Layer} from 'react-map-gl';
 import {UserContext} from "./UserContext";
 import { GeolocateControl } from 'react-map-gl';
 import Dropzone from 'react-dropzone';
@@ -16,6 +16,7 @@ export default function IndexPage(){
   const [title, setTitle] = useState(null);
   const [desc, setDesc] = useState(null);
   const [price, setPrice] = useState(0);
+  const [address, setAddress] = useState(0);
   const [star, setStar] = useState(0);
   const {userInfo } = useContext(UserContext);
   const [selectedMarkerInfo, setSelectedMarkerInfo] = useState(null);
@@ -24,9 +25,11 @@ export default function IndexPage(){
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [comment, setComment] = useState(''); // Trạng thái lưu trữ nội dung comment mới
   const [comments, setComments] = useState([]); // Trạng thái lưu trữ tất cả các comment của địa điểm được chọn
-
+  const mapRef = useRef(null); 
+ // const [directionsLayer, setDirectionsLayer] = useState(null);
+  const [directionsSource, setDirectionsSource] = useState(null);
   const [viewport, setViewport] = useState({
-    zoom: 13,
+    zoom: 10,
   });
   const GeolocateController = useRef();
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
@@ -124,6 +127,7 @@ export default function IndexPage(){
       lat: newPlace.lat,
       long: newPlace.long,
       image: image,
+      address:address
     };
   
     try {
@@ -152,10 +156,50 @@ export default function IndexPage(){
   const handleCloseSidebar = () => {
     setIsMarkerSelected(false); // Đặt trạng thái marker đã được chọn là false khi người dùng đóng side bar
   };
-
+  useEffect(() => {
+    if (mapRef.current && selectedMarkerInfo) {
+      handleGiveDirection();
+    }
+  }, [mapRef.current, selectedMarkerInfo]);
+  
+  const handleGiveDirection = () => {
+    // Lấy tọa độ hiện tại của người dùng
+    navigator.geolocation.getCurrentPosition((position) => {
+      const userLongitude = position.coords.longitude;
+      const userLatitude = position.coords.latitude;
+      // Lấy tọa độ của marker được chọn
+      const markerLongitude = selectedMarkerInfo.long;
+      const markerLatitude = selectedMarkerInfo.lat;
+      // Gửi yêu cầu đến Mapbox Directions API
+      const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${userLongitude},${userLatitude};${markerLongitude},${markerLatitude}?access_token=pk.eyJ1IjoibmdvYzI4MDkiLCJhIjoiY2x1aWxkNmYzMDAyZDJsbzZzY3Frdjl3OCJ9.JGSMHnEz3QM9qrNq_s9vEw`;
+      console.log(directionsUrl);
+      fetch(directionsUrl)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data); // Dữ liệu trả về từ API
+          const polyline = require('@mapbox/polyline');
+          const coordinates = polyline.decode(data.routes[0].geometry);
+          console.log(coordinates);
+          const routeGeoJSON = {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: coordinates,
+            },
+          };
+          // Cập nhật layer chỉ đường trên bản đồ
+          setDirectionsSource(routeGeoJSON);
+          //console.log(routeGeoJSON);
+        })
+        .catch(error => console.error('Error fetching directions:', error));
+    });
+  };
+  
   return(
     <div style={{position: "relative"}}>
         <MapGL
+          mapRef={mapRef}
           mapboxAccessToken={process.env.REACT_APP_MAPBOX}
           initialViewState={{
             ...viewport
@@ -165,6 +209,20 @@ export default function IndexPage(){
           onDblClick={handleAddClick}
           transitionDuration="200"
         >
+          {directionsSource && (
+            <Source id="route" type="geojson" data={directionsSource}>
+              {/* {console.log(directionsSource)}  */}
+              <Layer
+                id="route"
+                type="line"
+                source="route"
+                paint={{
+                  'line-color': '#6495ED',
+                  'line-width': 10,
+                }}
+              />
+            </Source>
+          )}
           <GeolocateControl positionOptions={{ enableHighAccuracy: true }} trackUserLocation={true} ref={GeolocateController} />
           {pins.map(p => (
             <Marker 
@@ -201,6 +259,11 @@ export default function IndexPage(){
                     placeholder="Say something about this place"
                     onChange={(e) => setDesc(e.target.value)}
                   ></textarea><br />
+                  <label>Address:</label><br />
+                  <textarea className="formInput" 
+                    placeholder="Address"
+                    onChange={(e) => setAddress(e.target.value)}
+                  ></textarea><br />
                   <label>Price:</label><br />
                   <input 
                     className="formInput" 
@@ -208,9 +271,6 @@ export default function IndexPage(){
                     placeholder="Price" 
                     onChange={(e) => setPrice(e.target.value)}
                   /><br />
-                  <div>
-                    <a href="link-to-youtube">Youtube</a> // <a href="link-to-instagram">Instagram</a> // <a href="link-to-tiktok">Tiktok</a>
-                  </div>
                   <Dropzone onDrop={handleImageDrop} accept="image/*" multiple={true}>
                     {({ getRootProps, getInputProps }) => (
                         <div {...getRootProps()} style={{ cursor: 'pointer', border: '1px dashed #ccc', padding: '20px', textAlign: 'center' }}>
@@ -245,7 +305,7 @@ export default function IndexPage(){
             </div>
           )}
         </MapGL>
-        {isMarkerSelected && (
+        {selectedMarkerInfo && (
           <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "300px", height: "460px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto"}}>
             <button onClick={handleCloseSidebar} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "0", right: "10px"}}>
               <FaTimes style={{fontSize: "1.5rem"}} />
@@ -260,34 +320,35 @@ export default function IndexPage(){
                 <h2>{selectedMarkerInfo.title}</h2>
                 <p>{selectedMarkerInfo.desc}</p>
                 <p>Price: {selectedMarkerInfo.price}</p>
-                <div>
-                  <a href="link-to-youtube">Youtube</a> // <a href="link-to-instagram">Instagram</a> // <a href="link-to-tiktok">Tiktok</a>
-                </div>
                 <div className="ratings">
                   {Array(selectedMarkerInfo.rating).fill(<FaStar className="star" />)}
                 </div>
                 <p>Posted by: {selectedMarkerInfo.username}</p>
-                 {/* Form để thêm comment */}
-                  <form onSubmit={handleCommentSubmit}>
-                    <textarea
-                      className="formInput"
-                      placeholder="Leave a comment..."
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                    ></textarea>
-                    <button className="formSubmitButton" type="submit">Submit</button>
-                  </form>
-                  {/* Danh sách các comment */}
-                  <div className="comments">
-                    <h3>Comments:</h3>
-                    {selectedMarkerInfo && comments[currentPinId] && comments[currentPinId].map((comment, index) => (
-                      <div key={index}>{comment.content}</div>
-                    ))}
-                  </div>
+                {/* Form để thêm comment */}
+                <form onSubmit={handleCommentSubmit}>
+                  <textarea
+                    className="formInput"
+                    placeholder="Leave a comment..."
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                  ></textarea>
+                  <button className="formSubmitButton" type="submit">Submit</button>
+                </form>
+                {/* Danh sách các comment */}
+                <div className="comments">
+                  <h3>Comments:</h3>
+                  {selectedMarkerInfo && comments[currentPinId] && comments[currentPinId].map((comment, index) => (
+                    <div key={index}>{comment.content}</div>
+                  ))}
+                </div>
+                <button onClick={handleGiveDirection}>
+                  Give Direction
+                </button>
               </div>
             )}
           </div>
         )}
+
         <h1>Blog</h1>
         <div className="post-wrapper">
           {posts.length > 0 && posts.map((post) => (

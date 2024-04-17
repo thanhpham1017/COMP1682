@@ -35,7 +35,7 @@ export default function Header() {
       <div className="menu">
           <a href="/">Home</a>
           <a href="#">Blog</a>
-          <a href="#">Food Map</a>
+          <a href="/admin">Test Admin</a>
       </div>
       <nav>
           {username ? (

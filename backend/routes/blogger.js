@@ -9,27 +9,27 @@ const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 
-const BloggerModel = require('./models/blogger');
-const UserModel = require('./models/user');
+const BloggerModel = require('../models/Blogger');
+const UserModel = require('../models/User');
+const router = require("express").Router();
 
-
-const {checkAdminSession, checkBloggerSession, verifyToken} = require('./middlewares/auth');
+const {checkAdminSession, checkBloggerSession, verifyToken} = require('../middlewares/auth');
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'bnxbcvxcnbvvcxvxcv';
 
 // //-------------------------------------------------------------------------
 // // Multer configuration
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, './public/images/'); // Set the destination folder where uploaded files will be stored
-//     },
-//     filename: function (req, file, cb) {
-//         cb(null, file.fieldname + '-' + Date.now()); // Set the filename to avoid name conflicts
-//     }
-// });
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/images/'); // Set the destination folder where uploaded files will be stored
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now()); // Set the filename to avoid name conflicts
+    }
+});
 
-// const upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
 
 //-----------------------------------------------------------------------------------------------
 //for Admin
