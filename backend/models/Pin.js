@@ -47,6 +47,9 @@ const PinSchema = new mongoose.Schema(
         type: [String],
         required: true,
     },
+    time: {
+        type: Date,
+    },
     category:{type:Schema.Types.ObjectId, ref:'Category'},
     
 },

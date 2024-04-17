@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const {Schema, model} = mongoose;
 
-const AdminSchema = new Schema({
+const BloggerSchema = new Schema({
    name: {type: String, required: true},
    dob: {type: Date, required: true},
    gender: {type: String, required: true},
@@ -10,6 +10,6 @@ const AdminSchema = new Schema({
    user:{type:Schema.Types.ObjectId, ref:'User'},
 });
 
-const AdminModel = model('Admin', AdminSchema);
+const BloggerModel = model('Blogger', BloggerSchema);
 
-module.exports = AdminModel;
+module.exports = BloggerModel;

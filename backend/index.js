@@ -13,10 +13,14 @@ const fs = require('fs');
 
 const postRouter = require('./routes/post');
 const pinRoute = require("./routes/pin");
+const adminRouter = require('./routes/admin');
+const guestRoute = require("./routes/guest");
+const authRouter = require("./routes/auth");
+const bloggerRoute = require("./routes/blogger");
 
 const app = express();
 
-
+app.use(express.json({ limit: '200mb' }));
 
 
 const salt = bcrypt.genSaltSync(10);
@@ -87,5 +91,9 @@ app.get('/editprofile', async (req, res) => {
 
 app.use(pinRoute);
 app.use(postRouter);
+app.use(guestRoute);
+app.use(adminRouter);
+app.use(bloggerRoute);
+app.use(authRouter);
 
 app.listen(4000);

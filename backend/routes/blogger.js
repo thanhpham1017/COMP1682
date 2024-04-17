@@ -19,7 +19,8 @@ const Role = require('./models/Role');
 const Post = require('./models/Post');
 
 
-const {checkAdminSession, checkGuestSession, verifyToken} = require('./middlewares/auth');
+const {checkAdminSession, checkBloggerSession, verifyToken} = require('./middlewares/auth');
+const BloggerModel = require('../models/Blogger');
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'bnxbcvxcnbvvcxvxcv';
@@ -43,24 +44,24 @@ const secret = 'bnxbcvxcnbvvcxvxcv';
 // Route to get all admins
 router.get('/', checkAdminSession, async (req, res) => {
     try {
-        res.json(await Guest.find().populate('User'));
+        res.json(await Blogger.find().populate('User'));
     } catch (error) {
-        console.error("Error while fetching guest list:", error);
+        console.error("Error while fetching blogger list:", error);
         res.json({ success: false, error: "Internal Server Error" });
     }
 });
 
 
-router.get('/add', verifyToken, checkGuestSession, checkAdminSession, async (req, res) => {
+router.get('/add', verifyToken, checkBloggerSession, checkAdminSession, async (req, res) => {
     try{
-        res.status(200).json({ success: true, message: "Render add guest form"});
+        res.status(200).json({ success: true, message: "Render add marketing coordinator form"});
     }catch(error){
-        console.error("Error while adding Guest list:", error);
+        console.error("Error while adding MM list:", error);
         res.status(500).send("Internal Server Error");
     }
 });
 
-router.post('/add', verifyToken, checkAdminSession, checkGuestSession, upload.single('image'), async (req, res) => {
+router.post('/add', verifyToken, checkAdminSession, checkBloggerSession, upload.single('image'), async (req, res) => {
     //get value by form : req.body
     try{
         const name = req.body.name;
@@ -122,32 +123,31 @@ router.post('/add', verifyToken, checkAdminSession, checkGuestSession, upload.si
     
 });
 
-
 //---------------------------------------------------------------------------
 //edit admin
 // Render form for editing a specific admin
 router.get('/edit/:id', checkAdminSession, async (req, res) => {
     try {
         // Fetch admin details by ID
-        const guestId = req.params.id;
-        const guest = await GuestModel.findById(guestId);
-        if (!guest) {
+        const bloggerId = req.params.id;
+        const blogger = await BloggerModel.findById(bloggerId);
+        if (!blogger) {
             throw new Error('Blogger not found');
         }
 
         // Fetch user details by ID
-        const userId = guest.user;
+        const userId = blogger.user;
         const user = await UserModel.findById(userId);
         if (!user) {
             throw new Error('User not found');
         }
 
-        res.json(guest, user);
+        res.json(blogger, user);
 
     } catch (error) {
         // Handle errors (e.g., admin not found)
         console.error(error);
-        res.json({ success: false, error: "Guest not found" });
+        res.status(404).json({ success: false, error: "Blogger not found" });
     }
 });
 
@@ -155,36 +155,36 @@ router.get('/edit/:id', checkAdminSession, async (req, res) => {
 router.post('/edit/:id', checkAdminSession, upload.single('image'), async (req, res) => {
     try {
         // Fetch admin by ID
-        const guestId = req.params.id;
-        const guest = await GuestModel.findById(guestId);
-        if (!guest) {
-            throw new Error('Guest not found');
+        const bloggerId = req.params.id;
+        const blogger = await BloggerModel.findById(bloggerId);
+        if (!blogger) {
+            throw new Error('Blogger not found');
         }
         // Fetch user details by ID
-        const userId = guest.user;
+        const userId = blogger.user;
         const user = await UserModel.findById(userId);
         if (!user) {
             throw new Error('User not found');
         }
 
         // Update admin details
-        guest.name = req.body.name;
-        guest.dob = req.body.dob;
-        guest.gender = req.body.gender;
-        guest.address = req.body.address;
+        blogger.name = req.body.name;
+        blogger.dob = req.body.dob;
+        blogger.gender = req.body.gender;
+        blogger.address = req.body.address;
         // If a new image is uploaded, update it
         if (req.file) {
             const imageData = fs.readFileSync(req.file.path);
-            guest.image = imageData.toString('base64');
+            blogger.image = imageData.toString('base64');
         }
-        await guest.save();
+        await blogger.save();
 
         user.email = req.body.email;
         user.password = bcrypt.hashSync(req.body.password, salt);
         await user.save();
 
         // Send success JSON response
-        res.json({ success: true, message: "Guest updated successfully" });
+        res.json({ success: true, message: "Blogger updated successfully" });
     } catch (err) {
         // Handle validation errors
         if (err.name === 'ValidationError') {
@@ -195,7 +195,7 @@ router.post('/edit/:id', checkAdminSession, upload.single('image'), async (req, 
             res.json({ success: false, error: "Validation Error", InputErrors });
         } else {
             // Handle other errors
-            console.error("Error while updating guest:", err);
+            console.error("Error while updating blogger:", err);
             res.json({ success: false, error: "Internal Server Error" });
         }
     }
@@ -203,92 +203,92 @@ router.post('/edit/:id', checkAdminSession, upload.single('image'), async (req, 
 
 router.get('/profile', async (req, res) => {
     try{
-        var guestUserId = req.session.user_id;
-        var UserData = await UserModel.findById(guestUserId);
+        var bloggerUserId = req.session.user_id;
+        var UserData = await UserModel.findById(bloggerUserId);
       if(UserData){
-        var guestID = req.session.guest_id;
-        var GuestData = await GuestModel.findById(guestID);
+        var bloggerID = req.session.blogger_id;
+        var BloggerData = await BloggerModel.findById(bloggerID);
       } else {
         res.status(500).json({ success: false, error: "Profile not found" });
       }
-      res.status(200).json({ success: true, message: "Render edit guest form", UserData, GuestData });
+      res.status(200).json({ success: true, message: "Render edit blogger form", UserData, BloggerData });
     }catch(error){
-        console.error("Error while fetching Guest:", error);
+        console.error("Error while fetching Blogger:", error);
         res.status(500).send("Internal Server Error");
     }
 });
 
-router.get('/editGuest/:id', async (req, res) => {
-    const guestId = req.params.id;
-    const guest = await GuestModel.findById(guestId);
-    if (!guest) {
-        res.status(404).json({ success: false, error: "Guest not found" });
+router.get('/editBlogger/:id', async (req, res) => {
+    const bloggerId = req.params.id;
+    const blogger = await BloggerModel.findById(bloggerId);
+    if (!blogger) {
+        res.status(404).json({ success: false, error: "Blogger not found" });
         return;
     }
     // Fetch user details by ID
-    const userId = guest.user;
+    const userId = blogger.user;
     const user = await UserModel.findById(userId);
     if (!user) {
         res.status(404).json({ success: false, error: "User not found" });
         return;
     }
-    if(userId == req.session.user_id && guestId == req.session.guest_id){
+    if(userId == req.session.user_id && bloggerId == req.session.blogger_id){
         try {
-            res.status(200).json({ success: true, message: "Render add guest form", guest, user });
+            res.status(200).json({ success: true, message: "Render add blogger form", blogger, user });
         } catch (error) {
             console.error(error);
-            res.status(404).send('Guest not found');
+            res.status(404).send('Blogger not found');
         }
     } else {
-        res.status(404).send('Guest not found');
+        res.status(404).send('Blogger not found');
     }
     
 });
 
-router.post('/editGuest/:id', upload.single('image'), async (req, res) => {
-    const guestId = req.params.id;
-    const guest = await GuestModel.findById(guestId);
-    if (!guest) {
-        res.status(404).json({ success: false, error: "Guest not found" });
+router.post('/editBlogger/:id', upload.single('image'), async (req, res) => {
+    const bloggerId = req.params.id;
+    const blogger = await BloggerModel.findById(bloggerId);
+    if (!blogger) {
+        res.status(404).json({ success: false, error: "Blogger not found" });
         return;
     }
     // Fetch user details by ID
-    const userId = guest.user;
+    const userId = blogger.user;
     const user = await UserModel.findById(userId);
     if (!user) {
         res.status(404).json({ success: false, error: "User not found" });
         return;
     }
-    if(userId == req.session.user_id && guestId == req.session.guest_id){
+    if(userId == req.session.user_id && bloggerId == req.session.blogger_id){
         try {
             // Update marketingmanager details
-            guest.name = req.body.name;
-            guest.dob = req.body.dob;
-            guest.gender = req.body.gender;
-            guest.address = req.body.address;
+            blogger.name = req.body.name;
+            blogger.dob = req.body.dob;
+            blogger.gender = req.body.gender;
+            blogger.address = req.body.address;
             // If a new image is uploaded, update it
             if (req.file) {
                 const imageData = fs.readFileSync(req.file.path);
-                guest.image = imageData.toString('base64');  
+                blogger.image = imageData.toString('base64');  
             } 
-            await guest.save();
+            await blogger.save();
             
             user.password = bcrypt.hashSync(req.body.password, salt);
             await user.save();
     
-            res.status(200).json({ success: true, message: "Update my Guest data success" });
+            res.status(200).json({ success: true, message: "Update my Blogger data success" });
         } catch (err) {
             if (err.name === 'ValidationError') {
                let InputErrors = {};
                for (let field in err.errors) {
                   InputErrors[field] = err.errors[field].message;
                }
-               console.error("Error while updating guest:", err);
+               console.error("Error while updating blogger:", err);
                 res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
             }
          }
     } else {
-        res.status(404).send('Guest not found');
+        res.status(404).send('Blogger not found');
     }
    
 });

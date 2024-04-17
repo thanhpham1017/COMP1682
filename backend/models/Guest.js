@@ -6,8 +6,8 @@ const GuestSchema = new Schema({
   dob: {type: Date, required: true},
   gender: {type: String, required: true},
   address: {type: String, required: true},
-  image: String,
-  role:{type:Schema.Types.ObjectId, ref:'User'},
+  image: {type: String, required: true},
+  user:{type:Schema.Types.ObjectId, ref:'User'},
 });
 
 const GuestModel = model('Guest', GuestSchema);
