@@ -9,18 +9,12 @@ const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 
-const User = require('./models/User');
-const Blogger = require('./models/Blogger');
-const Guest = require('./models/Guest');
-const Admin = require('./models/Admin');
-const Category = require('./models/Category');
-const Pin = require('./models/Pin');
-const Role = require('./models/Role');
-const Post = require('./models/Post');
 
+const AdminModel = require('./models/Admin');
+const UserModel = require('./models/User');
 
 const {checkAdminSession, verifyToken} = require('./middlewares/auth');
-const AdminModel = require('../models/Admin');
+
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'bnxbcvxcnbvvcxvxcv';
@@ -42,9 +36,9 @@ const secret = 'bnxbcvxcnbvvcxvxcv';
 //for Admin
 //------------------------------------------------------------------------
 // Route to get all admins
-router.get('/', checkAdminSession, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        res.json(await Admin.find().populate('User'));
+        res.json(await AdminModel.find().populate('User'));
     } catch (error) {
         console.error("Error while fetching admin list:", error);
         res.status(500).json({ success: false, error: "Internal Server Error" });
@@ -82,7 +76,7 @@ router.get('/edit/:id', checkAdminSession, async (req, res) => {
 });
 
 // Handle form submission for editing an admin
-router.post('/edit/:id', checkAdminSession, upload.single('image'), async (req, res) => {
+router.post('/edit/:id', upload.single('image'), async (req, res) => {
     try {
         // Fetch admin by ID
         const adminId = req.params.id;

@@ -9,18 +9,11 @@ const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 
-const User = require('./models/User');
-const Blogger = require('./models/Blogger');
-const Guest = require('./models/Guest');
-const Admin = require('./models/Admin');
-const Category = require('./models/Category');
-const Pin = require('./models/Pin');
-const Role = require('./models/Role');
-const Post = require('./models/Post');
+const BloggerModel = require('./models/blogger');
+const UserModel = require('./models/user');
 
 
 const {checkAdminSession, checkBloggerSession, verifyToken} = require('./middlewares/auth');
-const BloggerModel = require('../models/Blogger');
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'bnxbcvxcnbvvcxvxcv';
@@ -42,9 +35,9 @@ const secret = 'bnxbcvxcnbvvcxvxcv';
 //for Admin
 //------------------------------------------------------------------------
 // Route to get all admins
-router.get('/', checkAdminSession, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        res.json(await Blogger.find().populate('User'));
+        res.json(await BloggerModel.find().populate('User'));
     } catch (error) {
         console.error("Error while fetching blogger list:", error);
         res.json({ success: false, error: "Internal Server Error" });
@@ -52,16 +45,16 @@ router.get('/', checkAdminSession, async (req, res) => {
 });
 
 
-router.get('/add', verifyToken, checkBloggerSession, checkAdminSession, async (req, res) => {
+router.get('/add', async (req, res) => {
     try{
-        res.status(200).json({ success: true, message: "Render add marketing coordinator form"});
+        res.status(200).json({ success: true, message: "Render add blogger form"});
     }catch(error){
-        console.error("Error while adding MM list:", error);
+        console.error("Error while adding blogger list:", error);
         res.status(500).send("Internal Server Error");
     }
 });
 
-router.post('/add', verifyToken, checkAdminSession, checkBloggerSession, upload.single('image'), async (req, res) => {
+router.post('/add', upload.single('image'), async (req, res) => {
     //get value by form : req.body
     try{
         const name = req.body.name;
@@ -126,7 +119,7 @@ router.post('/add', verifyToken, checkAdminSession, checkBloggerSession, upload.
 //---------------------------------------------------------------------------
 //edit admin
 // Render form for editing a specific admin
-router.get('/edit/:id', checkAdminSession, async (req, res) => {
+router.get('/edit/:id', async (req, res) => {
     try {
         // Fetch admin details by ID
         const bloggerId = req.params.id;
@@ -152,7 +145,7 @@ router.get('/edit/:id', checkAdminSession, async (req, res) => {
 });
 
 // Handle form submission for editing an admin
-router.post('/edit/:id', checkAdminSession, upload.single('image'), async (req, res) => {
+router.post('/edit/:id', upload.single('image'), async (req, res) => {
     try {
         // Fetch admin by ID
         const bloggerId = req.params.id;

@@ -9,14 +9,8 @@ const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 
-const User = require('./models/User');
-const Blogger = require('./models/Blogger');
-const Guest = require('./models/Guest');
-const Admin = require('./models/Admin');
-const Category = require('./models/Category');
-const Pin = require('./models/Pin');
-const Role = require('./models/Role');
-const Post = require('./models/Post');
+const GuestModel = require('./models/guest');
+const UserModel = require('./models/user');
 
 
 const {checkAdminSession, checkGuestSession, verifyToken} = require('./middlewares/auth');
@@ -41,9 +35,9 @@ const secret = 'bnxbcvxcnbvvcxvxcv';
 //for Admin
 //------------------------------------------------------------------------
 // Route to get all admins
-router.get('/', checkAdminSession, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        res.json(await Guest.find().populate('User'));
+        res.json(await GuestModel.find().populate('User'));
     } catch (error) {
         console.error("Error while fetching guest list:", error);
         res.json({ success: false, error: "Internal Server Error" });
@@ -51,7 +45,7 @@ router.get('/', checkAdminSession, async (req, res) => {
 });
 
 
-router.get('/add', verifyToken, checkGuestSession, checkAdminSession, async (req, res) => {
+router.get('/add', async (req, res) => {
     try{
         res.status(200).json({ success: true, message: "Render add guest form"});
     }catch(error){
@@ -60,7 +54,7 @@ router.get('/add', verifyToken, checkGuestSession, checkAdminSession, async (req
     }
 });
 
-router.post('/add', verifyToken, checkAdminSession, checkGuestSession, upload.single('image'), async (req, res) => {
+router.post('/add', upload.single('image'), async (req, res) => {
     //get value by form : req.body
     try{
         const name = req.body.name;
@@ -126,7 +120,7 @@ router.post('/add', verifyToken, checkAdminSession, checkGuestSession, upload.si
 //---------------------------------------------------------------------------
 //edit admin
 // Render form for editing a specific admin
-router.get('/edit/:id', checkAdminSession, async (req, res) => {
+router.get('/edit/:id', async (req, res) => {
     try {
         // Fetch admin details by ID
         const guestId = req.params.id;
@@ -152,7 +146,7 @@ router.get('/edit/:id', checkAdminSession, async (req, res) => {
 });
 
 // Handle form submission for editing an admin
-router.post('/edit/:id', checkAdminSession, upload.single('image'), async (req, res) => {
+router.post('/edit/:id', upload.single('image'), async (req, res) => {
     try {
         // Fetch admin by ID
         const guestId = req.params.id;
@@ -292,5 +286,7 @@ router.post('/editGuest/:id', upload.single('image'), async (req, res) => {
     }
    
 });
+
+
 
 module.exports = router;

@@ -8,9 +8,10 @@ const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 const {verifyToken} = require('./middlewares/auth');
 
-const AdminModel = require('../models/Admin');
-const BloggerModel = require('../models/Blogger');
-
+const AdminModel = require('./models/Admin');
+const BloggerModel = require('./models/Blogger');
+const UserModel = require('./models/User');
+const GuestModel = require('./models/Guest');
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'bnxbcvxcnbvvcxvxcv';
