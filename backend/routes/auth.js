@@ -1,21 +1,23 @@
 const express = require('express');
 const mongoose = require("mongoose");
-const User = require('./models/User');
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
-const {verifyToken} = require('./middlewares/auth');
+const {verifyToken} = require('../middlewares/auth');
 
-const AdminModel = require('./models/Admin');
-const BloggerModel = require('./models/Blogger');
-const UserModel = require('./models/User');
-const GuestModel = require('./models/Guest');
+const AdminModel = require('../models/Admin');
+const BloggerModel = require('../models/Blogger');
+//const UserModel = require('./models/User');
+const GuestModel = require('../models/guest');
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'bnxbcvxcnbvvcxvxcv';
 
+const app = express();
+const router = require("express").Router();
 
 app.post('/register', async (req,res) => {
     const {username,password} = req.body;

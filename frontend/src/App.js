@@ -12,6 +12,7 @@ import CreatePost from "./pages/CreatePost";
 import PostPage from "./pages/PostPage";
 import EditPost from "./pages/EditPost";
 import ProfilePage from './pages/ProfilePage';
+import AdminPage from "./pages/AdminPage";
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
           <Route path="/post/:id" element={<PostPage />} />
           <Route path="/edit/:id" element={<EditPost />} />
           <Route exact path="/profile/settings" element={<ProfilePage />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
