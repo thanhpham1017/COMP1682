@@ -16,6 +16,7 @@ export default function IndexPage(){
   const [title, setTitle] = useState(null);
   const [desc, setDesc] = useState(null);
   const [price, setPrice] = useState(0);
+  const [address, setAddress] = useState(0);
   const [star, setStar] = useState(0);
   const {userInfo } = useContext(UserContext);
   const [selectedMarkerInfo, setSelectedMarkerInfo] = useState(null);
@@ -126,6 +127,7 @@ export default function IndexPage(){
       lat: newPlace.lat,
       long: newPlace.long,
       image: image,
+      address:address
     };
   
     try {
@@ -256,6 +258,11 @@ export default function IndexPage(){
                   <textarea className="formInput" 
                     placeholder="Say something about this place"
                     onChange={(e) => setDesc(e.target.value)}
+                  ></textarea><br />
+                  <label>Address:</label><br />
+                  <textarea className="formInput" 
+                    placeholder="Address"
+                    onChange={(e) => setAddress(e.target.value)}
                   ></textarea><br />
                   <label>Price:</label><br />
                   <input 
