@@ -129,13 +129,13 @@ router.get('/profile', async (req, res) => {
     try{
         var adminUserId = req.session.user_id;
         var UserData = await UserModel.findById(adminUserId);
-      if(UserData){
+    if(UserData){
         var adminID = req.session.admin_id;
         var AdminData = await AdminModel.findById(adminID);
-      } else {
+    } else {
         res.status(500).json({ success: false, error: "Profile not found" });
-      }
-      res.status(200).json({ success: true, message: "Render edit marketing manager form", UserData, AdminData });
+    }
+    res.status(200).json({ success: true, message: "Render edit marketing manager form", UserData, AdminData });
     }catch(error){
         console.error("Error while fetching Admin:", error);
         res.status(500).send("Internal Server Error");
@@ -203,18 +203,17 @@ router.post('/editAdmin/:id', upload.single('image'), async (req, res) => {
             res.status(200).json({ success: true, message: "Update my Admin data success" });
         } catch (err) {
             if (err.name === 'ValidationError') {
-               let InputErrors = {};
-               for (let field in err.errors) {
-                  InputErrors[field] = err.errors[field].message;
-               }
-               console.error("Error while updating admin:", err);
+                let InputErrors = {};
+                for (let field in err.errors) {
+                    InputErrors[field] = err.errors[field].message;
+                }
+                console.error("Error while updating admin:", err);
                 res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
             }
-         }
+        }
     } else {
         res.status(404).send('Admin not found');
     }
-   
 });
 
 module.exports = router;
