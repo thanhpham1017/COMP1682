@@ -5,7 +5,7 @@ import {UserContext} from "./UserContext";
 import { GeolocateControl } from 'react-map-gl';
 import Dropzone from 'react-dropzone';
 // import axios from "axios";
-import { FaMapMarker,FaStar,FaTimes   } from 'react-icons/fa';
+import { FaMapMarker,FaStar,FaTimes,FaDirections   } from 'react-icons/fa';
 
 export default function IndexPage(){
   const [posts,setPosts] = useState([]);
@@ -25,6 +25,7 @@ export default function IndexPage(){
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [comment, setComment] = useState(''); // Trạng thái lưu trữ nội dung comment mới
   const [comments, setComments] = useState([]); // Trạng thái lưu trữ tất cả các comment của địa điểm được chọn
+  const [showDirections, setShowDirections] = useState(false);
   const mapRef = useRef(); 
  // const [directionsLayer, setDirectionsLayer] = useState(null);
   const [directionsSource, setDirectionsSource] = useState(null);
@@ -157,9 +158,10 @@ export default function IndexPage(){
     setIsMarkerSelected(false); // Đặt trạng thái marker đã được chọn là false khi người dùng đóng side bar
   };
 
+  
+
   const handleDirections = async () => {
     if (!selectedPin || !mapRef.current || !mapRef.current.getMap) return; // Kiểm tra xem có chọn điểm đánh dấu không và mapRef đã khởi tạo
-    
     try {
       // Lấy tọa độ của điểm đích từ API GeoCoding của Mapbox
       const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${selectedPin.long},${selectedPin.lat}.json?access_token=pk.eyJ1IjoibmdvYzI4MDkiLCJhIjoiY2x1aWxkNmYzMDAyZDJsbzZzY3Frdjl3OCJ9.JGSMHnEz3QM9qrNq_s9vEw`);
@@ -191,9 +193,8 @@ export default function IndexPage(){
       const directionsData = await directionsResponse.json();
   
       // Giải mã hình học của đường nét sử dụng hàm fromGeoJSON
-      const polyline = require('@mapbox/polyline');
-      const decodedGeometry = polyline.fromGeoJSON(directionsData.routes[0].geometry);
-  
+      // const polyline = require('@mapbox/polyline');
+      const decodedGeometry = directionsData.routes[0].geometry.coordinates;
       // Tạo một đối tượng GeoJSON chứa hình học đường nét được giải mã
       const geojson = {
         type: 'Feature',
@@ -203,7 +204,7 @@ export default function IndexPage(){
           coordinates: decodedGeometry,
         },
       };
-  
+      console.log('geojson:', geojson);
       // Tạo một lớp và nguồn để hiển thị hướng dẫn trên bản đồ
       const directionsLayer = {
         id: 'directions',
@@ -217,18 +218,34 @@ export default function IndexPage(){
           'line-cap': 'round',
         },
         paint: {
-          'line-color': '#FF0000',
-          'line-width': 10,
+          'line-color': '#6495ED',
+          'line-width': 5,
         },
       };
-  
+      const map = mapRef.current.getMap();
+
+      // Add the directions layer to the map
+      map.on('load', function () {
+        if (map.getSource('directions')) {
+          map.removeSource('directions');
+          map.removeLayer('directions');
+        }
+      
+        map.addSource('directions', {
+          type: 'geojson',
+          data: geojson,
+        });
+      
+        map.addLayer(directionsLayer);
+        setShowDirections(!showDirections);
+      });
+
       // Cập nhật nguồn hướng dẫn trên bản đồ
       setDirectionsSource(directionsLayer);
     } catch (error) {
       console.error('Lỗi khi lấy hướng dẫn:', error);
     }
   };  
-  
   
   
   return(
@@ -251,6 +268,11 @@ export default function IndexPage(){
             <Layer {...directionsSource} />
           </Source>
           )}
+          {/* {!showDirections && ( */}
+          <button onClick={handleDirections} style={{ position: "absolute", top: "10px", left: "10px", zIndex: 1000 }}>
+            <FaDirections style={{ fontSize: "40px", color: "Gray" }} />
+          </button>
+          {/* )} */}
           <GeolocateControl positionOptions={{ enableHighAccuracy: true }} trackUserLocation={true} ref={GeolocateController} />
           {pins.map(p => (
             <Marker 
@@ -333,7 +355,7 @@ export default function IndexPage(){
             </div>
           )}
         </MapGL>
-        {selectedMarkerInfo && (
+        {selectedMarkerInfo && isMarkerSelected &&(
           <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "300px", height: "460px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto"}}>
             <button onClick={handleCloseSidebar} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "0", right: "10px"}}>
               <FaTimes style={{fontSize: "1.5rem"}} />
@@ -369,7 +391,6 @@ export default function IndexPage(){
                     <div key={index}>{comment.content}</div>
                   ))}
                 </div>
-                        <button onClick={handleDirections}>Get Directions</button>
               </div>
             )}
           </div>
