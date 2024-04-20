@@ -13,7 +13,7 @@ const router = require("express").Router();
 const AdminModel = require('../models/Admin');
 const UserModel = require('../models/User');
 
-const {checkAdminSession, verifyToken} = require('../middlewares/auth');
+const {checkAdmin, verifyToken} = require('../middlewares/auth');
 
 
 const salt = bcrypt.genSaltSync(10);
@@ -38,7 +38,7 @@ const upload = multer({ storage: storage });
 // Route to get all admins
 router.get('/', async (req, res) => {
     try {
-        res.json(await AdminModel.find().populate('User'));
+        res.json(await AdminModel.find().populate('Account'));
     } catch (error) {
         console.error("Error while fetching admin list:", error);
         res.status(500).json({ success: false, error: "Internal Server Error" });
@@ -50,7 +50,7 @@ router.get('/', async (req, res) => {
 //---------------------------------------------------------------------------
 //edit admin
 // Render form for editing a specific admin
-router.get('/edit/:id', checkAdminSession, async (req, res) => {
+router.get('/edit/:id',verifyToken , checkAdmin, async (req, res) => {
     try {
         // Fetch admin details by ID
         const adminId = req.params.id;
@@ -60,13 +60,13 @@ router.get('/edit/:id', checkAdminSession, async (req, res) => {
         }
 
         // Fetch user details by ID
-        const userId = admin.user;
-        const user = await UserModel.findById(userId);
-        if (!user) {
+        const accountId = admin.account;
+        const account = await AccountModel.findById(accountId);
+        if (!account) {
             throw new Error('User not found');
         }
 
-        res.json(admin, user);
+        res.json(admin, account);
 
     } catch (error) {
         // Handle errors (e.g., admin not found)
@@ -76,7 +76,7 @@ router.get('/edit/:id', checkAdminSession, async (req, res) => {
 });
 
 // Handle form submission for editing an admin
-router.post('/edit/:id', upload.single('image'), async (req, res) => {
+router.post('/edit/:id', verifyToken , checkAdmin, upload.single('image'), async (req, res) => {
     try {
         // Fetch admin by ID
         const adminId = req.params.id;
@@ -85,9 +85,9 @@ router.post('/edit/:id', upload.single('image'), async (req, res) => {
             throw new Error('Admin not found');
         }
         // Fetch user details by ID
-        const userId = admin.user;
-        const user = await UserModel.findById(userId);
-        if (!user) {
+        const accountId = admin.account;
+        const account = await UserModel.findById(accountId);
+        if (!account) {
             throw new Error('User not found');
         }
 
@@ -103,9 +103,9 @@ router.post('/edit/:id', upload.single('image'), async (req, res) => {
         }
         await admin.save();
 
-        user.email = req.body.email;
-        user.password = bcrypt.hashSync(req.body.password, salt);
-        await user.save();
+        account.email = req.body.email;
+        account.password = bcrypt.hashSync(req.body.password, salt);
+        await account.save();
 
         // Send success JSON response
         res.json({ success: true, message: "Admin updated successfully" });
@@ -125,24 +125,23 @@ router.post('/edit/:id', upload.single('image'), async (req, res) => {
     }
 });
 
-router.get('/profile', async (req, res) => {
+router.get('/profile', verifyToken , checkAdmin, async (req, res) => {
     try{
-        var adminUserId = req.session.user_id;
-        var UserData = await UserModel.findById(adminUserId);
-      if(UserData){
-        var adminID = req.session.admin_id;
-        var AdminData = await AdminModel.findById(adminID);
+        var accountId = req.data._id;
+        var AccountData = await AccountModel.findById(accountId);
+      if(AccountData){
+        var AdminData = await AdminModel.findById({account: accountId});
       } else {
         res.status(500).json({ success: false, error: "Profile not found" });
       }
-      res.status(200).json({ success: true, message: "Render edit marketing manager form", UserData, AdminData });
+      res.status(200).json({ success: true, message: "Render edit marketing manager form", AccountData, AdminData });
     }catch(error){
         console.error("Error while fetching Admin:", error);
         res.status(500).send("Internal Server Error");
     }
 });
 
-router.get('/editAdmin/:id', async (req, res) => {
+router.get('/editAdmin/:id', verifyToken , checkAdmin, async (req, res) => {
     const adminId = req.params.id;
     const admin = await AdminModel.findById(adminId);
     if (!admin) {
@@ -150,20 +149,16 @@ router.get('/editAdmin/:id', async (req, res) => {
         return;
     }
     // Fetch user details by ID
-    const userId = admin.user;
-    const user = await UserModel.findById(userId);
-    if (!user) {
+    const accountId = admin.account;
+    const account = await AccountModel.findById(accountId);
+    if (!account) {
         res.status(404).json({ success: false, error: "User not found" });
         return;
     }
-    if(userId == req.session.user_id && adminId == req.session.admin_id){
-        try {
-            res.status(200).json({ success: true, message: "Render add marketing manager form", admin, user });
-        } catch (error) {
-            console.error(error);
-            res.status(404).send('Admin not found');
-        }
-    } else {
+    try {
+        res.status(200).json({ success: true, message: "Render add marketing manager form", admin, account });
+    } catch (error) {
+        console.error(error);
         res.status(404).send('Admin not found');
     }
     
@@ -177,43 +172,39 @@ router.post('/editAdmin/:id', upload.single('image'), async (req, res) => {
         return;
     }
     // Fetch user details by ID
-    const userId = admin.user;
-    const user = await UserModel.findById(userId);
-    if (!user) {
+    const accountId = admin.account;
+    const account = await AccountModel.findById(accountId);
+    if (!account) {
         res.status(404).json({ success: false, error: "User not found" });
         return;
     }
-    if(userId == req.session.user_id && adminId == req.session.admin_id){
-        try {
-            // Update marketingmanager details
-            admin.name = req.body.name;
-            admin.dob = req.body.dob;
-            admin.gender = req.body.gender;
-            admin.address = req.body.address;
-            // If a new image is uploaded, update it
-            if (req.file) {
-                const imageData = fs.readFileSync(req.file.path);
-                admin.image = imageData.toString('base64');  
-            } 
-            await admin.save();
-            
-            user.password = bcrypt.hashSync(req.body.password, salt);
-            await user.save();
-    
-            res.status(200).json({ success: true, message: "Update my Admin data success" });
-        } catch (err) {
-            if (err.name === 'ValidationError') {
-               let InputErrors = {};
-               for (let field in err.errors) {
-                  InputErrors[field] = err.errors[field].message;
-               }
-               console.error("Error while updating admin:", err);
-                res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
-            }
-         }
-    } else {
-        res.status(404).send('Admin not found');
-    }
+    try {
+        // Update marketingmanager details
+        admin.name = req.body.name;
+        admin.dob = req.body.dob;
+        admin.gender = req.body.gender;
+        admin.address = req.body.address;
+        // If a new image is uploaded, update it
+        if (req.file) {
+            const imageData = fs.readFileSync(req.file.path);
+            admin.image = imageData.toString('base64');  
+        } 
+        await admin.save();
+        
+        account.password = bcrypt.hashSync(req.body.password, salt);
+        await account.save();
+
+        res.status(200).json({ success: true, message: "Update my Admin data success" });
+    } catch (err) {
+        if (err.name === 'ValidationError') {
+           let InputErrors = {};
+           for (let field in err.errors) {
+              InputErrors[field] = err.errors[field].message;
+           }
+           console.error("Error while updating admin:", err);
+            res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
+        }
+     }
    
 });
 

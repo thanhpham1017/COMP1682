@@ -6,33 +6,33 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
+const { verifyToken, checkBlogger } = require('../middlewares/auth');
+const BloggerModel = require('../models/Blogger');
 
 const secret = 'bnxbcvxcnbvvcxvxcv';
 
-router.post('/post', uploadMiddleware.single('file'), async (req,res) => {
+router.post('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'), async (req,res) => {
   const {originalname,path} = req.file;
   const parts = originalname.split('.');
   const ext = parts[parts.length - 1];
   const newPath = path+'.'+ext;
   fs.renameSync(path, newPath);
 
-  const {token} = req.cookies;
-  jwt.verify(token, secret, {}, async (err,info) => {
-    if (err) throw err;
+    const accountId = req.data._id;
+    const blogger = await BloggerModel.findOne({accountId: accountId})
     const {title,summary,content} = req.body;
     const postDoc = await Post.create({
       title,
       summary,
       content,
       cover:newPath,
-      author:info.id,
+      author:blogger.id,
     });
     res.json(postDoc);
-  });
 
 });
 
-router.put('/post',uploadMiddleware.single('file'), async (req,res) => {
+router.put('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'), async (req,res) => {
   let newPath = null;
   if (req.file) {
     const {originalname,path} = req.file;
@@ -41,13 +41,11 @@ router.put('/post',uploadMiddleware.single('file'), async (req,res) => {
     newPath = path+'.'+ext;
     fs.renameSync(path, newPath);
   }
-
-  const {token} = req.cookies;
-  jwt.verify(token, secret, {}, async (err,info) => {
-    if (err) throw err;
+    const accountId = req.data._id;
+    const blogger = await BloggerModel.findOne({accountId: accountId})
     const {id,title,summary,content} = req.body;
     const postDoc = await Post.findById(id);
-    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
+    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(blogger.name);
     if (!isAuthor) {
       return res.status(400).json('you are not the author');
     }
@@ -58,9 +56,7 @@ router.put('/post',uploadMiddleware.single('file'), async (req,res) => {
       content,
       cover: newPath ? newPath : postDoc.cover,
     });
-
     res.json(postDoc);
-  });
 
 });
 

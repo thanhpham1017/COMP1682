@@ -7,7 +7,7 @@ const BloggerSchema = new Schema({
    gender: {type: String, required: true},
    address: {type: String, required: true},
    image: {type: String, required: true},
-   user:{type:Schema.Types.ObjectId, ref:'User'},
+   account:{type:Schema.Types.ObjectId, ref:'Account'},
 });
 
 const BloggerModel = model('Blogger', BloggerSchema);

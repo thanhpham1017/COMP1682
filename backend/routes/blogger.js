@@ -11,9 +11,10 @@ const fs = require('fs');
 
 const BloggerModel = require('../models/Blogger');
 const UserModel = require('../models/User');
+const AccountModel = require('../models/Account');
 const router = require("express").Router();
 
-const {checkAdminSession, checkBloggerSession, verifyToken} = require('../middlewares/auth');
+const {verifyToken, checkBlogger, checkAdmin} = require('../middlewares/auth');
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'bnxbcvxcnbvvcxvxcv';
@@ -34,10 +35,10 @@ const upload = multer({ storage: storage });
 //-----------------------------------------------------------------------------------------------
 //for Admin
 //------------------------------------------------------------------------
-// Route to get all admins
-router.get('/', async (req, res) => {
+// Route to get all bloggers
+router.get('/', verifyToken, checkAdmin, async (req, res) => {
     try {
-        res.json(await BloggerModel.find().populate('User'));
+        res.json(await BloggerModel.find().populate('Account'));
     } catch (error) {
         console.error("Error while fetching blogger list:", error);
         res.json({ success: false, error: "Internal Server Error" });
@@ -45,7 +46,7 @@ router.get('/', async (req, res) => {
 });
 
 
-router.get('/add', async (req, res) => {
+router.get('/add', verifyToken, checkAdmin, async (req, res) => {
     try{
         res.status(200).json({ success: true, message: "Render add blogger form"});
     }catch(error){
@@ -54,7 +55,7 @@ router.get('/add', async (req, res) => {
     }
 });
 
-router.post('/add', upload.single('image'), async (req, res) => {
+router.post('/add', verifyToken, checkAdmin, upload.single('image'), async (req, res) => {
     //get value by form : req.body
     try{
         const name = req.body.name;
@@ -75,11 +76,11 @@ router.post('/add', upload.single('image'), async (req, res) => {
 
         
         //create users then add new created users to user field of collection marketing_manager
-        const availableUser = await UserModel.findOne({email: email});
+        const availableUser = await AccountModel.findOne({email: email});
         if(availableUser){
             res.status(500).json({ success: false, error: "User existed"});
         } else {
-            const users = await UserModel.create(
+            const account = await AccountModel.create(
                 {
                     email: email,
                     password: hashPassword,
@@ -93,7 +94,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
                 gender: gender,
                 address: address,
                 image: base64Image,
-                user: users
+                account: account
                 }
             );
             if(newBlogger){
@@ -119,7 +120,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
 //---------------------------------------------------------------------------
 //edit admin
 // Render form for editing a specific admin
-router.get('/edit/:id', async (req, res) => {
+router.get('/edit/:id', verifyToken, checkAdmin, async (req, res) => {
     try {
         // Fetch admin details by ID
         const bloggerId = req.params.id;
@@ -128,14 +129,14 @@ router.get('/edit/:id', async (req, res) => {
             throw new Error('Blogger not found');
         }
 
-        // Fetch user details by ID
-        const userId = blogger.user;
-        const user = await UserModel.findById(userId);
-        if (!user) {
-            throw new Error('User not found');
+        // Fetch account details by ID
+        const accountId = blogger.account;
+        const account = await AccountModel.findById(accountId);
+        if (!account) {
+            throw new Error('Account not found');
         }
 
-        res.json(blogger, user);
+        res.json(blogger, account);
 
     } catch (error) {
         // Handle errors (e.g., admin not found)
@@ -154,10 +155,10 @@ router.post('/edit/:id', upload.single('image'), async (req, res) => {
             throw new Error('Blogger not found');
         }
         // Fetch user details by ID
-        const userId = blogger.user;
-        const user = await UserModel.findById(userId);
-        if (!user) {
-            throw new Error('User not found');
+        const accountId = blogger.account;
+        const account = await AccountModel.findById(accountId);
+        if (!account) {
+            throw new Error('Account not found');
         }
 
         // Update admin details
@@ -172,9 +173,9 @@ router.post('/edit/:id', upload.single('image'), async (req, res) => {
         }
         await blogger.save();
 
-        user.email = req.body.email;
-        user.password = bcrypt.hashSync(req.body.password, salt);
-        await user.save();
+        account.email = req.body.email;
+        account.password = bcrypt.hashSync(req.body.password, salt);
+        await account.save();
 
         // Send success JSON response
         res.json({ success: true, message: "Blogger updated successfully" });
@@ -194,24 +195,23 @@ router.post('/edit/:id', upload.single('image'), async (req, res) => {
     }
 });
 
-router.get('/profile', async (req, res) => {
+router.get('/profile', verifyToken, checkBlogger, async (req, res) => {
     try{
-        var bloggerUserId = req.session.user_id;
-        var UserData = await UserModel.findById(bloggerUserId);
-      if(UserData){
-        var bloggerID = req.session.blogger_id;
-        var BloggerData = await BloggerModel.findById(bloggerID);
+        var accountId = req.data._id;
+        var AccountData = await AccountModel.findById(accountId);
+      if(AccountData){
+        var bloggerData = await BloggerModel.find({account: accountId});
       } else {
         res.status(500).json({ success: false, error: "Profile not found" });
       }
-      res.status(200).json({ success: true, message: "Render edit blogger form", UserData, BloggerData });
+      res.status(200).json({ success: true, message: "Render edit blogger form", AccountData, bloggerData });
     }catch(error){
         console.error("Error while fetching Blogger:", error);
         res.status(500).send("Internal Server Error");
     }
 });
 
-router.get('/editBlogger/:id', async (req, res) => {
+router.get('/editBlogger/:id', verifyToken, checkBlogger, async (req, res) => {
     const bloggerId = req.params.id;
     const blogger = await BloggerModel.findById(bloggerId);
     if (!blogger) {
@@ -219,26 +219,22 @@ router.get('/editBlogger/:id', async (req, res) => {
         return;
     }
     // Fetch user details by ID
-    const userId = blogger.user;
-    const user = await UserModel.findById(userId);
-    if (!user) {
+    const accountId = blogger.account;
+    const account = await AccountModel.findById(accountId);
+    if (!account) {
         res.status(404).json({ success: false, error: "User not found" });
         return;
     }
-    if(userId == req.session.user_id && bloggerId == req.session.blogger_id){
-        try {
-            res.status(200).json({ success: true, message: "Render add blogger form", blogger, user });
-        } catch (error) {
-            console.error(error);
-            res.status(404).send('Blogger not found');
-        }
-    } else {
+    try {
+        res.status(200).json({ success: true, message: "Render add blogger form", blogger, account });
+    } catch (error) {
+        console.error(error);
         res.status(404).send('Blogger not found');
     }
     
 });
 
-router.post('/editBlogger/:id', upload.single('image'), async (req, res) => {
+router.post('/editBlogger/:id', verifyToken, checkBlogger, upload.single('image'), async (req, res) => {
     const bloggerId = req.params.id;
     const blogger = await BloggerModel.findById(bloggerId);
     if (!blogger) {
@@ -246,44 +242,39 @@ router.post('/editBlogger/:id', upload.single('image'), async (req, res) => {
         return;
     }
     // Fetch user details by ID
-    const userId = blogger.user;
-    const user = await UserModel.findById(userId);
-    if (!user) {
+    const accountId = blogger.account;
+    const account = await AccountModel.findById(accountId);
+    if (!account) {
         res.status(404).json({ success: false, error: "User not found" });
         return;
     }
-    if(userId == req.session.user_id && bloggerId == req.session.blogger_id){
-        try {
-            // Update marketingmanager details
-            blogger.name = req.body.name;
-            blogger.dob = req.body.dob;
-            blogger.gender = req.body.gender;
-            blogger.address = req.body.address;
-            // If a new image is uploaded, update it
-            if (req.file) {
-                const imageData = fs.readFileSync(req.file.path);
-                blogger.image = imageData.toString('base64');  
-            } 
-            await blogger.save();
-            
-            user.password = bcrypt.hashSync(req.body.password, salt);
-            await user.save();
-    
-            res.status(200).json({ success: true, message: "Update my Blogger data success" });
-        } catch (err) {
-            if (err.name === 'ValidationError') {
-               let InputErrors = {};
-               for (let field in err.errors) {
-                  InputErrors[field] = err.errors[field].message;
-               }
-               console.error("Error while updating blogger:", err);
-                res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
-            }
-         }
-    } else {
-        res.status(404).send('Blogger not found');
-    }
-   
+    try {
+        // Update marketingmanager details
+        blogger.name = req.body.name;
+        blogger.dob = req.body.dob;
+        blogger.gender = req.body.gender;
+        blogger.address = req.body.address;
+        // If a new image is uploaded, update it
+        if (req.file) {
+            const imageData = fs.readFileSync(req.file.path);
+            blogger.image = imageData.toString('base64');  
+        } 
+        await blogger.save();
+        
+        account.password = bcrypt.hashSync(req.body.password, salt);
+        await account.save();
+
+        res.status(200).json({ success: true, message: "Update my Blogger data success" });
+    } catch (err) {
+        if (err.name === 'ValidationError') {
+           let InputErrors = {};
+           for (let field in err.errors) {
+              InputErrors[field] = err.errors[field].message;
+           }
+           console.error("Error while updating blogger:", err);
+            res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
+        }
+     }
 });
 
 module.exports = router;

@@ -2,8 +2,9 @@ const router = require("express").Router();
 const Category = require("../models/Category");
 const Pin = require("../models/Pin");
 const Package = require("../models/Package");
+const { verifyToken } = require("../middlewares/auth");
 //create a pin
-router.post("/pinCreate", async (req, res) => {
+router.post("/pinCreate", verifyToken, async (req, res) => {
     const newPin = new Pin(req.body);
     try {
         const savedPin = await newPin.save();
