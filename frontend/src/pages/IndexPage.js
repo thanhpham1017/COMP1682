@@ -5,7 +5,7 @@ import {UserContext} from "./UserContext";
 import { GeolocateControl } from 'react-map-gl';
 import Dropzone from 'react-dropzone';
 // import axios from "axios";
-import { FaMapMarker,FaStar,FaTimes   } from 'react-icons/fa';
+import { FaMapMarker,FaStar,FaTimes,FaDirections   } from 'react-icons/fa';
 
 export default function IndexPage(){
   const [posts,setPosts] = useState([]);
@@ -25,7 +25,8 @@ export default function IndexPage(){
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [comment, setComment] = useState(''); // Trạng thái lưu trữ nội dung comment mới
   const [comments, setComments] = useState([]); // Trạng thái lưu trữ tất cả các comment của địa điểm được chọn
-  const mapRef = useRef(null); 
+  const [showDirections, setShowDirections] = useState(false);
+  const mapRef = useRef(); 
  // const [directionsLayer, setDirectionsLayer] = useState(null);
   const [directionsSource, setDirectionsSource] = useState(null);
   const [viewport, setViewport] = useState({
@@ -156,73 +157,122 @@ export default function IndexPage(){
   const handleCloseSidebar = () => {
     setIsMarkerSelected(false); // Đặt trạng thái marker đã được chọn là false khi người dùng đóng side bar
   };
-  useEffect(() => {
-    if (mapRef.current && selectedMarkerInfo) {
-      handleGiveDirection();
-    }
-  }, [mapRef.current, selectedMarkerInfo]);
+
   
-  const handleGiveDirection = () => {
-    // Lấy tọa độ hiện tại của người dùng
-    navigator.geolocation.getCurrentPosition((position) => {
-      const userLongitude = position.coords.longitude;
-      const userLatitude = position.coords.latitude;
-      // Lấy tọa độ của marker được chọn
-      const markerLongitude = selectedMarkerInfo.long;
-      const markerLatitude = selectedMarkerInfo.lat;
-      // Gửi yêu cầu đến Mapbox Directions API
-      const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${userLongitude},${userLatitude};${markerLongitude},${markerLatitude}?access_token=pk.eyJ1IjoibmdvYzI4MDkiLCJhIjoiY2x1aWxkNmYzMDAyZDJsbzZzY3Frdjl3OCJ9.JGSMHnEz3QM9qrNq_s9vEw`;
-      console.log(directionsUrl);
-      fetch(directionsUrl)
-        .then(response => response.json())
-        .then(data => {
-          console.log(data); // Dữ liệu trả về từ API
-          const polyline = require('@mapbox/polyline');
-          const coordinates = polyline.decode(data.routes[0].geometry);
-          console.log(coordinates);
-          const routeGeoJSON = {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates: coordinates,
-            },
-          };
-          // Cập nhật layer chỉ đường trên bản đồ
-          setDirectionsSource(routeGeoJSON);
-          //console.log(routeGeoJSON);
-        })
-        .catch(error => console.error('Error fetching directions:', error));
-    });
-  };
+
+  const handleDirections = async () => {
+    if (!selectedPin || !mapRef.current || !mapRef.current.getMap) return; // Kiểm tra xem có chọn điểm đánh dấu không và mapRef đã khởi tạo
+    try {
+      // Lấy tọa độ của điểm đích từ API GeoCoding của Mapbox
+      const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${selectedPin.long},${selectedPin.lat}.json?access_token=pk.eyJ1IjoibmdvYzI4MDkiLCJhIjoiY2x1aWxkNmYzMDAyZDJsbzZzY3Frdjl3OCJ9.JGSMHnEz3QM9qrNq_s9vEw`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch GeoCoding data');
+      }
+      const data = await response.json();
+      
+      // Kiểm tra xem dữ liệu có chứa các feature không
+      if (!data.features || data.features.length === 0) {
+        console.error('Không tìm thấy feature trong phản hồi API GeoCoding:', data);
+        return;
+      }
+  
+      // Lấy tọa độ của điểm đích từ dữ liệu phản hồi
+      const destinationCoords = data.features[0].geometry.coordinates;
+  
+      // Lấy vị trí hiện tại của người dùng
+      const userLocation = mapRef.current.getMap().getCenter();
+  
+      // Xây dựng URL để tạo hướng dẫn từ vị trí hiện tại của người dùng đến điểm đích được chọn
+      const directionsURL = `https://api.mapbox.com/directions/v5/mapbox/driving/${userLocation.lng},${userLocation.lat};${destinationCoords[0]},${destinationCoords[1]}?steps=true&geometries=geojson&access_token=pk.eyJ1IjoibmdvYzI4MDkiLCJhIjoiY2x1aWxkNmYzMDAyZDJsbzZzY3Frdjl3OCJ9.JGSMHnEz3QM9qrNq_s9vEw`;
+  
+      // Lấy dữ liệu hướng dẫn từ API Directions của Mapbox
+      const directionsResponse = await fetch(directionsURL);
+      if (!directionsResponse.ok) {
+        throw new Error('Failed to fetch Directions data');
+      }
+      const directionsData = await directionsResponse.json();
+  
+      // Giải mã hình học của đường nét sử dụng hàm fromGeoJSON
+      // const polyline = require('@mapbox/polyline');
+      const decodedGeometry = directionsData.routes[0].geometry.coordinates;
+      // Tạo một đối tượng GeoJSON chứa hình học đường nét được giải mã
+      const geojson = {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: decodedGeometry,
+        },
+      };
+      console.log('geojson:', geojson);
+      // Tạo một lớp và nguồn để hiển thị hướng dẫn trên bản đồ
+      const directionsLayer = {
+        id: 'directions',
+        type: 'line',
+        source: {
+          type: 'geojson',
+          data: geojson,
+        },
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#6495ED',
+          'line-width': 5,
+        },
+      };
+      const map = mapRef.current.getMap();
+
+      // Add the directions layer to the map
+      map.on('load', function () {
+        if (map.getSource('directions')) {
+          map.removeSource('directions');
+          map.removeLayer('directions');
+        }
+      
+        map.addSource('directions', {
+          type: 'geojson',
+          data: geojson,
+        });
+      
+        map.addLayer(directionsLayer);
+        setShowDirections(!showDirections);
+      });
+
+      // Cập nhật nguồn hướng dẫn trên bản đồ
+      setDirectionsSource(directionsLayer);
+    } catch (error) {
+      console.error('Lỗi khi lấy hướng dẫn:', error);
+    }
+  };  
+  
   
   return(
     <div style={{position: "relative"}}>
+      
         <MapGL
-          mapRef={mapRef}
+          ref={mapRef}
+          // mapRef={mapRef}
           mapboxAccessToken={process.env.REACT_APP_MAPBOX}
           initialViewState={{
             ...viewport
           }}
           style={{width: "100%", height: "500px"}}
-          mapStyle="mapbox://styles/mapbox/streets-v9"
+          mapStyle="mapbox://styles/mapbox/streets-v12"
           onDblClick={handleAddClick}
           transitionDuration="200"
         >
           {directionsSource && (
-            <Source id="route" type="geojson" data={directionsSource}>
-              {/* {console.log(directionsSource)}  */}
-              <Layer
-                id="route"
-                type="line"
-                source="route"
-                paint={{
-                  'line-color': '#6495ED',
-                  'line-width': 10,
-                }}
-              />
-            </Source>
+          <Source id="directions" type="geojson" data={directionsSource.source.data}>
+            <Layer {...directionsSource} />
+          </Source>
           )}
+          {/* {!showDirections && ( */}
+          <button onClick={handleDirections} style={{ position: "absolute", top: "10px", left: "10px", zIndex: 1000 }}>
+            <FaDirections style={{ fontSize: "40px", color: "Gray" }} />
+          </button>
+          {/* )} */}
           <GeolocateControl positionOptions={{ enableHighAccuracy: true }} trackUserLocation={true} ref={GeolocateController} />
           {pins.map(p => (
             <Marker 
@@ -305,7 +355,7 @@ export default function IndexPage(){
             </div>
           )}
         </MapGL>
-        {selectedMarkerInfo && (
+        {selectedMarkerInfo && isMarkerSelected &&(
           <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "300px", height: "460px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto"}}>
             <button onClick={handleCloseSidebar} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "0", right: "10px"}}>
               <FaTimes style={{fontSize: "1.5rem"}} />
@@ -341,14 +391,10 @@ export default function IndexPage(){
                     <div key={index}>{comment.content}</div>
                   ))}
                 </div>
-                <button onClick={handleGiveDirection}>
-                  Give Direction
-                </button>
               </div>
             )}
           </div>
         )}
-
         <h1>Blog</h1>
         <div className="post-wrapper">
           {posts.length > 0 && posts.map((post) => (
