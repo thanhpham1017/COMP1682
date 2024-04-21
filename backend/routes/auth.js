@@ -13,18 +13,19 @@ dotenv.config();
 
 
 router.post('/register', async (req,res) => {
-    const {email,password} = req.body;
-    try{
-      const accountDoc = await Account.create({
-        email,
-        password:bcrypt.hashSync(password,salt),
-      });
-      res.json(accountDoc);
-    } catch(e) {
-      console.log(e);
-      res.status(400).json(e);
-    }
-  });
+  const {email,password,role} = req.body;
+  try{
+    const accountDoc = await Account.create({
+      email,
+      password:bcrypt.hashSync(password,salt),
+      role,
+    });
+    res.json(accountDoc);
+  } catch(e) {
+    console.log(e);
+    res.status(400).json(e);
+  }
+});
   
 router.post('/login', async (req,res) => {
   const {email,password} = req.body;
