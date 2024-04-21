@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
+const router = express.Router();
 
 const CategoryModel = require('../models/Category');
 const { checkAdmin, verifyToken } = require('../middlewares/auth');

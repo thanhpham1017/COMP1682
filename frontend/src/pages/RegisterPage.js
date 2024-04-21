@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
 // import "../Background.css"
 export default function RegisterPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -33,7 +33,7 @@ export default function RegisterPage() {
     }
     const response = await fetch('http://localhost:4000/register', {
       method: 'POST',
-      body: JSON.stringify({username,password}),
+      body: JSON.stringify({email,password}),
       headers: {'Content-Type':'application/json'},
     });
     if (response.status === 200) {
@@ -50,8 +50,8 @@ export default function RegisterPage() {
           <h1>Register</h1>
           <input type="text"
                   placeholder="Username"
-                  value={username}
-                  onChange={ev => setUsername(ev.target.value)}/>
+                  value={email}
+                  onChange={ev => setEmail(ev.target.value)}/>
           <div className="password-input-container" style={{ position: "relative" }}>
                     <input 
                         type={showPassword ? "text" : "password"} 

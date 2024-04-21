@@ -10,7 +10,6 @@ const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
 
 const BloggerModel = require('../models/Blogger');
-const UserModel = require('../models/User');
 const AccountModel = require('../models/Account');
 const router = require("express").Router();
 

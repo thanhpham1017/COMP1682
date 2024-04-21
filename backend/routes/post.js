@@ -1,5 +1,4 @@
 const express = require('express');
-const User = require('../models/User');
 const Post = require('../models/Post');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
@@ -63,7 +62,7 @@ router.put('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'),
 router.get('/post', async (req,res) => {
   res.json(
     await Post.find()
-      .populate('author', ['username'])
+      .populate('author', ['email'])
       .sort({createdAt: -1})
       .limit(20)
   );
@@ -71,7 +70,7 @@ router.get('/post', async (req,res) => {
 
 router.get('/post/:id', async (req, res) => {
   const {id} = req.params;
-  const postDoc = await Post.findById(id).populate('author', ['username']);
+  const postDoc = await Post.findById(id).populate('author', ['email']);
   res.json(postDoc);
 })
 

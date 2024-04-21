@@ -8,10 +8,11 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
-const router = require("express").Router();
-const GuestModel = require('./models/guest');
-const UserModel = require('./models/User');
-const { verifyToken, checkAdmin } = require('../middlewares/auth');
+const router = express.Router();
+
+const GuestModel = require('../models/Guest');
+const AccountModel = require('../models/Account');
+const { verifyToken, checkAdmin, checkGuest } = require('../middlewares/auth');
 
 
 
@@ -195,7 +196,7 @@ router.post('/edit/:id', verifyToken, checkAdmin, upload.single('image'), async 
     }
 });
 
-router.get('/profile', verifyToken, checkBlogger, async (req, res) => {
+router.get('/profile', verifyToken, checkGuest, async (req, res) => {
     try{
         var accountId = req.data._id;
         var AccountData = await AccountModel.findById(accountId);
@@ -211,7 +212,7 @@ router.get('/profile', verifyToken, checkBlogger, async (req, res) => {
     }
 });
 
-router.get('/editGuest/:id', verifyToken, checkBlogger, async (req, res) => {
+router.get('/editGuest/:id', verifyToken, checkGuest, async (req, res) => {
     const guestId = req.params.id;
     const guest = await GuestModel.findById(guestId);
     if (!guest) {
@@ -234,7 +235,7 @@ router.get('/editGuest/:id', verifyToken, checkBlogger, async (req, res) => {
     
 });
 
-router.post('/editGuest/:id', verifyToken, checkBlogger, upload.single('image'), async (req, res) => {
+router.post('/editGuest/:id', verifyToken, checkGuest, upload.single('image'), async (req, res) => {
     const guestId = req.params.id;
     const guest = await GuestModel.findById(guestId);
     if (!guest) {

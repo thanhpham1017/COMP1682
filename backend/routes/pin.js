@@ -1,4 +1,5 @@
-const router = require("express").Router();
+const express = require('express');
+const router = express.Router();
 const Category = require("../models/Category");
 const Pin = require("../models/Pin");
 const Package = require("../models/Package");
@@ -53,17 +54,5 @@ router.get("/packages", async (req, res) => {
     }
 });
 
-router.get("/package/:id", async (req, res) => {
-    try {
-        const packageId = req.params.id;
-        const pinId = req.params.pin;
-        const pin = await Pin.findById(pinId);
-        const package = await Package.findById(packageId);
-        if (packageId == '') {
-            pin.date = pin.date + package.date;
-        } 
-
-    } catch (err) {}
-});
 
 module.exports = router;

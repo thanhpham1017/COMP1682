@@ -8,7 +8,7 @@ const PackageSchema = new Schema({
     unique: [true, '{VALUE} is existed']
   },
   time: {
-    type: Integer,
+    type: Number,
     required: [true],
   },
   description: String,

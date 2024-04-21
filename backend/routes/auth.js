@@ -5,16 +5,14 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const fs = require('fs');
 const dotenv = require('dotenv');
-
+const router = express.Router();
 const Account = require('../models/Account');
 
 const salt = bcrypt.genSaltSync(10);
 dotenv.config();
 
-const app = express();
-const router = require("express").Router();
 
-app.post('/register', async (req,res) => {
+router.post('/register', async (req,res) => {
     const {email,password} = req.body;
     try{
       const accountDoc = await Account.create({
@@ -28,7 +26,7 @@ app.post('/register', async (req,res) => {
     }
   });
   
-app.post('/login', async (req,res) => {
+router.post('/login', async (req,res) => {
   const {email,password} = req.body;
   const accountDoc = await Account.findOne({email});
   const passOk = bcrypt.compareSync(password, accountDoc.password);
@@ -45,7 +43,7 @@ app.post('/login', async (req,res) => {
 });
 
 
-app.post('/logout', (req, res) => {
+router.post('/logout', (req, res) => {
   res.cookie('token', '').json('ok');
 })
 
