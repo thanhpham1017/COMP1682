@@ -1,12 +1,10 @@
 const express = require('express');
-const mongoose = require("mongoose");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const multer = require('multer');
-const fs = require('fs');
 const dotenv = require('dotenv');
 const router = express.Router();
-const Account = require('../models/Account');
+const AccountModel = require('../models/Account');
+const { verifyToken } = require('../middlewares/auth');
 
 const salt = bcrypt.genSaltSync(10);
 dotenv.config();
@@ -15,7 +13,7 @@ dotenv.config();
 router.post('/register', async (req,res) => {
   const {email,password,role} = req.body;
   try{
-    const accountDoc = await Account.create({
+    const accountDoc = await AccountModel.create({
       email,
       password:bcrypt.hashSync(password,salt),
       role,
@@ -29,19 +27,29 @@ router.post('/register', async (req,res) => {
   
 router.post('/login', async (req,res) => {
   const {email,password} = req.body;
-  const accountDoc = await Account.findOne({email});
+  const accountDoc = await AccountModel.findOne({email: email});
   const passOk = bcrypt.compareSync(password, accountDoc.password);
   if(passOk) {
-    const accessToken = jwt.sign(
-        {id:accountDoc._id},
-        process.env.ACCESS_TOKEN_SECRET,
-    )
-    res.cookie('token', token). json(accessToken);
+    jwt.sign({email,id:accountDoc._id}, process.env.ACCESS_TOKEN_SECRET, {}, (err,token) => {
+      if (err) throw err;
+      res.cookie('token', token).json({
+        id:accountDoc._id,
+        email,
+      });
+    });
   } else {
     req.status(400).json('wrong credentials')
   }
 
 });
+
+// router.get('/profile', verifyToken, (req,res) => {
+//   const {token} = req.cookies;
+//   jwt.verify(token, secret, {}, (err,info) => {
+//     if (err) throw err;
+//     res.json(info);
+//   });
+// });
 
 
 router.post('/logout', (req, res) => {

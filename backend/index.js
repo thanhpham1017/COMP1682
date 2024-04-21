@@ -15,6 +15,7 @@ const adminRouter = require('./routes/admin');
 const guestRoute = require("./routes/guest");
 const authRouter = require("./routes/auth");
 const bloggerRoute = require("./routes/blogger");
+const roleRouter = require("./routes/role");
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use(guestRoute);
 app.use(adminRouter);
 app.use(bloggerRoute);
 app.use(authRouter);
+app.use(roleRouter);
 
 
 app.listen(4000);

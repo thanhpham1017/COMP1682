@@ -4,7 +4,7 @@ import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
 import { UserContext } from "./UserContext";
 // import "../Background.css"
 export default function LoginPage() {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [redirect, setRedirect] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -14,7 +14,7 @@ export default function LoginPage() {
         ev.preventDefault();
         const response = await fetch('http://localhost:4000/login', {
             method: 'POST',
-            body: JSON.stringify({username,password}),
+            body: JSON.stringify({email,password}),
             headers: {'Content-Type': 'application/json'},
             credentials: 'include',
         })
@@ -40,9 +40,9 @@ export default function LoginPage() {
                         <h2>Welcome back! Please enter your details.</h2>
                         <input 
                             type="text" 
-                            placeholder="Username" 
-                            value={username} 
-                            onChange={ev => setUsername(ev.target.value)}
+                            placeholder="Email" 
+                            value={email} 
+                            onChange={ev => setEmail(ev.target.value)}
                         />
                         <div className="password-input-container" style={{ position: "relative" }}>
                             <input 

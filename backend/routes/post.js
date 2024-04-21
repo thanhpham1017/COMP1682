@@ -8,7 +8,6 @@ const fs = require('fs');
 const { verifyToken, checkBlogger } = require('../middlewares/auth');
 const BloggerModel = require('../models/Blogger');
 
-const secret = 'bnxbcvxcnbvvcxvxcv';
 
 router.post('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'), async (req,res) => {
   const {originalname,path} = req.file;
