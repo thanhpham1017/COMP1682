@@ -1,158 +1,133 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminPage() {
-    const [admins, setAdmins] = useState([]);
-    const [selectedAdmin, setSelectedAdmin] = useState(null);
-    const [formData, setFormData] = useState({
-        name: '',
-        dob: '',
-        gender: '',
-        address: '',
-        email: '',
-        password: '',
-        image: null
+    const [categories, setCategories] = useState([]);
+    const [newCategory, setNewCategory] = useState({
+        name: ''
     });
+    const [editCategory, setEditCategory] = useState({
+        _id: '',
+        name: ''
+    });
+    const navigate = useNavigate();
+
+    const fetchCategories = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/category');
+            if (!response.ok) {
+                throw new Error('Failed to fetch categories');
+            }
+            const data = await response.json();
+            setCategories(data.data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
 
     useEffect(() => {
-        // Fetch all admins
-        fetch('/api/admin')
-            .then(res => res.json())
-            .then(data => {
-                setAdmins(data);
-            })
-            .catch(err => {
-                console.error('Error fetching admins:', err);
-            });
+        fetchCategories();
     }, []);
 
-    const handleEdit = (adminId) => {
-        // Fetch admin details for editing
-        fetch(`/api/admin/edit/${adminId}`)
-            .then(res => res.json())
-            .then(data => {
-                setSelectedAdmin(data);
-            })
-            .catch(err => {
-                console.error('Error fetching admin details:', err);
+    const handleAddCategory = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/category/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newCategory),
             });
-    };
-
-    const handleInputChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleFileChange = (e) => {
-        setFormData({
-            ...formData,
-            image: e.target.files[0]
-        });
-    };
-
-    const handleSubmit = () => {
-        // Submit form for editing admin
-        const formDataToSend = new FormData();
-        for (const key in formData) {
-            formDataToSend.append(key, formData[key]);
+            if (!response.ok) {
+                throw new Error('Failed to add category');
+            }
+            await fetchCategories();
+            setNewCategory({ name: '' });
+        } catch (error) {
+            console.error('Error adding category:', error);
         }
-        fetch(`/api/admin/edit/${selectedAdmin._id}`, {
-            method: 'POST',
-            body: formDataToSend
-        })
-            .then(res => res.json())
-            .then(data => {
-                // Handle success
-                console.log('Admin updated successfully');
-            })
-            .catch(err => {
-                // Handle error
-                console.error('Error updating admin:', err);
+    };
+
+    const handleEditCategory = async () => {
+        try {
+            const response = await fetch(`http://localhost:4000/category/edit/:id`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: editCategory.name }),
             });
+            if (!response.ok) {
+                throw new Error('Failed to edit category');
+            }
+            await fetchCategories();
+            setEditCategory({ _id: '', name: '' });
+        } catch (error) {
+            console.error('Error editing category:', error);
+        }
+    };
+
+    const handleDeleteCategory = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:4000/category/delete/${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete category');
+            }
+            await fetchCategories();
+        } catch (error) {
+            console.error('Error deleting category:', error);
+        }
     };
 
     return (
         <div className="admin-container">
-            <form className="admin-form">
-            <div className="form-group">
-                <label htmlFor="name">Name:</label>
-                <input 
-                type="text" 
-                name="name" 
-                id="name" 
-                value={formData.name} 
-                onChange={handleInputChange} 
-                className="form-input" 
+            <h1>Categories</h1>
+            {categories.length === 0 && <p>No category, please add</p>}
+            <div>
+                <h2>Add Category</h2>
+                <input
+                    type="text"
+                    value={newCategory.name}
+                    onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
                 />
+                <button onClick={handleAddCategory}>Add Category</button>
             </div>
-            <div className="form-group">
-                <label htmlFor="dob">Date of Birth:</label>
-                <input 
-                type="date" 
-                name="dob" 
-                id="dob" 
-                value={formData.dob} 
-                onChange={handleInputChange} 
-                className="form-input" 
-                />
-            </div>
-            <div className="form-group">
-                <label htmlFor="gender">Gender:</label>
-                <input 
-                type="text" 
-                name="gender" 
-                id="gender" 
-                value={formData.gender} 
-                onChange={handleInputChange} 
-                className="form-input" 
-                />
-            </div>
-            <div className="form-group">
-                <label htmlFor="address">Address:</label>
-                <input 
-                type="text" 
-                name="address" 
-                id="address" 
-                value={formData.address} 
-                onChange={handleInputChange} 
-                className="form-input" 
-                />
-            </div>
-            <div className="form-group">
-                <label htmlFor="email">Email:</label>
-                <input 
-                type="email" 
-                name="email" 
-                id="email" 
-                value={formData.email} 
-                onChange={handleInputChange} 
-                className="form-input" 
-                />
-            </div>
-            <div className="form-group">
-                <label htmlFor="password">Password:</label>
-                <input 
-                type="password" 
-                name="password" 
-                id="password" 
-                value={formData.password} 
-                onChange={handleInputChange} 
-                className="form-input" 
-                />
-            </div>
-            <div className="form-group">
-                <label htmlFor="image">Image:</label>
-                <input 
-                type="file" 
-                name="image" 
-                id="image" 
-                onChange={handleFileChange} 
-                className="form-input" 
-                />
-            </div>
-            <button type="button" onClick={handleSubmit} className="submit-button">Submit</button>
-            </form>
+            {categories.length > 0 && (
+                <>
+                    <div>
+                        <h2>Edit Category</h2>
+                        <select
+                            value={editCategory._id}
+                            onChange={(e) => {
+                                const selectedCategory = categories.find(category => category._id === e.target.value);
+                                setEditCategory({ ...editCategory, _id: e.target.value, name: selectedCategory.name });
+                            }}
+                        >
+                            <option value="">Select Category to Edit</option>
+                            {categories.map(category => (
+                                <option key={category._id} value={category._id}>{category.name}</option>
+                            ))}
+                        </select>
+                        <input
+                            type="text"
+                            value={editCategory.name}
+                            onChange={(e) => setEditCategory({ ...editCategory, name: e.target.value })}
+                        />
+                        <button onClick={handleEditCategory}>Edit Category</button>
+                    </div>
+                    <div>
+                        <h2>Delete Category</h2>
+                        <select onChange={(e) => handleDeleteCategory(e.target.value)}>
+                            <option value="">Select Category to Delete</option>
+                            {categories.map(category => (
+                                <option key={category._id} value={category._id}>{category.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

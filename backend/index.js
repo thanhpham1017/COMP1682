@@ -11,7 +11,7 @@ const guestRouter = require("./routes/guest");
 const authRouter = require("./routes/auth");
 const bloggerRouter = require("./routes/blogger");
 const roleRouter = require("./routes/role");
-
+const categoryRouter = require("./routes/category");
 const app = express();
 
 app.use(express.json({ limit: '200mb' }));
@@ -28,7 +28,6 @@ app.use('/uploads', express.static(__dirname + '/uploads'));
 mongoose.connect('mongodb+srv://thanhpqgch210568:1@cluster0.gac1iv3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 
 
-
 app.use(pinRouter);
 app.use(postRouter);
 app.use(guestRouter);
@@ -36,6 +35,6 @@ app.use(adminRouter);
 app.use(bloggerRouter);
 app.use(authRouter);
 app.use(roleRouter);
-
+app.use(categoryRouter);
 
 app.listen(4000);
