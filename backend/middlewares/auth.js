@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-
+const AccountModel = require('../models/Account');
 
 
 //------------------------Token----------------------------------------------------------------

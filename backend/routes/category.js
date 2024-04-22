@@ -18,7 +18,7 @@ const { checkAdmin, verifyToken } = require('../middlewares/auth');
 
 //---------------------------Phần này cho Admin---------------------------------------------
 //show all 
-router.get('/',checkAdmin ,verifyToken ,async(req, res) => {
+router.get('/category',checkAdmin ,verifyToken ,async(req, res) => {
     try{
         var categoryList = await CategoryModel.find({});
         res.status(200).json({ success: true, data: categoryList });
@@ -30,7 +30,7 @@ router.get('/',checkAdmin ,verifyToken ,async(req, res) => {
 
 //-----------------------------------------------------------------------
 //delete specific 
-router.delete('/delete/:id', verifyToken, checkAdmin, async (req, res) => {
+router.delete('/category/delete/:id', verifyToken, checkAdmin, async (req, res) => {
     try {
         const categoryId = req.params.id;
         const deletedCategory = await CategoryModel.findByIdAndDelete(categoryId);
@@ -48,7 +48,7 @@ router.delete('/delete/:id', verifyToken, checkAdmin, async (req, res) => {
 //------------------------------------------------------------------------
 //create 
 //receive form data and insert it to database
-router.post('/add', verifyToken, checkAdmin, async (req, res) => {
+router.post('/category/add', verifyToken, checkAdmin, async (req, res) => {
     //get value by form : req.body
     try{
         var category = req.body;
@@ -72,7 +72,7 @@ router.post('/add', verifyToken, checkAdmin, async (req, res) => {
 
 //---------------------------------------------------------------------------
 //edit 
-router.get('/edit/:id', verifyToken, checkAdmin, async (req, res) => {
+router.get('/category/edit/:id', verifyToken, checkAdmin, async (req, res) => {
     try{
         var id = req.params.id;
         var category = await CategoryModel.findById(id);

@@ -16,7 +16,7 @@ const guestRoute = require("./routes/guest");
 const authRouter = require("./routes/auth");
 const bloggerRoute = require("./routes/blogger");
 const roleRouter = require("./routes/role");
-
+const categoryRouter = require("./routes/category");
 const app = express();
 
 app.use(express.json({ limit: '200mb' }));
@@ -32,15 +32,15 @@ app.use('/uploads', express.static(__dirname + '/uploads'));
 
 mongoose.connect('mongodb+srv://thanhpqgch210568:1@cluster0.gac1iv3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 
-
-// app.get('/profile', (req, res) => {
-//   const {token} = req.cookies;
-//   jwt.verify(token, secret, {}, (err,info) => {
-//     if(err) throw err;
-//     res.json(info);
-//   });
-//   res.json(req.cookies);
-// });
+const secret = "yourSecretKeyHere"; // Define your JWT secret key
+app.get('/profile', (req, res) => {
+  const {token} = req.cookies;
+  jwt.verify(token, secret, {}, (err,info) => {
+    if(err) throw err;
+    res.json(info);
+  });
+  res.json(req.cookies);
+});
 
 
 app.use(pinRoute);
@@ -50,6 +50,6 @@ app.use(adminRouter);
 app.use(bloggerRoute);
 app.use(authRouter);
 app.use(roleRouter);
-
+app.use(categoryRouter);
 
 app.listen(4000);

@@ -5,18 +5,18 @@ import {Navigate} from "react-router-dom";
 import Editor from "../Editor";
 
 export default function CreatePost() {
-  const [title,setTitle] = useState('');
-  const [summary,setSummary] = useState('');
-  const [content,setContent] = useState('');
-  const [files, setFiles] = useState('');
-  const [redirect, setRedirect] = useState(false);
+    const [title,setTitle] = useState('');
+    const [summary,setSummary] = useState('');
+    const [content,setContent] = useState('');
+    const [files, setFiles] = useState('');
+    const [redirect, setRedirect] = useState(false);
   
-  async function createNewPost(ev) {
-    const data = new FormData();
-    data.set('title', title);
-    data.set('summary', summary);
-    data.set('content', content);
-    data.set('file', files[0]);
+    async function createNewPost(ev) {
+        const data = new FormData();
+        data.set('title', title);
+        data.set('summary', summary);
+        data.set('content', content);
+        data.set('file', files[0]);
     ev.preventDefault();
     const response = await fetch('http://localhost:4000/post', {
       method: 'POST',
