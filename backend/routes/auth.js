@@ -43,13 +43,9 @@ router.post('/login', async (req,res) => {
 
 });
 
-// router.get('/profile', verifyToken, (req,res) => {
-//   const {token} = req.cookies;
-//   jwt.verify(token, secret, {}, (err,info) => {
-//     if (err) throw err;
-//     res.json(info);
-//   });
-// });
+router.get('/profile', verifyToken, (req,res) => {
+  res.json(data);
+});
 
 
 router.post('/logout', (req, res) => {
