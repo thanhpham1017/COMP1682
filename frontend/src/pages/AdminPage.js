@@ -14,7 +14,9 @@ export default function AdminPage() {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch('http://localhost:4000/category');
+            const response = await fetch('http://localhost:4000/category', {
+                credentials: 'include',
+            });
             if (!response.ok) {
                 throw new Error('Failed to fetch categories');
             }
@@ -37,6 +39,7 @@ export default function AdminPage() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(newCategory),
+                credentials: 'include',
             });
             if (!response.ok) {
                 throw new Error('Failed to add category');

@@ -30,24 +30,26 @@ router.post('/login', async (req,res) => {
   const accountDoc = await AccountModel.findOne({email: email});
   const passOk = bcrypt.compareSync(password, accountDoc.password);
   if(passOk) {
-    // const accessToken = jwt.sign({id: accountDoc._id}, process.env.ACCESS_TOKEN_SECRET);
-    // return res.cookie('token', accessToken).json({accessToken});
-    
+    const accessToken = jwt.sign({id: accountDoc}, process.env.ACCESS_TOKEN_SECRET);
+    res.cookie('token', accessToken).json({accessToken});
+
+
     //uncomment phần này nếu lỗi và comment phần dưới
 
     //
-    jwt.sign({id:accountDoc._id}, process.env.ACCESS_TOKEN_SECRET, {}, (err,token) => {
-      if (err) throw err;
-      res.cookie('token', token).json({
-        id: accountDoc._id,
-      });
-    });
+    // jwt.sign({id:accountDoc._id}, process.env.ACCESS_TOKEN_SECRET, {}, (err,token) => {
+    //   if (err) throw err;
+    //   res.cookie('token', token).json({
+    //     id: accountDoc._id,
+    //   });
+    // });
     //
 
   } else {
     req.status(400).json('wrong credentials')
   }
 });
+
 
 router.get('/profile', verifyToken, (req,res) => {
   res.json(data);
