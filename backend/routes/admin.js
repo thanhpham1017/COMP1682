@@ -23,13 +23,12 @@ const secret = 'bnxbcvxcnbvvcxvxcv';
 // // Multer configuration
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './public/images/'); // Set the destination folder where uploaded files will be stored
+        cb(null, 'uploads/'); // Set the destination folder where uploaded files will be stored
     },
     filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now()); // Set the filename to avoid name conflicts
     }
 });
-
 const upload = multer({ storage: storage });
 
 //-----------------------------------------------------------------------------------------------
@@ -47,88 +46,88 @@ router.get('/', async (req, res) => {
 
 
 
-//---------------------------------------------------------------------------
-//edit admin
-// Render form for editing a specific admin
-router.get('/edit/:id',verifyToken , checkAdmin, async (req, res) => {
-    try {
-        // Fetch admin details by ID
-        const adminId = req.params.id;
-        const admin = await AdminModel.findById(adminId);
-        if (!admin) {
-            throw new Error('Admin not found');
-        }
+// //---------------------------------------------------------------------------
+// //edit admin
+// // Render form for editing a specific admin
+// router.get('/edit/:id',verifyToken , checkAdmin, async (req, res) => {
+//     try {
+//         // Fetch admin details by ID
+//         const adminId = req.params.id;
+//         const admin = await AdminModel.findById(adminId);
+//         if (!admin) {
+//             throw new Error('Admin not found');
+//         }
 
-        // Fetch user details by ID
-        const accountId = admin.account;
-        const account = await AccountModel.findById(accountId);
-        if (!account) {
-            throw new Error('User not found');
-        }
+//         // Fetch user details by ID
+//         const accountId = admin.account;
+//         const account = await AccountModel.findById(accountId);
+//         if (!account) {
+//             throw new Error('User not found');
+//         }
 
-        res.json(admin, account);
+//         res.json(admin, account);
 
-    } catch (error) {
-        // Handle errors (e.g., admin not found)
-        console.error(error);
-        res.status(404).json({ success: false, error: "Admin not found" });
-    }
-});
+//     } catch (error) {
+//         // Handle errors (e.g., admin not found)
+//         console.error(error);
+//         res.status(404).json({ success: false, error: "Admin not found" });
+//     }
+// });
 
-// Handle form submission for editing an admin
-router.post('/edit/:id', verifyToken , checkAdmin, upload.single('image'), async (req, res) => {
-    try {
-        // Fetch admin by ID
-        const adminId = req.params.id;
-        const admin = await AdminModel.findById(adminId);
-        if (!admin) {
-            throw new Error('Admin not found');
-        }
-        // Fetch user details by ID
-        const accountId = admin.account;
-        const account = await UserModel.findById(accountId);
-        if (!account) {
-            throw new Error('User not found');
-        }
+// // Handle form submission for editing an admin
+// router.post('/edit/:id', verifyToken , checkAdmin, upload.single('image'), async (req, res) => {
+//     try {
+//         // Fetch admin by ID
+//         const adminId = req.params.id;
+//         const admin = await AdminModel.findById(adminId);
+//         if (!admin) {
+//             throw new Error('Admin not found');
+//         }
+//         // Fetch user details by ID
+//         const accountId = admin.account;
+//         const account = await UserModel.findById(accountId);
+//         if (!account) {
+//             throw new Error('User not found');
+//         }
 
-        // Update admin details
-        admin.name = req.body.name;
-        admin.dob = req.body.dob;
-        admin.gender = req.body.gender;
-        admin.address = req.body.address;
-        // If a new image is uploaded, update it
-        if (req.file) {
-            const imageData = fs.readFileSync(req.file.path);
-            admin.image = imageData.toString('base64');
-        }
-        await admin.save();
+//         // Update admin details
+//         admin.name = req.body.name;
+//         admin.dob = req.body.dob;
+//         admin.gender = req.body.gender;
+//         admin.address = req.body.address;
+//         // If a new image is uploaded, update it
+//         if (req.file) {
+//             const imageData = fs.createReadStream(req.file.path);
+//             blogger.image = imageData;
+//         }
+//         await admin.save();
 
-        account.email = req.body.email;
-        account.password = bcrypt.hashSync(req.body.password, salt);
-        await account.save();
+//         account.email = req.body.email;
+//         account.password = bcrypt.hashSync(req.body.password, salt);
+//         await account.save();
 
-        // Send success JSON response
-        res.json({ success: true, message: "Admin updated successfully" });
-    } catch (err) {
-        // Handle validation errors
-        if (err.name === 'ValidationError') {
-            let InputErrors = {};
-            for (let field in err.errors) {
-                InputErrors[field] = err.errors[field].message;
-            }
-            res.json({ success: false, error: "Validation Error", InputErrors });
-        } else {
-            // Handle other errors
-            console.error("Error while updating admin:", err);
-            res.json({ success: false, error: "Internal Server Error" });
-        }
-    }
-});
+//         // Send success JSON response
+//         res.json({ success: true, message: "Admin updated successfully" });
+//     } catch (err) {
+//         // Handle validation errors
+//         if (err.name === 'ValidationError') {
+//             let InputErrors = {};
+//             for (let field in err.errors) {
+//                 InputErrors[field] = err.errors[field].message;
+//             }
+//             res.json({ success: false, error: "Validation Error", InputErrors });
+//         } else {
+//             // Handle other errors
+//             console.error("Error while updating admin:", err);
+//             res.json({ success: false, error: "Internal Server Error" });
+//         }
+//     }
+// });
 
 router.get('/profile', verifyToken , checkAdmin, async (req, res) => {
     try{
-        var accountId = req.data._id;
-        var AccountData = await AccountModel.findById(accountId);
+        var accountId = req.accountId;
+        var AccountData = await AccountModel.findById(accountId._id);
       if(AccountData){
         var AdminData = await AdminModel.findById({account: accountId});
       } else {
@@ -164,7 +163,7 @@ router.get('/editAdmin/:id', verifyToken , checkAdmin, async (req, res) => {
     
 });
 
-router.post('/editAdmin/:id', upload.single('image'), async (req, res) => {
+router.post('/editAdmin/:id', verifyToken , checkAdmin, upload.single('image'), async (req, res) => {
     const adminId = req.params.id;
     const admin = await AdminModel.findById(adminId);
     if (!admin) {
@@ -186,8 +185,8 @@ router.post('/editAdmin/:id', upload.single('image'), async (req, res) => {
         admin.address = req.body.address;
         // If a new image is uploaded, update it
         if (req.file) {
-            const imageData = fs.readFileSync(req.file.path);
-            admin.image = imageData.toString('base64');  
+            const imageData = fs.createReadStream(req.file.path);
+            blogger.image = imageData;  
         } 
         await admin.save();
         

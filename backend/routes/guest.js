@@ -17,13 +17,12 @@ const { verifyToken, checkAdmin, checkGuest } = require('../middlewares/auth');
 
 
 const salt = bcrypt.genSaltSync(10);
-const secret = 'bnxbcvxcnbvvcxvxcv';
 
 // //-------------------------------------------------------------------------
 // // Multer configuration
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './public/images/'); // Set the destination folder where uploaded files will be stored
+        cb(null, 'uploads/'); // Set the destination folder where uploaded files will be stored
     },
     filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now()); // Set the filename to avoid name conflicts
@@ -62,17 +61,17 @@ router.post('/add', verifyToken, checkAdmin, upload.single('image'), async (req,
         const dob = req.body.dob;
         const gender = req.body.gender;
         const address = req.body.address;
-        const image = req.file
 
         const email = req.body.email;
         const password = req.body.password;
         const hashPassword = bcrypt.hashSync(password, salt);
         const role = ''; //objectID
       
-        //read the image file
-        const imageData = fs.readFileSync(image.path);
-        //convert image data to base 64
-        const base64Image = imageData.toString('base64');
+        if (!req.file) {
+            return res.status(400).json({ success: false, error: "Image is required" });
+        }
+
+        const imageData = fs.createReadStream(req.file.path);
 
         
         //create users then add new created users to user field of collection marketing_manager
@@ -93,7 +92,7 @@ router.post('/add', verifyToken, checkAdmin, upload.single('image'), async (req,
                 dob: dob,
                 gender: gender,
                 address: address,
-                image: base64Image,
+                image: imageData,
                 account: account
                 }
             );
@@ -169,8 +168,8 @@ router.post('/edit/:id', verifyToken, checkAdmin, upload.single('image'), async 
         guest.address = req.body.address;
         // If a new image is uploaded, update it
         if (req.file) {
-            const imageData = fs.readFileSync(req.file.path);
-            guest.image = imageData.toString('base64');
+            const imageData = fs.createReadStream(req.file.path);
+            blogger.image = imageData;
         }
         await guest.save();
 
@@ -198,8 +197,8 @@ router.post('/edit/:id', verifyToken, checkAdmin, upload.single('image'), async 
 
 router.get('/profile', verifyToken, checkGuest, async (req, res) => {
     try{
-        var accountId = req.data._id;
-        var AccountData = await AccountModel.findById(accountId);
+        var accountId = req.accountId;
+        var AccountData = await AccountModel.findById(accountId._id);
       if(AccountData){
         var GuestData = await GuestModel.findById({account: accountId});
       } else {
@@ -257,8 +256,8 @@ router.post('/editGuest/:id', verifyToken, checkGuest, upload.single('image'), a
         guest.address = req.body.address;
         // If a new image is uploaded, update it
         if (req.file) {
-            const imageData = fs.readFileSync(req.file.path);
-            guest.image = imageData.toString('base64');  
+            const imageData = fs.createReadStream(req.file.path);
+            blogger.image = imageData;
         } 
         await guest.save();
         

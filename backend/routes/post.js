@@ -1,12 +1,14 @@
 const express = require('express');
 const Post = require('../models/Post');
-const router = express.Router();
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
 const fs = require('fs');
-const { verifyToken, checkBlogger } = require('../middlewares/auth');
 const BloggerModel = require('../models/Blogger');
+
+const router = express.Router();
+
+const { verifyToken, checkBlogger } = require('../middlewares/auth');
 
 
 router.post('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'), async (req,res) => {
