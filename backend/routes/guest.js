@@ -36,7 +36,7 @@ const upload = multer({ storage: storage });
 //for Admin
 //------------------------------------------------------------------------
 // Route to get all admins
-router.get('/', verifyToken, checkAdmin, async (req, res) => {
+router.get('/guest', verifyToken, checkAdmin, async (req, res) => {
     try {
         res.json(await GuestModel.find().populate('Account'));
     } catch (error) {
@@ -46,7 +46,7 @@ router.get('/', verifyToken, checkAdmin, async (req, res) => {
 });
 
 
-router.get('/add', verifyToken, checkAdmin, async (req, res) => {
+router.get('add', verifyToken, checkAdmin, async (req, res) => {
     try{
         res.status(200).json({ success: true, message: "Render add guest form"});
     }catch(error){
@@ -55,7 +55,7 @@ router.get('/add', verifyToken, checkAdmin, async (req, res) => {
     }
 });
 
-router.post('/add', verifyToken, checkAdmin, upload.single('image'), async (req, res) => {
+router.post('/guest/add', verifyToken, checkAdmin, async (req, res) => {
     //get value by form : req.body
     try{
         const name = req.body.name;

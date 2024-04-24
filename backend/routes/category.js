@@ -72,19 +72,23 @@ router.post('/category/add', verifyToken, checkAdmin, async (req, res) => {
 
 //---------------------------------------------------------------------------
 //edit 
-router.get('/category/edit/:id', verifyToken, checkAdmin, async (req, res) => {
-    try{
+router.post('/category/edit/:id', verifyToken, checkAdmin, async (req, res) => {
+    try {
         var id = req.params.id;
-        var category = await CategoryModel.findById(id);
-        res.status(200).json({ success: true, message: "Render edit category form", data: category });
-    }catch(error){
-        console.error("Error while editing category:", error);
-        res.status(500).send("Internal Server Error");
+        var data = req.body;
+        const updateCategory = await CategoryModel.findByIdAndUpdate(id, data, { new: true }); // Set { new: true } to return the updated document
+        if (updateCategory) {
+            res.status(200).json({ success: true, message: "Category updated successfully", data: updateCategory });
+        } else {
+            res.status(404).json({ success: false, error: "Category not found" });
+        }
+    } catch (error) {
+        console.error("Error while updating category:", error);
+        res.status(500).json({ success: false, error: "Internal Server Error" });
     }
-    
 });
 
-router.post('/edit/:id', verifyToken, checkAdmin, async(req, res) => {
+router.post('edit/:id', verifyToken, checkAdmin, async(req, res) => {
     try{
         var id = req.params.id;
         var data = req.body;
