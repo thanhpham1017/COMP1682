@@ -120,7 +120,7 @@ export default function IndexPage(){
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newPin = {
-      username: currentUser,
+      username: 'ngoc',
       title,
       desc,
       price,

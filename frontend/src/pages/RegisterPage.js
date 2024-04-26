@@ -39,6 +39,8 @@ export default function RegisterPage() {
     });
     if (response.status === 200) {
       alert('registration successful');
+    } else if (response.status === 400) {
+      alert('Email is already in use');
     } else {
       alert('registration failed');
     }

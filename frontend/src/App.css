@@ -444,6 +444,7 @@ div.post-page a.edit-btn {
   background-color: #0056b3;
 }
 footer {
+  width: 100%;  
   background-color: #333; /* Thay đổi màu nền */
   /* color: #fff; */
   padding: 20px; /* Thay đổi padding */
@@ -819,13 +820,106 @@ footer a {
 .category-table button {
   padding: 6px 12px;
   margin-right: 6px;
-  background-color: #dc3545;
+  background-color: gray;
   color: #fff;
   border: none;
   cursor: pointer;
 }
 
 .category-table button:hover {
-  background-color: #c82333;
+  background-color: gray;
+}
+/* CSS for Blogger Table */
+/* Guest List Container */
+.guest-container {
+  margin-bottom: 20px;
 }
 
+.guest-container h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.guest-container p {
+  font-size: 16px;
+  color: #888;
+}
+
+.add-guest {
+  margin-top: 20px;
+}
+
+.add-guest h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.add-guest input,
+.add-guest select {
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 8px;
+}
+
+.guest-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.guest-table th,
+.guest-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.guest-table th {
+  background-color: #f2f2f2;
+  font-size: 16px;
+}
+
+/* Blogger List Container */
+.blogger-container {
+  margin-bottom: 20px;
+}
+
+.blogger-container h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.blogger-container p {
+  font-size: 16px;
+  color: #888;
+}
+
+.add-blogger {
+  margin-top: 20px;
+}
+
+.add-blogger h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.add-blogger input,
+.add-blogger select {
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 8px;
+}
+
+.blogger-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.blogger-table th,
+.blogger-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.blogger-table th {
+  background-color: #f2f2f2;
+  font-size: 16px;
+}

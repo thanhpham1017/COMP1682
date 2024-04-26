@@ -35,9 +35,9 @@ const upload = multer({ storage: storage });
 //for Admin
 //------------------------------------------------------------------------
 // Route to get all bloggers
-router.get('/', verifyToken, checkAdmin, async (req, res) => {
+router.get('/blogger', verifyToken, checkAdmin, async (req, res) => {
     try {
-        res.json(await BloggerModel.find().populate('Account'));
+        res.json(await BloggerModel.find().populate('account'));
     } catch (error) {
         console.error("Error while fetching blogger list:", error);
         res.json({ success: false, error: "Internal Server Error" });
@@ -54,66 +54,66 @@ router.get('/add', verifyToken, checkAdmin, async (req, res) => {
     }
 });
 
-router.post('/add', verifyToken, checkAdmin, upload.single('image'), async (req, res) => {
-    //get value by form : req.body
-    try{
-        const name = req.body.name;
-        const dob = req.body.dob;
-        const gender = req.body.gender;
-        const address = req.body.address;
-
-        const email = req.body.email;
-        const password = req.body.password;
+router.post('/blogger/add', verifyToken, checkAdmin, async (req, res) => {
+    try {
+        debugger;
+        // Extract data from request body
+        const { name, dob, gender, address, email, password } = req.body;
         const hashPassword = bcrypt.hashSync(password, salt);
-        const role = ''; 
 
-        if (!req.file) {
-            return res.status(400).json({ success: false, error: "Image is required" });
+        // Check if image is provided
+        // if (!req.file) {
+        //     return res.status(400).json({ success: false, error: "Image is required" });
+        // }
+
+        // Read image data from file
+        //const imageData = fs.createReadStream(req.file.path);
+
+        // Check if user with provided email already exists
+        const availableUser = await AccountModel.findOne({ email: email });
+        if (availableUser) {
+            return res.status(500).json({ success: false, error: "User existed" });
         }
 
-        const imageData = fs.createReadStream(req.file.path);
-        
-        //create users then add new created users to user field of collection marketing_manager
-        const availableUser = await AccountModel.findOne({email: email});
-        if(availableUser){
-            res.status(500).json({ success: false, error: "User existed"});
+        // Create new account for the blogger
+        const account = await AccountModel.create({
+            email: email,
+            password: hashPassword,
+            role: 'blogger' // Specify the role for the account
+        });
+        console.log('account oke');
+        // Create new blogger with the provided data
+        const newBlogger = await BloggerModel.create({
+            name: name,
+            dob: dob,
+            gender: gender,
+            address: address,
+           // image: imageData,
+            account: account._id // Associate the blogger with the created account
+        });
+        console.log('newBlogger oke');
+        // Check if the blogger was successfully created
+        if (newBlogger) {
+            return res.status(201).json({ success: true, message: "Blogger created successfully" });
         } else {
-            const account = await AccountModel.create(
-                {
-                    email: email,
-                    password: hashPassword,
-                    role: role
-                }
-            );
-            const newBlogger = await BloggerModel.create(
-                {
-                name: name,
-                dob: dob,
-                gender: gender,
-                address: address,
-                image: imageData,
-                account: account
-                }
-            );
-            if(newBlogger){
-                res.status(201).json({ success: true, message: "Blogger created successfully" });
-            } else {
-                res.status(500).json({ success: false, message: "Error Blogger created " });
-            }
+            return res.status(500).json({ success: false, message: "Error creating blogger" });
         }
-        
     } catch (err) {
+        // Handle validation errors
         if (err.name === 'ValidationError') {
-           let InputErrors = {};
-           for (let field in err.errors) {
-              InputErrors[field] = err.errors[field].message;
-           }
-           console.error("Error while adding blogger:", err);
-            res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
+            let InputErrors = {};
+            for (let field in err.errors) {
+                InputErrors[field] = err.errors[field].message;
+            }
+            console.error("Error while adding blogger:", err);
+            return res.status(500).json({ success: false, error: "Internal Server Error", InputErrors });
+        } else {
+            console.error("Unexpected error while adding blogger:", err);
+            return res.status(500).json({ success: false, error: "Unexpected error occurred" });
         }
-     }
-    
+    }
 });
+
 
 //---------------------------------------------------------------------------
 //edit admin
@@ -144,7 +144,8 @@ router.get('/edit/:id', verifyToken, checkAdmin, async (req, res) => {
 });
 
 // Handle form submission for editing an admin
-router.post('/edit/:id', verifyToken, checkAdmin, upload.single('image'), async (req, res) => {
+router.post('/blogger/edit/:id', verifyToken, checkAdmin, async (req, res) => {
+    // , upload.single('image')
     try {
         // Fetch admin by ID
         const bloggerId = req.params.id;
@@ -165,10 +166,10 @@ router.post('/edit/:id', verifyToken, checkAdmin, upload.single('image'), async 
         blogger.gender = req.body.gender;
         blogger.address = req.body.address;
         // If a new image is uploaded, update it
-        if (req.file) {
-            const imageData = fs.createReadStream(req.file.path);
-            blogger.image = imageData;
-        }
+        // if (req.file) {
+        //     const imageData = fs.createReadStream(req.file.path);
+        //     blogger.image = imageData;
+        // }
         await blogger.save();
 
         account.email = req.body.email;

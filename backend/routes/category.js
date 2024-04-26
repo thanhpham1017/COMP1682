@@ -72,6 +72,18 @@ router.post('/category/add', verifyToken, checkAdmin, async (req, res) => {
 
 //---------------------------------------------------------------------------
 //edit 
+router.get('/edit/:id', verifyToken, checkAdmin, async (req, res) => {
+    try{
+        var id = req.params.id;
+        var category = await CategoryModel.findById(id);
+        res.status(200).json({ success: true, message: "Render edit category form", data: category });
+    }catch(error){
+        console.error("Error while editing category:", error);
+        res.status(500).send("Internal Server Error");
+    }
+    
+});
+
 router.post('/category/edit/:id', verifyToken, checkAdmin, async (req, res) => {
     try {
         var id = req.params.id;
@@ -86,26 +98,6 @@ router.post('/category/edit/:id', verifyToken, checkAdmin, async (req, res) => {
         console.error("Error while updating category:", error);
         res.status(500).json({ success: false, error: "Internal Server Error" });
     }
-});
-
-router.post('edit/:id', verifyToken, checkAdmin, async(req, res) => {
-    try{
-        var id = req.params.id;
-        var data = req.body;
-        const updateCategory = await CategoryModel.findByIdAndUpdate(id, data);
-        if(updateCategory){
-            res.status(200).json({ success: true, message: "Faculty updated successfully" });
-        }
-    } catch (error) {
-        if (error.name === 'ValidationError') {
-           let InputErrors = {};
-           for (let field in error.errors) {
-              InputErrors[field] = error.errors[field].message;
-           }
-            console.error("Error while updating faculty:", error);
-            res.status(500).json({ success: false, error: "Internal Server Error", InputErrors });
-        }
-     }
 });
 
 module.exports = router;

@@ -37,7 +37,7 @@ const upload = multer({ storage: storage });
 // Route to get all admins
 router.get('/guest', verifyToken, checkAdmin, async (req, res) => {
     try {
-        res.json(await GuestModel.find().populate('Account'));
+        res.json(await GuestModel.find().populate('account'));
     } catch (error) {
         console.error("Error while fetching guest list:", error);
         res.json({ success: false, error: "Internal Server Error" });
@@ -45,76 +45,73 @@ router.get('/guest', verifyToken, checkAdmin, async (req, res) => {
 });
 
 
-router.get('add', verifyToken, checkAdmin, async (req, res) => {
-    try{
-        res.status(200).json({ success: true, message: "Render add guest form"});
-    }catch(error){
-        console.error("Error while adding Guest list:", error);
-        res.status(500).send("Internal Server Error");
+// router.get('/add', verifyToken, checkAdmin, async (req, res) => {
+//     try{
+//         res.status(200).json({ success: true, message: "Render add guest form"});
+//     }catch(error){
+//         console.error("Error while adding Guest list:", error);
+//         res.status(500).send("Internal Server Error");   
+//     }
+// });
+
+router.post('/guest/add', verifyToken, checkAdmin, async (req, res) => {
+    try {
+        const { name, dob, gender, address, email, password } = req.body;
+        const hashPassword = bcrypt.hashSync(password, salt);
+
+        // Check if image is provided
+        // if (!req.file) {
+        //     return res.status(400).json({ success: false, error: "Image is required" });
+        // }
+
+        // Read image data from file
+        //const imageData = fs.createReadStream(req.file.path);
+
+        // Check if user with provided email already exists
+        const availableUser = await AccountModel.findOne({ email: email });
+        if (availableUser) {
+            return res.status(500).json({ success: false, error: "User existed" });
+        }
+
+        // Create new account for the guest
+        const account = await AccountModel.create({
+            email: email,
+            password: hashPassword,
+            role: 'guest' // Specify the role for the account
+        });
+
+        // Create new guest with the provided data
+        const newGuest = await GuestModel.create({
+            name: name,
+            dob: dob,
+            gender: gender,
+            address: address,
+            //image: imageData,
+            account: account._id // Associate the guest with the created account
+        });
+
+        // Check if the guest was successfully created
+        if (newGuest) {
+            return res.status(201).json({ success: true, message: "Guest created successfully" });
+        } else {
+            return res.status(500).json({ success: false, message: "Error creating guest" });
+        }
+    } catch (err) {
+        // Handle validation errors
+        if (err.name === 'ValidationError') {
+            let InputErrors = {};
+            for (let field in err.errors) {
+                InputErrors[field] = err.errors[field].message;
+            }
+            console.error("Error while adding guest:", err);
+            return res.status(500).json({ success: false, error: "Internal Server Error", InputErrors });
+        } else {
+            console.error("Unexpected error while adding guest:", err);
+            return res.status(500).json({ success: false, error: "Unexpected error occurred" });
+        }
     }
 });
 
-router.post('/guest/add', verifyToken, checkAdmin, async (req, res) => {
-    //get value by form : req.body
-    try{
-        const name = req.body.name;
-        const dob = req.body.dob;
-        const gender = req.body.gender;
-        const address = req.body.address;
-
-        const email = req.body.email;
-        const password = req.body.password;
-        const hashPassword = bcrypt.hashSync(password, salt);
-        const role = ''; //objectID
-      
-        if (!req.file) {
-            return res.status(400).json({ success: false, error: "Image is required" });
-        }
-
-        const imageData = fs.createReadStream(req.file.path);
-
-        
-        //create users then add new created users to user field of collection marketing_manager
-        const availableUser = await AccountModel.findOne({email: email});
-        if(availableUser){
-            res.status(500).json({ success: false, error: "User existed"});
-        } else {
-            const account = await AccountModel.create(
-                {
-                    email: email,
-                    password: hashPassword,
-                    role: role
-                }
-            );
-            const newBlogger = await BloggerModel.create(
-                {
-                name: name,
-                dob: dob,
-                gender: gender,
-                address: address,
-                image: imageData,
-                account: account
-                }
-            );
-            if(newBlogger){
-                res.status(201).json({ success: true, message: "Blogger created successfully" });
-            } else {
-                res.status(500).json({ success: false, message: "Error Blogger created " });
-            }
-        }
-        
-    } catch (err) {
-        if (err.name === 'ValidationError') {
-           let InputErrors = {};
-           for (let field in err.errors) {
-              InputErrors[field] = err.errors[field].message;
-           }
-           console.error("Error while adding blogger:", err);
-            res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
-        }
-     }
-    
-});
 
 
 //---------------------------------------------------------------------------
@@ -146,33 +143,35 @@ router.get('/edit/:id', verifyToken, checkAdmin, async (req, res) => {
 });
 
 // Handle form submission for editing an admin
-router.post('/edit/:id', verifyToken, checkAdmin, upload.single('image'), async (req, res) => {
+router.post('/guest/edit/:id', verifyToken, checkAdmin, async (req, res) => {
     try {
-        // Fetch admin by ID
+        // Fetch guest by ID
         const guestId = req.params.id;
         const guest = await GuestModel.findById(guestId);
         if (!guest) {
             throw new Error('Guest not found');
         }
-        // Fetch user details by ID
+
+        // Fetch account details by ID
         const accountId = guest.account;
         const account = await AccountModel.findById(accountId);
-        if (!user) {
+        if (!account) {
             throw new Error('Account not found');
         }
 
-        // Update admin details
+        // Update guest details
         guest.name = req.body.name;
         guest.dob = req.body.dob;
         guest.gender = req.body.gender;
         guest.address = req.body.address;
         // If a new image is uploaded, update it
-        if (req.file) {
-            const imageData = fs.createReadStream(req.file.path);
-            blogger.image = imageData;
-        }
+        // if (req.file) {
+        //     const imageData = fs.createReadStream(req.file.path);
+        //     guest.image = imageData;
+        // }
         await guest.save();
 
+        // Update account details
         account.email = req.body.email;
         account.password = bcrypt.hashSync(req.body.password, salt);
         await account.save();
@@ -194,6 +193,7 @@ router.post('/edit/:id', verifyToken, checkAdmin, upload.single('image'), async 
         }
     }
 });
+
 
 router.get('/profile', verifyToken, checkGuest, async (req, res) => {
     try{
