@@ -5,6 +5,8 @@ import logoImage from '../src/img/logo.png';
 export default function Header() {
   const {setUserInfo,userInfo} = useContext(UserContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  
   useEffect(() => {
     fetch('http://localhost:4000/profile', {
       credentials: 'include',
@@ -24,6 +26,8 @@ export default function Header() {
   }
 
   const username = userInfo?.username;
+  
+  console.log(username);
 
   return (
     <header className="top-bar">
