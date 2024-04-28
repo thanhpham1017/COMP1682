@@ -5,6 +5,7 @@ const AccountSchema = new Schema({
   email: {type: String, required: true, unique: true},
   username: {type: String, required: true, unique: true},
   password: {type: String, required: true},
+  level: {type: Number},
   role: {
     type: String,
     required: true

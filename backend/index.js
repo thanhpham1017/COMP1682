@@ -4,11 +4,6 @@ const cors = require('cors');
 const mongoose = require("mongoose");
 const cookieParser = require('cookie-parser');
 
-const http = require('http');
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
-
 const postRouter = require('./routes/post');
 const pinRouter = require("./routes/pin");
 const adminRouter = require('./routes/admin');
@@ -18,6 +13,11 @@ const bloggerRouter = require("./routes/blogger");
 const roleRouter = require("./routes/role");
 const categoryRouter = require("./routes/category");
 const app = express();
+
+
+
+
+
 
 app.use(express.json({ limit: '200mb' }));
 
@@ -29,6 +29,11 @@ app.use(cors({credentials:true,origin:'http://localhost:3000'}));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
+
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
 
 mongoose.connect('mongodb+srv://thanhpqgch210568:1@cluster0.gac1iv3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 
@@ -42,7 +47,7 @@ app.use(authRouter);
 app.use(roleRouter);
 app.use(categoryRouter);
 
-const port = process.env.PORT || 9000
+const port = process.env.PORT || 4000
 
 io.on('connection', (socket) => {
     //console.log('a user connected', socket.id);
