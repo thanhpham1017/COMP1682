@@ -4,11 +4,6 @@ const cors = require('cors');
 const mongoose = require("mongoose");
 const cookieParser = require('cookie-parser');
 
-const http = require('http');
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
-
 const postRouter = require('./routes/post');
 const pinRouter = require("./routes/pin");
 const adminRouter = require('./routes/admin');
@@ -19,10 +14,18 @@ const roleRouter = require("./routes/role");
 const categoryRouter = require("./routes/category");
 const app = express();
 
+
+
+
+
+
 app.use(express.json({ limit: '200mb' }));
+
+// Sử dụng body-parser với giới hạn kích thước tệp
 app.use(bodyParser.json({ limit: '500mb' }));
 app.use(bodyParser.urlencoded({ limit: '500mb', extended: true }));
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+
+app.use(cors({credentials:true,origin:'http://localhost:3000'}));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
@@ -33,6 +36,7 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 
 mongoose.connect('mongodb+srv://thanhpqgch210568:1@cluster0.gac1iv3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+
 
 app.use(pinRouter);
 app.use(postRouter);
@@ -46,13 +50,15 @@ app.use(categoryRouter);
 const port = process.env.PORT || 4000
 
 io.on('connection', (socket) => {
+    //console.log('a user connected', socket.id);
     socket.on('comment', (msg) => {
-        io.emit("new-comment", msg);
+      // console.log('new comment received', msg);
+      io.emit("new-comment", msg);
     })
 })
 
-exports.io = io;
+exports.io = io
 
-server.listen(4000); // Use server.listen instead of app.listen
-
-//pp.listen(4000);
+server.listen(port, () => {
+  console.log(` Server running on port ${port}`);
+})

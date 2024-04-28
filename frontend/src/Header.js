@@ -26,8 +26,6 @@ export default function Header() {
   }
 
   const username = userInfo?.username;
-  
-  console.log(username);
 
   return (
     <header className="top-bar">
