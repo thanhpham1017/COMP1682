@@ -115,6 +115,26 @@ router.post('/blogger/add', verifyToken, checkAdmin, async (req, res) => {
     }
 });
 
+router.delete('/blogger/delete/:id', verifyToken, checkAdmin, async (req, res) => {
+    try {
+        const bloggerId = req.params.id;
+        const Blogger = await BloggerModel.findById(bloggerId);
+        const deleteAccount = await AccountModel.findByIdAndDelete(Blogger.account);
+        const deletedBlogger = await BloggerModel.deleteById(bloggerId);
+        if (!deletedBlogger) {
+            res.status(404).json({ success: false, error: "category not found" });
+            return;
+        }
+        if (!deleteAccount) {
+            res.status(404).json({ success: false, error: "account not found" });
+            return;
+        }
+        res.status(200).json({ success: true, message: "blogger deleted successfully" });
+    } catch (error) {
+        console.error("Error while deleting category:", error);
+        res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+});
 
 //---------------------------------------------------------------------------
 //edit admin

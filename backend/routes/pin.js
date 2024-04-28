@@ -25,6 +25,22 @@ router.get("/pins", async (req, res) => {
     }
 });
 
+router.delete('/pin/delete/:id', verifyToken, checkAdmin, async (req, res) => {
+    try {
+        const pin = req.params.id;
+        const deletedPin = await Pin.findByIdAndDelete(pin);
+
+        if (!deletedPin) {
+            res.status(404).json({ success: false, error: "Pin not found" });
+            return;
+        }
+        res.status(200).json({ success: true, message: "pin deleted successfully" });
+    } catch (error) {
+        console.error("Error while deleting category:", error);
+        res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+});
+
 router.get("/categories", async (req, res) => {
     try {
         const categories = await Category.find();
