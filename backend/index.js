@@ -42,6 +42,8 @@ app.use(authRouter);
 app.use(roleRouter);
 app.use(categoryRouter);
 
+const port = process.env.PORT || 9000
+
 io.on('connection', (socket) => {
     //console.log('a user connected', socket.id);
     socket.on('comment', (msg) => {
@@ -52,4 +54,6 @@ io.on('connection', (socket) => {
 
 exports.io = io
 
-app.listen(4000);
+server.listen(port, () => {
+  console.log(` Server running on port ${port}`);
+})
