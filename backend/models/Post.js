@@ -6,7 +6,18 @@ const PostSchema = new Schema({
   summary:String,
   content:String,
   cover:String,
-  author:{type:Schema.Types.ObjectId, ref:'User'},
+  author:{type:Schema.Types.ObjectId, ref:'Account'},
+  likes: [{ type: ObjectId, ref: "User" }],
+  comments: [
+    {
+      text: String,
+      created: { type: Date, default: Date.now },
+      postedBy: {
+          type: ObjectId,
+          ref: "Account",
+      },
+    },
+  ],
 }, {
   timestamps: true,
 });

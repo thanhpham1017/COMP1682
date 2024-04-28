@@ -45,10 +45,45 @@ router.get("/category/:id", async (req, res) => {
     }
 });
 
-router.get("/packages", async (req, res) => {
+router.get("pin/package/:id", async (req, res) => {
     try {
-        const packages = await Package.findById();
+        const pinId = req.params.id;
+        const pin = await Pin.findById(pinId);
+        const packages = await Package.find();
+
+        const PackageId = req.body.selectedPackage;
+        const selectedPackage = await Package.findById(PackageId);
+
+        const addTime = selectedPackage.time;
+        const timeToAddInMilliseconds = addTime * 60 * 60 * 1000;
+
+        pin.time = new Date();
+        pin.time = pin.time.getTime() + timeToAddInMilliseconds;
+
+        await pin.save();
+
         res.status(200).json(packages);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+router.get("/popular", async (req, res) => {
+    try {
+        const pin = await Pin.find();
+        if (pin) {
+            const now = new Date();
+            const pinData = await pin.filter(Pin => Pin.time >= now.getTime());
+            if (pinData) {
+                res.status(200).json({success: true, pinData});
+            } else {
+                res.status(404).json({success: false, error: "No popular restaurant"});
+                return;
+            }
+        } else {
+            res.status(404).json({success: false, error: "No restaurant"});
+                return;
+        }
     } catch (err) {
         res.status(500).json(err);
     }

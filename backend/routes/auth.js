@@ -11,10 +11,11 @@ dotenv.config();
 
 
 router.post('/register', async (req,res) => {
-  const {email,password,role} = req.body;
+  const {email,username,password,role} = req.body;
   try{
     const accountDoc = await AccountModel.create({
       email,
+      username,
       password:bcrypt.hashSync(password,salt),
       role,
     });

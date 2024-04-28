@@ -56,7 +56,7 @@ router.get('/guest', verifyToken, checkAdmin, async (req, res) => {
 
 router.post('/guest/add', verifyToken, checkAdmin, async (req, res) => {
     try {
-        const { name, dob, gender, address, email, password } = req.body;
+        const { name, dob, gender, address, email, username, password } = req.body;
         const hashPassword = bcrypt.hashSync(password, salt);
 
         // Check if image is provided
@@ -76,6 +76,7 @@ router.post('/guest/add', verifyToken, checkAdmin, async (req, res) => {
         // Create new account for the guest
         const account = await AccountModel.create({
             email: email,
+            username: username,
             password: hashPassword,
             role: 'guest' // Specify the role for the account
         });
@@ -173,6 +174,7 @@ router.post('/guest/edit/:id', verifyToken, checkAdmin, async (req, res) => {
 
         // Update account details
         account.email = req.body.email;
+        account.username = req.body.username;
         account.password = bcrypt.hashSync(req.body.password, salt);
         await account.save();
 
@@ -261,6 +263,7 @@ router.post('/editGuest/:id', verifyToken, checkGuest, upload.single('image'), a
         } 
         await guest.save();
         
+        account.username = req.body.username;
         account.password = bcrypt.hashSync(req.body.password, salt);
         await account.save();
 

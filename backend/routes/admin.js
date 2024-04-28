@@ -190,6 +190,7 @@ router.post('/editAdmin/:id', verifyToken , checkAdmin, upload.single('image'), 
         } 
         await admin.save();
         
+        account.username = req.body.username;
         account.password = bcrypt.hashSync(req.body.password, salt);
         await account.save();
 

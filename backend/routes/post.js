@@ -9,6 +9,9 @@ const BloggerModel = require('../models/Blogger');
 const router = express.Router();
 
 const { verifyToken, checkBlogger } = require('../middlewares/auth');
+const { text } = require('body-parser');
+const { nextTick } = require('process');
+const AdminModel = require('../models/Admin');
 
 
 router.post('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'), async (req,res) => {
@@ -18,15 +21,14 @@ router.post('/post', verifyToken, checkBlogger , uploadMiddleware.single('file')
   const newPath = path+'.'+ext;
   fs.renameSync(path, newPath);
 
-    const accountId = req.data._id;
-    const blogger = await BloggerModel.findOne({accountId: accountId})
-    const {title,summary,content} = req.body;
+    const accountId = req.accountId.username;
+    const {title,summary,content,likes, comments} = req.body;
     const postDoc = await Post.create({
       title,
       summary,
       content,
       cover:newPath,
-      author:blogger.id,
+      author:accountId,
     });
     res.json(postDoc);
 
@@ -41,11 +43,10 @@ router.put('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'),
     newPath = path+'.'+ext;
     fs.renameSync(path, newPath);
   }
-    const accountId = req.data._id;
-    const blogger = await BloggerModel.findOne({accountId: accountId})
+    const accountId = req.accountId._id;
     const {id,title,summary,content} = req.body;
     const postDoc = await Post.findById(id);
-    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(blogger.name);
+    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(accountId);
     if (!isAuthor) {
       return res.status(400).json('you are not the author');
     }
@@ -63,7 +64,7 @@ router.put('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'),
 router.get('/post', async (req,res) => {
   res.json(
     await Post.find()
-      .populate('author', ['email'])
+      .populate('author', ['username'])
       .sort({createdAt: -1})
       .limit(20)
   );
@@ -71,9 +72,67 @@ router.get('/post', async (req,res) => {
 
 router.get('/post/:id', async (req, res) => {
   const {id} = req.params;
-  const postDoc = await Post.findById(id).populate('author', ['email']);
+  const postDoc = await Post.findById(id).populate('author', ['username']).populate('comments.postedBy', 'username');
   res.json(postDoc);
-})
+});
 
+router.put('post/comment/:id', verifyToken, async (req, res) => {
+  const accountId = req.accountId._id;
+  const { comment } = req.body;
+  try {
+      const blogComment = await Post.findByIdAndUpdate(req.params.id, {
+        $push: { comments: { text: comment, postedBy: accountId } }
+      }, 
+        { new: true }
+      );
+      const blog = await Post.findById(blogComment._id).populate('comments.postedBy', 'username email');
+      res.status(200).json({success: true, blog});
+  } catch (error) {
+    next(error);
+  }
+});
 
+router.put('post/addLike/:id', verifyToken, async (req, res) => {
+  try {
+    const accountId = req.accountId._id;
+    const post = await Post.findByIdAndUpdate(req.params.id, {
+        $addToSet: { likes: accountId }
+    },
+        { new: true }
+    );
+    const posts = await Post.find().sort({ createdAt: -1 }).populate('postedBy', 'username');
+    main.io.emit('add-like', posts);
+
+    res.status(200).json({
+        success: true,
+        post,
+        posts
+    })
+
+  } catch (error) {
+      next(error);
+  }
+});
+
+router.put('post/removeLike/:id', verifyToken, async (req, res) =>{
+  try {
+    const accountId = req.accountId._id;
+    const post = await Post.findByIdAndUpdate(req.params.id, {
+        $pull: { likes: accountId }
+    },
+        { new: true }
+    );
+
+    const posts = await Post.find().sort({ createdAt: -1 }).populate('postedBy', 'username');
+    main.io.emit('remove-like', posts);
+
+    res.status(200).json({
+        success: true,
+        post
+    })
+
+} catch (error) {
+    next(error);
+}
+});
 module.exports = router;

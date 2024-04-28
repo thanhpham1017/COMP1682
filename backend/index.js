@@ -4,6 +4,11 @@ const cors = require('cors');
 const mongoose = require("mongoose");
 const cookieParser = require('cookie-parser');
 
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
+
 const postRouter = require('./routes/post');
 const pinRouter = require("./routes/pin");
 const adminRouter = require('./routes/admin');
@@ -36,5 +41,15 @@ app.use(bloggerRouter);
 app.use(authRouter);
 app.use(roleRouter);
 app.use(categoryRouter);
+
+io.on('connection', (socket) => {
+    //console.log('a user connected', socket.id);
+    socket.on('comment', (msg) => {
+      // console.log('new comment received', msg);
+      io.emit("new-comment", msg);
+    })
+})
+
+exports.io = io
 
 app.listen(4000);
