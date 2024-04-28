@@ -7,13 +7,13 @@ const PostSchema = new Schema({
   content:String,
   cover:String,
   author:{type:Schema.Types.ObjectId, ref:'Account'},
-  likes: [{ type: ObjectId, ref: "User" }],
+  likes: [{ type:Schema.Types.ObjectId, ref: "Account" }],
   comments: [
     {
       text: String,
       created: { type: Date, default: Date.now },
       postedBy: {
-          type: ObjectId,
+          type:Schema.Types.ObjectId,
           ref: "Account",
       },
     },
