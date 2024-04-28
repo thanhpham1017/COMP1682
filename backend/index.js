@@ -38,6 +38,8 @@ app.use(authRouter);
 app.use(roleRouter);
 app.use(categoryRouter);
 
+const port = process.env.PORT || 9000
+
 io.on('connection', (socket) => {
     socket.on('comment', (msg) => {
         io.emit("new-comment", msg);
@@ -47,3 +49,5 @@ io.on('connection', (socket) => {
 exports.io = io;
 
 server.listen(4000); // Use server.listen instead of app.listen
+
+app.listen(4000);
