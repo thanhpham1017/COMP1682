@@ -15,10 +15,6 @@ const categoryRouter = require("./routes/category");
 const app = express();
 
 
-
-
-
-
 app.use(express.json({ limit: '200mb' }));
 
 // Sử dụng body-parser với giới hạn kích thước tệp

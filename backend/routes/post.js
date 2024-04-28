@@ -70,10 +70,36 @@ router.get('/post', async (req,res) => {
   );
 });
 
+
+
 router.get('/post/:id', async (req, res) => {
   const {id} = req.params;
   const postDoc = await Post.findById(id).populate('author', ['username']).populate('comments.postedBy', 'username');
   res.json(postDoc);
+});
+
+router.delete('/post/delete/:id', verifyToken, async (req, res) => {
+  try {
+
+      const accountId = req.accountId._id;
+      const {id} = req.body;
+      const postDoc = await Post.findById(id);
+      const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(accountId);
+      if (!isAuthor) {
+        return res.status(400).json('you are not the author');
+      }
+
+      const DeletePost = await Post.findByIdAndDelete(id);
+
+      if (!DeletePost) {
+          res.status(404).json({ success: false, error: "account not found" });
+          return;
+      }
+      res.status(200).json({ success: true, message: "blogger deleted successfully" });
+  } catch (error) {
+      console.error("Error while deleting category:", error);
+      res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
 });
 
 router.put('post/comment/:id', verifyToken, async (req, res) => {

@@ -115,6 +115,27 @@ router.post('/guest/add', verifyToken, checkAdmin, async (req, res) => {
 
 
 
+router.delete('/guest/delete/:id', verifyToken, checkAdmin, async (req, res) => {
+    try {
+        const guestId = req.params.id;
+        const Guest = await GuestModel.findById(guestId);
+        const deleteAccount = await AccountModel.findByIdAndDelete(Guest.account);
+        const deletedGuest = await GuestModel.findByIdAndDelete(guestId);
+        if (!deleteAccount) {
+            res.status(404).json({ success: false, error: "category not found" });
+            return;
+        }
+        if (!deletedGuest) {
+            res.status(404).json({ success: false, error: "account not found" });
+            return;
+        }
+        res.status(200).json({ success: true, message: "blogger deleted successfully" });
+    } catch (error) {
+        console.error("Error while deleting category:", error);
+        res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+});
+
 //---------------------------------------------------------------------------
 //edit admin
 // Render form for editing a specific admin

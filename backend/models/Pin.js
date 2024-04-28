@@ -43,10 +43,28 @@ const PinSchema = new mongoose.Schema(
         type: [String],
         required: true,
     },
-    comments: {
-        type: [String],
-        required: true,
+    totalrating: {
+        type: Number,
     },
+    totalpeoplerating: {
+        type: Number,
+    },
+    averagerate: {
+        type: Number,
+        required: true,
+        min: 0,
+        max: 5,
+    },
+    comments: [
+        {
+          text: String,
+          created: { type: Date, default: Date.now },
+          postedBy: {
+              type:Schema.Types.ObjectId,
+              ref: "Account",
+          },
+        },
+    ],
     time: {
         type: Date,
     },
