@@ -80,8 +80,10 @@ export default function IndexPage(){
       long,
     });
   }
-  const currentUser = userInfo?.username;
 
+  const currentUserEmail = localStorage.getItem('userEmail');
+
+  
   const handleImageDrop = (acceptedFiles) => {
     // Xử lý khi người dùng tải lên hình ảnh
     const files = acceptedFiles.map(file => {
@@ -120,7 +122,7 @@ export default function IndexPage(){
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newPin = {
-      username: 'ngoc',
+      email : currentUserEmail,
       title,
       desc,
       price,

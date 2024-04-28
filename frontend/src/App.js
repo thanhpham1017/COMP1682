@@ -15,16 +15,16 @@ import ProfilePage from './pages/ProfilePage';
 import AdminPage from "./pages/AdminPage";
 import { UserContext } from "./pages/UserContext";
 
-function ProtectedRoute({ element: Element, requiredRole, ...rest }) {
-  const { user } = useContext(UserContext);
+// function ProtectedRoute({ element: Element, requiredRole, ...rest }) {
+//   const { user } = useContext(UserContext);
 
-  if (!user || user.role !== requiredRole) {
-    alert("Bạn không có quyền truy cập.");
-    return <Navigate to="/" />;
-  }
+//   if (!user || user.role !== requiredRole) {
+//     alert("Bạn không có quyền truy cập.");
+//     return <Navigate to="/" />;
+//   }
 
-  return <Route {...rest} element={<Element />} />;
-}
+//   return <Route {...rest} element={<Element />} />;
+// }
 
 function App() {
 
@@ -37,7 +37,7 @@ function App() {
           <Route path="/post/:id" element={<PostPage />} />
           <Route path="/edit/:id" element={<EditPost />} />
           <Route exact path="/profile/settings" element={<ProfilePage />} />
-          <Route path="/admin" element={<ProtectedRoute element={<AdminPage />} requiredRole="Admin" />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

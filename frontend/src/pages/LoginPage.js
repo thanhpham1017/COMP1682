@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
 import { UserContext } from "./UserContext";
@@ -10,7 +10,15 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
 
-    const { setUserInfo } = useContext(UserContext);
+    const { userInfo, setUserInfo } = useContext(UserContext);
+
+    // Kiểm tra nếu người dùng đã đăng nhập trước đó và có email trong localStorage
+    useEffect(() => {
+        const storedEmail = localStorage.getItem('userEmail');
+        if (storedEmail && !userInfo) {
+            setEmail(storedEmail);
+        }
+    }, []);
 
     async function login(ev) {
         ev.preventDefault();
@@ -23,6 +31,8 @@ export default function LoginPage() {
         if (response.ok) {
             response.json().then(userInfo => {
                 setUserInfo(userInfo);
+                // Lưu email vào localStorage khi người dùng đăng nhập thành công
+                localStorage.setItem('userEmail', email);
                 setRedirect(true);
             });
         } else if (response.status === 400) {
