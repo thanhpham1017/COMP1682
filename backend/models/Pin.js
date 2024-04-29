@@ -55,6 +55,9 @@ const PinSchema = new mongoose.Schema(
         min: 0,
         max: 5,
     },
+    choosen: {
+        type: String,
+    },
     comments: [
         {
             text: String,

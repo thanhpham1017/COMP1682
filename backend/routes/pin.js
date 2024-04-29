@@ -18,7 +18,8 @@ router.post("/pinCreate", async (req, res) => {
 //get all pins
 router.get("/pins", async (req, res) => {
     try {
-        const pins = await Pin.find();
+        const choosenPin = await Pin.find();
+        const pins = await choosenPin.filter(Pin => Pin.choosen === "Yes");
         res.status(200).json(pins);
     } catch (err) {
         res.status(500).json(err);
@@ -94,7 +95,38 @@ router.put('/pin/comment/:id', verifyToken, async (req, res, next) => {
     }
 });
 
+router.get('/pin/select/:id', verifyToken, checkAdmin,async (req, res) => {
+    try {
+        const pinId = req.params.id;
+        const pin = await Pin.findById(pinId);
+        if (pin) {
+            res.status(200).json({success: true, pin});
+        } else {
+            res.status(404).json({success: false, error: "Pin not found"});
+            return;
+        }
+    }  catch (err) {
+        res.status(500).json(err);
+    };
+});
 
+
+router.put('/pin/select/:id', verifyToken, checkAdmin, async (req, res) => {
+    try {
+        const pinId = req.params.id;
+        const pin = await Pin.findById(pinId);
+        if (pin) {
+            pin.choosen = req.body.choosen;
+            await pin.save();
+            res.status(200).json({success: true, message: "Choose successfully"});
+        } else {
+            res.status(404).json({success: false, error: "Pin not found"});
+            return;
+        }
+    }  catch (err) {
+        res.status(500).json(err);
+    };
+});
 
 //Nếu lỗi thì dùng api dưới
 
@@ -127,6 +159,8 @@ router.put('/pin/rate/:id', verifyToken, async (req, res) => {
         res.status(500).json(err);
     }
 });
+
+
 
 
 router.get("pin/package/:id", async (req, res) => {
