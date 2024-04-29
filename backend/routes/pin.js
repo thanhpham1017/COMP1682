@@ -62,6 +62,27 @@ router.get("/category/:id", async (req, res) => {
     }
 });
 
+
+// Search pins by title
+router.get("/search", async (req, res) => {
+    try {
+      const { title } = req.query; // Get the search term from the query parameter
+  
+      if (!title) {
+        return res.status(400).json({ success: false, error: "Please provide a search term" });
+      }
+  
+      // Search by title using regular expression for partial matches (optional)
+      const searchRegex = new RegExp(title, 'i'); // 'i' flag for case-insensitive search
+  
+      const pins = await Pin.find({ title: searchRegex });
+  
+      res.status(200).json(pins);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+});
+
 router.put('/pin/comment/:id', verifyToken, async (req, res, next) => {
     const accountId = req.accountId._id;
     const { comment } = req.body;
