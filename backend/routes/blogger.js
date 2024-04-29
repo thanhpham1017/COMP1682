@@ -216,7 +216,7 @@ router.post('/blogger/edit/:id', verifyToken, checkAdmin, async (req, res) => {
     }
 });
 
-router.get('/profile', verifyToken, checkBlogger, async (req, res) => {
+router.get('/blogger/profile', verifyToken, checkBlogger, async (req, res) => {
     try{
         var accountId = req.accountId;
         var AccountData = await AccountModel.findById(accountId._id);

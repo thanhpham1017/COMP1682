@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
-import { UserContext } from "./UserContext";
+import { UserContext } from "../UserContext";
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');

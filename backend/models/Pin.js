@@ -57,12 +57,12 @@ const PinSchema = new mongoose.Schema(
     },
     comments: [
         {
-          text: String,
-          created: { type: Date, default: Date.now },
-          postedBy: {
-              type:Schema.Types.ObjectId,
-              ref: "Account",
-          },
+            text: String,
+            created: { type: Date, default: Date.now },
+            postedBy: {
+                type:Schema.Types.ObjectId,
+                ref: "Account",
+            },
         },
     ],
     time: {

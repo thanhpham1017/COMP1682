@@ -1,12 +1,10 @@
 import {Link} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
-import {UserContext} from "./pages/UserContext";
+import {UserContext} from "./UserContext";
 import logoImage from '../src/img/logo.png';
 export default function Header() {
   const {setUserInfo,userInfo} = useContext(UserContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  
   useEffect(() => {
     fetch('http://localhost:4000/profile', {
       credentials: 'include',
@@ -27,6 +25,7 @@ export default function Header() {
 
   const username = userInfo?.username;
 
+  console.log();
   return (
     <header className="top-bar">
       <div className="logo">
@@ -40,7 +39,7 @@ export default function Header() {
           <a href="/admin">Test Admin</a>
       </div>
       <nav>
-          {username ? (
+          {username && (
               <div className="user-info">
                   <div className="username" onClick={() => setDropdownOpen(!dropdownOpen)}>{username}</div>
                   {dropdownOpen && (
@@ -51,7 +50,7 @@ export default function Header() {
                       </div>
                   )}
               </div>
-          ) : (
+          )} {!username && (
               <div className="auth-links">
                   <Link to="/login" className="login">Login</Link>
                   <Link to="/register" className="register">Register</Link>

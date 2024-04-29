@@ -124,7 +124,7 @@ router.get('/', async (req, res) => {
 //     }
 // });
 
-router.get('/profile', verifyToken , checkAdmin, async (req, res) => {
+router.get('/admin/profile', verifyToken , checkAdmin, async (req, res) => {
     try{
         var accountId = req.accountId;
         var AccountData = await AccountModel.findById(accountId._id);

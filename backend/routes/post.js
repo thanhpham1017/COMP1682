@@ -7,32 +7,49 @@ const fs = require('fs');
 const BloggerModel = require('../models/Blogger');
 
 const router = express.Router();
-
 const { verifyToken, checkBlogger } = require('../middlewares/auth');
 const { text } = require('body-parser');
 const { nextTick } = require('process');
 const AdminModel = require('../models/Admin');
+const AccountModel = require('../models/Account');
 
 
-router.post('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'), async (req,res) => {
-  const {originalname,path} = req.file;
-  const parts = originalname.split('.');
-  const ext = parts[parts.length - 1];
-  const newPath = path+'.'+ext;
-  fs.renameSync(path, newPath);
-
+router.post('/post', verifyToken, uploadMiddleware.single('file'), async (req,res) => {
+  try {
+    const { originalname, path } = req.file;
+    const parts = originalname.split('.');
+    const ext = parts[parts.length - 1];
+    const newPath = path + '.' + ext;
+    fs.renameSync(path, newPath);
+    // Get the accountId from the verified token
     const accountId = req.accountId.username;
-    const {title,summary,content,likes, comments} = req.body;
+    console.log(accountId);
+    // Find the Blogger document based on the username
+    const blogger = await AccountModel.findOne({ username: accountId });
+    console.log(blogger);
+    if (!blogger) {
+      return res.status(404).json({ success: false, error: "Blogger not found" });
+    }
+    // Extract the ObjectId of the author
+    const authorId = blogger._id;
+    // Extract other properties from the request body
+    const { title, summary, content, likes, comments } = req.body;
+    // Create a new post with the retrieved author ObjectId
     const postDoc = await Post.create({
       title,
       summary,
       content,
-      cover:newPath,
-      author:accountId,
+      cover: newPath,
+      author: authorId, // Use the ObjectId of the author
     });
-    res.json(postDoc);
 
+    res.json(postDoc);
+  } catch (error) {
+    console.error("Error while creating post:", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
 });
+
 
 router.put('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'), async (req,res) => {
   let newPath = null;
@@ -102,7 +119,7 @@ router.delete('/post/delete/:id', verifyToken, async (req, res) => {
   }
 });
 
-router.put('post/comment/:id', verifyToken, async (req, res) => {
+router.put('/post/comment/:id', verifyToken, async (req, res) => {
   const accountId = req.accountId._id;
   const { comment } = req.body;
   try {
@@ -118,29 +135,32 @@ router.put('post/comment/:id', verifyToken, async (req, res) => {
   }
 });
 
-router.put('post/addLike/:id', verifyToken, async (req, res) => {
+router.put('/post/addLike/:id', verifyToken, async (req, res) => {
   try {
     const accountId = req.accountId._id;
     const post = await Post.findByIdAndUpdate(req.params.id, {
-        $addToSet: { likes: accountId }
+      $addToSet: { likes: accountId }
     },
-        { new: true }
+    { new: true }
     );
-    const posts = await Post.find().sort({ createdAt: -1 }).populate('postedBy', 'username');
-    main.io.emit('add-like', posts);
+    const posts = await Post.find().sort({ createdAt: -1 }).populate('author', 'username');
+    req.io.emit('add-like', posts); // Emitting add-like event to all connected clients
 
     res.status(200).json({
-        success: true,
-        post,
-        posts
-    })
+      success: true,
+      post,
+      posts
+    });
 
   } catch (error) {
-      next(error);
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 });
 
-router.put('post/removeLike/:id', verifyToken, async (req, res) =>{
+
+
+router.put('/post/removeLike/:id', verifyToken, async (req, res) => {
   try {
     const accountId = req.accountId._id;
     const post = await Post.findByIdAndUpdate(req.params.id, {
@@ -149,16 +169,18 @@ router.put('post/removeLike/:id', verifyToken, async (req, res) =>{
         { new: true }
     );
 
-    const posts = await Post.find().sort({ createdAt: -1 }).populate('postedBy', 'username');
-    main.io.emit('remove-like', posts);
+    const posts = await Post.find().sort({ createdAt: -1 }).populate('author', 'username');
+    req.io.emit('remove-like', posts); // Emitting remove-like event to all connected clients
 
     res.status(200).json({
         success: true,
         post
     })
 
-} catch (error) {
-    next(error);
-}
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
 });
+
 module.exports = router;

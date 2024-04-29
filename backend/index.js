@@ -14,7 +14,6 @@ const roleRouter = require("./routes/role");
 const categoryRouter = require("./routes/category");
 const app = express();
 
-
 app.use(express.json({ limit: '200mb' }));
 
 // Sử dụng body-parser với giới hạn kích thước tệp
@@ -33,6 +32,10 @@ const io = new Server(server);
 
 mongoose.connect('mongodb+srv://thanhpqgch210568:1@cluster0.gac1iv3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 app.use(pinRouter);
 app.use(postRouter);
@@ -46,15 +49,11 @@ app.use(categoryRouter);
 const port = process.env.PORT || 4000
 
 io.on('connection', (socket) => {
-    //console.log('a user connected', socket.id);
     socket.on('comment', (msg) => {
-      // console.log('new comment received', msg);
       io.emit("new-comment", msg);
     })
-})
-
-exports.io = io
+});
 
 server.listen(port, () => {
   console.log(` Server running on port ${port}`);
-})
+});

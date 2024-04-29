@@ -46,18 +46,27 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.get('/profile', verifyToken, async (req, res) => {
+  try {
+    const accountId = req.accountId;
 
+    // Find the user by accountId
+    const user = await AccountModel.findById(accountId);
 
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
-router.get('/profile', verifyToken, (req,res) => {
-  try{
-    var account = req.accountId;
-    res.status(200).json({ success: true, message: "Render edit blogger form", account });
-}catch(error){
-    console.error("Error while fetching Blogger:", error);
-    res.status(500).send("Internal Server Error");
-}
+    // Assuming username is stored in the 'username' field of the User model
+    const username = user.username;
+
+    res.status(200).json({ success: true, message: 'Render edit blogger form', username });
+  } catch (error) {
+    console.error('Error while fetching Blogger:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
 
 
 router.post('/logout', (req, res) => {

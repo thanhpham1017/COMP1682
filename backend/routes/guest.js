@@ -218,7 +218,7 @@ router.post('/guest/edit/:id', verifyToken, checkAdmin, async (req, res) => {
 });
 
 
-router.get('/profile', verifyToken, checkGuest, async (req, res) => {
+router.get('/guest/profile', verifyToken, checkGuest, async (req, res) => {
     try{
         var accountId = req.accountId;
         var AccountData = await AccountModel.findById(accountId._id);
