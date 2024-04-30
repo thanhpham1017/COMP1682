@@ -18,7 +18,7 @@ const { checkAdmin, verifyToken } = require('../middlewares/auth');
 
 //---------------------------Phần này cho Admin---------------------------------------------
 //show all 
-router.get('/category',verifyToken ,checkAdmin  ,async(req, res) => {
+router.get('/category',verifyToken  ,async(req, res) => {
     try{
         var categoryList = await CategoryModel.find({});
         res.status(200).json({ success: true, data: categoryList });

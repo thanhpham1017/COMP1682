@@ -68,10 +68,10 @@ router.put('/pin/comment/:id', verifyToken, async (req, res, next) => {
     const pinrating = await Pin.findById(pinId);
     const pinrate = req.body.rate;
     try {
-        const existingComment = await Pin.findById(pinId, {
-            comments: { $elemMatch: { postedBy: accountId } } // Check comments array for user's id
-        });
-      
+        // const existingComment = await Pin.findById(pinId, {
+        //     comments: { $elemMatch: { postedBy: accountId } } // Check comments array for user's id
+        // });
+        
         // if (existingComment.comments.length > 0) {
         //     return res.status(400).json({ success: false, message: 'You have already rated on this pin.' });
         // }
@@ -83,12 +83,24 @@ router.put('/pin/comment/:id', verifyToken, async (req, res, next) => {
         // await pinrating.save();
 
         const pinComment = await Pin.findByIdAndUpdate(req.params.id, {
-          $push: { comments: { text: comment, postedBy: accountId } }
+            $push: { comments: { text: comment, postedBy: accountId } }
         },
-          { new: true }
+            { new: true }
         );
         const pin = await Pin.findById(pinComment._id).populate('comments.postedBy', 'username email');
         res.status(200).json({success: true, pin});
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+router.get("/pin/comments/:id", verifyToken,async (req, res) => {
+    try {
+        const pinId = req.params.id;
+        const pin = await Pin.findById(pinId);
+        if (!pin) {
+            return res.status(404).json({ success: false, error: "Pin not found" });
+        }
+        res.status(200).json({ success: true, comments: pin.comments });
     } catch (err) {
         res.status(500).json(err);
     }

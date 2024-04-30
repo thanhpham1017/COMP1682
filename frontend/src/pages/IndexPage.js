@@ -112,13 +112,17 @@ export default function IndexPage(){
     });
   };
 
-  useEffect(() => {
-    // Kiểm tra localStorage hoặc sessionStorage để lấy dữ liệu comment khi trang được load lại
-    const savedComments = localStorage.getItem('comments');
-    if (savedComments) {
-      setComments(JSON.parse(savedComments));
-    }
-  }, []);
+
+
+  // useEffect(() => {
+  //   // Kiểm tra localStorage hoặc sessionStorage để lấy dữ liệu comment khi trang được load lại
+  //   const savedComments = localStorage.getItem('comments');
+  //   if (savedComments) {
+  //     setComments(JSON.parse(savedComments));
+  //   }
+  // }, []);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newPin = {
@@ -150,7 +154,27 @@ export default function IndexPage(){
     }
   };
 
+  useEffect(() => {
+    if (currentPinId) {
+      fetchComments();
+    }
+  }, [currentPinId]);
   
+  // Hàm để gửi yêu cầu GET đến API endpoint để lấy comment của pin hiện tại
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`http://localhost:4000/pin/comments/${currentPinId}`, {
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setComments(data.comments);
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  };
 
   const addComment = async (e) => {
     e.preventDefault();
@@ -345,13 +369,17 @@ export default function IndexPage(){
   
   return(
     <div style={{position: "relative"}}>
-        <div>
+        <div className="select-wrapper">
           <select onChange={(e) => filterPinsByCategory(e.target.value)}>
             <option value="">Select a category</option>
             {categories.map(category => (
               <option key={category._id} value={category.name}>{category.name}</option>
             ))}
           </select>
+        </div>
+        <div className="search-wrapper">
+          <input className="searchInput" type="text" placeholder="Search..." />
+          <button>Search</button>
         </div>
         <MapGL
           ref={mapRef}
@@ -360,7 +388,7 @@ export default function IndexPage(){
           initialViewState={{
             ...viewport
           }}
-          style={{width: "100%", height: "500px"}}
+          style={{width: "100%", height: "500px", marginTop: "30px"}}
           mapStyle="mapbox://styles/mapbox/streets-v12"
           onDblClick={handleAddClick}
           transitionDuration="200"
@@ -503,6 +531,7 @@ export default function IndexPage(){
                   <button className="formSubmitButton" type="submit">Submit</button>
                 </form>   
                 {/* Danh sách các comment */}
+                {console.log(comments[currentPinId])};
                 {comments[currentPinId] && (
                   <div className="comments">
                     <h3>Comments:</h3>
@@ -513,7 +542,7 @@ export default function IndexPage(){
                     ))}
                   </div>
                 )}
-              </div>
+                </div>
             )}
           </div>
         )}

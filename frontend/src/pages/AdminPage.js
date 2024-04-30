@@ -6,16 +6,18 @@ export default function AdminPage() {
     const [newCategory, setNewCategory] = useState({ name: '' });
     const [editCategory, setEditCategory] = useState({ _id: '', name: '' });
     const [guests, setGuests] = useState([]);
-    const [newGuest, setNewGuest] = useState({ name: '', dob: '', gender: '', address: '', email: '' ,password: '' });
-    const [editGuest, setEditGuest] = useState({ _id: '', name: '', dob: '', gender: '', address: '', email: '' ,password: '' });
+    const [pins, setPins] = useState([]);
+    const [newGuest, setNewGuest] = useState({ name: '', dob: '', gender: '', address: '',username:'', email: '' ,password: '' });
+    const [editGuest, setEditGuest] = useState({ _id: '', name: '', dob: '', gender: '', address: '', username: '',email: '' ,password: '' });
     const [bloggers, setBloggers] = useState([]);
-    const [newBlogger, setNewBlogger] = useState({ name: '', dob: '', gender: '', address: '',email: '',password: ''});
-    const [editBlogger, setEditBlogger] = useState({ _id: '', name: '', dob: '', gender: '', address: '',email: '',password: '' });
+    const [newBlogger, setNewBlogger] = useState({ name: '', dob: '', gender: '', address: '',username: '',email: '',password: ''});
+    const [editBlogger, setEditBlogger] = useState({ _id: '', name: '', dob: '', gender: '', address: '',username: '',email: '',password: '' });
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [showEditCategoryTab, setShowEditCategoryTab] = useState(false);
     const [showEditGuestTab, setShowEditGuestTab] = useState(false);
     const [showEditBloggerTab, setShowEditBloggerTab] = useState(false);
     const [sidebarItem, setSidebarItem] = useState('');
+    const [errorMessage, setErrorMessage] = useState(''); 
     const navigate = useNavigate();
 
     // Function to fetch categories from the server
@@ -40,6 +42,10 @@ export default function AdminPage() {
 
     // Function to add a new category
     const handleAddCategory = async () => {
+        if (!newCategory.name.trim()) {
+            setErrorMessage('Please enter category name');
+            return;
+        }
         try {
             const response = await fetch('http://localhost:4000/category/add', {
                 method: 'POST',
@@ -61,6 +67,10 @@ export default function AdminPage() {
 
     // Function to edit a category
     const handleEditCategory = async () => {
+        if (!editCategory.name.trim()) {
+            setErrorMessage('Please enter category name');
+            return;
+        }
         try {
             const response = await fetch(`http://localhost:4000/category/edit/${editCategory._id}`, {
                 method: 'POST',
@@ -100,6 +110,7 @@ export default function AdminPage() {
 
     // Function to fetch guests from the server
     const fetchGuests = async () => {
+        
         try {
             const response = await fetch('http://localhost:4000/guest', {
                 credentials: 'include',
@@ -120,7 +131,10 @@ export default function AdminPage() {
 
     // Function to add a new guest
     const handleAddGuest = async () => {
-        debugger;
+        if (!newGuest.name.trim() || !newGuest.dob || !newGuest.gender || !newGuest.address || !newGuest.username || !newGuest.email || !newGuest.password) {
+            setErrorMessage('Please enter all guest details');
+            return;
+        }
         try {
             const response = await fetch('http://localhost:4000/guest/add', {
                 method: 'POST',
@@ -134,7 +148,7 @@ export default function AdminPage() {
                 throw new Error('Failed to add guest');
             }
             await fetchGuests();
-            setNewGuest({ name: '', dob: '', gender: '', address: '', email: '', password: '',});
+            setNewGuest({ name: '', dob: '', gender: '', address: '', username: '',email: '', password: '',});
         } catch (error) {
             console.error('Error adding guest:', error);
         }
@@ -142,6 +156,10 @@ export default function AdminPage() {
 
     // Function to edit a guest
     const handleEditGuest = async () => {
+        if (!editGuest.name.trim() || !editGuest.dob || !editGuest.gender || !editGuest.address || !editGuest.username || !editGuest.email || !editGuest.password) {
+            setErrorMessage('Please enter all guest details');
+            return;
+        }
         try {
             const response = await fetch(`http://localhost:4000/guest/edit/${editGuest._id}`, {
                 method: 'POST',
@@ -156,28 +174,28 @@ export default function AdminPage() {
             }
             await fetchGuests();
             setShowEditGuestTab(false);
-            setEditGuest({ _id: '', name: '', dob: '', gender: '', address: '', email: '', password: ''});
+            setEditGuest({ _id: '', name: '', dob: '', gender: '', address: '', username: '',email: '', password: ''});
         } catch (error) {
             console.error('Error editing guest:', error);
         }
     };
 
-    // Function to delete a guest
-    // const handleDeleteGuest = async (id) => {
-    //     try {
-    //         const response = await fetch(`http://localhost:4000/guest/delete/${id}`, {
-    //             method: 'DELETE',
-    //             credentials: 'include',
-    //         });
-    //         if (!response.ok) {
-    //             throw new Error('Failed to delete guest');
-    //         }
-    //         await fetchGuests();
-    //         setShowDeleteConfirmation(false);
-    //     } catch (error) {
-    //         console.error('Error deleting guest:', error);
-    //     }
-    // };
+ 
+    const handleDeleteGuest = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:4000/guest/delete/${id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete guest');
+            }
+            await fetchGuests();
+            setShowDeleteConfirmation(false);
+        } catch (error) {
+            console.error('Error deleting guest:', error);
+        }
+    };
 
     const fetchBloggers = async () => {
         try {
@@ -199,6 +217,10 @@ export default function AdminPage() {
     }, []);
 
     const handleAddBlogger = async () => {
+        if (!newBlogger.name.trim() || !newBlogger.dob || !newBlogger.gender || !newBlogger.address || !newBlogger.username || !newBlogger.email || !newBlogger.password) {
+            setErrorMessage('Please enter all blogger details');
+            return;
+        }
         debugger;
         try {
             const response = await fetch('http://localhost:4000/blogger/add', {
@@ -213,13 +235,17 @@ export default function AdminPage() {
                 throw new Error('Failed to add blogger');
             }
             await fetchBloggers();
-            setNewBlogger({ name: '', dob: '', gender: '', address: '',email: '',password: '',  });
+            setNewBlogger({ name: '', dob: '', gender: '', address: '',username: '',email: '',password: '',  });
         } catch (error) {
             console.error('Error adding blogger:', error);
         }
     };
 
     const handleEditBlogger = async () => {
+        if (!editBlogger.name.trim() || !editBlogger.dob || !editBlogger.gender || !editBlogger.address || !editBlogger.username || !editBlogger.email || !editBlogger.password) {
+            setErrorMessage('Please enter all blogger details');
+            return;
+        }
         try {
             const response = await fetch(`http://localhost:4000/blogger/edit/${editBlogger._id}`, {
                 method: 'POST',
@@ -234,36 +260,102 @@ export default function AdminPage() {
             }
             await fetchBloggers();
             setShowEditBloggerTab(false);
-            setEditBlogger({ _id: '', name: '', dob: '', gender: '', address: '', email: '', password: '' });
+            setEditBlogger({ _id: '', name: '', dob: '', gender: '', address: '', username: '',email: '', password: '' });
         } catch (error) {
             console.error('Error editing blogger:', error);
         }
     };
 
-    // const handleDeleteBlogger = async (id) => {
-    //     try {
-    //         const response = await fetch(`http://localhost:4000/admin/blogger/delete/${id}`, {
-    //             method: 'DELETE',
-    //             credentials: 'include',
-    //         });
-    //         if (!response.ok) {
-    //             throw new Error('Failed to delete blogger');
-    //         }
-    //         await fetchBloggers();
-    //         setShowDeleteConfirmation(false);
-    //     } catch (error) {
-    //         console.error('Error deleting blogger:', error);
-    //     }
-    // };
+    const handleDeleteBlogger = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:4000/admin/blogger/delete/${id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete blogger');
+            }
+            await fetchBloggers();
+            setShowDeleteConfirmation(false);
+        } catch (error) {
+            console.error('Error deleting blogger:', error);
+        }
+    };
+
+    const getPins = async () => {
+        try {    
+          const response = await fetch("http://localhost:4000/pins");
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const pinsData = await response.json();
+          setPins(pinsData);
+        } catch (error) {
+          console.error('There was a problem with the fetch operation:', error);
+        }
+      };
+      useEffect(() => {
+        getPins();
+    }, []);
+    const renderPinReq = () => {
+        const formatDate = (dateString) => {
+            return dateString.split('T')[0]; // Cắt bớt chuỗi ngày tháng năm từ chuỗi đầu vào
+        };
+        return (
+            <div className="guest-container">
+                <h2>Pin</h2>
+                {guests.length === 0 && <p>No repuest yet</p>}
+                <div className="add-guest">
+                </div>
+                {guests.length > 0 && (
+                    <table className="guest-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Title</th>
+                                <th>Desc</th>
+                                <th>Date</th>
+                                <th>Long</th>
+                                <th>Lat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {guests.map(guest => (
+                                <tr key={pins._id}>
+                                    <td>{guest._id}</td>
+                                    <td>{guest.name}</td>
+                                    <td>{formatDate(guest.dob)}</td>
+                                    <td>{guest.gender}</td>
+                                    <td>{guest.address}</td>
+                                    <td>{guest.account.email}</td>
+                                    <td>{guest.account.username}</td>
+                                    <td>
+                                        <button onClick={() => {
+                                            setEditGuest({ _id: guest._id, ...guest });
+                                            setShowEditGuestTab(true);
+                                        }}>Edit</button>
+                                        <button onClick={() => {
+                                            setShowDeleteConfirmation(true);
+                                        }}>Delete</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+        );
+    };
 
     const renderDeleteConfirmation = () => {
         return (
             <div className="delete-confirmation">
-                <p>Are you sure you want to delete this category?</p>
-                <button onClick={() => handleDeleteCategory(editCategory._id)}>Yes, Delete</button>
-                {/* <p>Are you sure you want to delete this guest?</p>
+                {/* <p>Are you sure you want to delete this category?</p>
+                <button onClick={() => handleDeleteCategory(editCategory._id)}>Yes, Delete</button> */}
+                <p>Are you sure you want to delete this guest?</p>
                 <button onClick={() => handleDeleteGuest(editGuest._id)}>Yes, Delete</button>
-                <p>Are you sure you want to delete this blogger?</p>
+                {/* <p>Are you sure you want to delete this blogger?</p>
                 <button onClick={() => handleDeleteBlogger(editBlogger._id)}>Yes, Delete</button> */}
                 <button onClick={() => setShowDeleteConfirmation(false)}>Cancel</button>
             </div>
@@ -298,6 +390,7 @@ export default function AdminPage() {
                         placeholder="Enter category"
                     />
                     <button onClick={handleAddCategory}>Add Category</button>
+                    {errorMessage && <div className="error-message">{errorMessage}</div>}
                 </div>
                 {categories.length > 0 && (
                     <table className="category-table">
@@ -326,6 +419,7 @@ export default function AdminPage() {
                                 </tr>
                             ))}
                         </tbody>
+                        
                     </table>
                 )}
             </div>
@@ -366,6 +460,7 @@ export default function AdminPage() {
                     onChange={(e) => setEditGuest({ ...editGuest, address: e.target.value })}
                 />
                 <button onClick={handleEditGuest}>Edit Guest</button>
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
             </div>
         );
     };
@@ -412,6 +507,12 @@ export default function AdminPage() {
                     />
                     <input
                         type="text"
+                        value={newGuest.username}
+                        onChange={(e) => setNewGuest({ ...newGuest, username: e.target.value })}
+                        placeholder="Enter username"
+                    />
+                    <input
+                        type="text"
                         value={newGuest.email}
                         onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
                         placeholder="Enter email"
@@ -423,6 +524,7 @@ export default function AdminPage() {
                         placeholder="Enter password"
                     />
                     <button onClick={handleAddGuest}>Add Guest</button>
+                    {errorMessage && <div className="error-message">{errorMessage}</div>}
                 </div>
                 {guests.length > 0 && (
                     <table className="guest-table">
@@ -434,6 +536,7 @@ export default function AdminPage() {
                                 <th>Gender</th>
                                 <th>Address</th>
                                 <th>Email</th>
+                                <th>UserName</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -446,11 +549,15 @@ export default function AdminPage() {
                                     <td>{guest.gender}</td>
                                     <td>{guest.address}</td>
                                     <td>{guest.account.email}</td>
+                                    <td>{guest.account.username}</td>
                                     <td>
                                         <button onClick={() => {
                                             setEditGuest({ _id: guest._id, ...guest });
                                             setShowEditGuestTab(true);
                                         }}>Edit</button>
+                                        <button onClick={() => {
+                                            setShowDeleteConfirmation(true);
+                                        }}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
@@ -495,7 +602,8 @@ export default function AdminPage() {
                     onChange={(e) => setEditBlogger({ ...editBlogger, address: e.target.value })}
                 />
                 
-                <button onClick={handleEditBlogger}>Edit Guest</button>
+                <button onClick={handleEditBlogger}>Edit Blogger</button>
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
             </div>
         );
     };
@@ -540,10 +648,12 @@ export default function AdminPage() {
                         onChange={(e) => setNewBlogger({ ...newBlogger, address: e.target.value })}
                         placeholder="Enter address"
                     />
-                    {/* <input
-                        type="file"
-                        onChange={(e) => handleImageChangeBlogger(e)}
-                    /> */}
+                    <input
+                        type="text"
+                        value={newBlogger.username}
+                        onChange={(e) => setNewBlogger({ ...newBlogger, username: e.target.value })}
+                        placeholder="Enter username"
+                    />
                     <input
                         type="text"
                         value={newBlogger.email}
@@ -557,6 +667,7 @@ export default function AdminPage() {
                         placeholder="Enter password"
                     />
                     <button onClick={handleAddBlogger}>Add Blogger</button>
+                    {errorMessage && <div className="error-message">{errorMessage}</div>}
                 </div>
                 {bloggers.length > 0 && (
                     <table className="blogger-table">
@@ -568,7 +679,7 @@ export default function AdminPage() {
                                 <th>Gender</th>
                                 <th>Address</th>
                                 <th>Email</th>
-                                {/* <th>Password</th> */}
+                                <th>UserName</th> 
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -581,7 +692,7 @@ export default function AdminPage() {
                                     <td>{blogger.gender}</td>
                                     <td>{blogger.address}</td>
                                     <td>{blogger.account.email}</td>
-                                    {/* <td>{blogger.account.password}</td> */}
+                                    <td>{blogger.username}</td>
                                     {/* Render other blogger details */}
                                     <td className="action-buttons">
                                         <button onClick={() => {

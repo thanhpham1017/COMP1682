@@ -54,7 +54,7 @@ router.get('/add', verifyToken, checkAdmin, async (req, res) => {
     }
 });
 
-router.post('/blogger/add', verifyToken, checkAdmin, async (req, res) => {
+router.post('/blogger/add', verifyToken, async (req, res) => {
     try {
         debugger;
         // Extract data from request body

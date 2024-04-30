@@ -16,7 +16,7 @@ main {
   background-color: #333;
   color: #fff;
   padding: 10px 20px;
-  width: 100%;
+  /* width: 100%; */
   z-index: 1000;
   margin-bottom: 10px;
 }
@@ -26,12 +26,18 @@ main {
   font-size: 1.5rem;
   color: #fff;
   text-decoration: none;
-  
 }
+
 .top-bar .logo img {
-  max-width: 100px; /* Đặt chiều rộng tối đa của logo */
-  max-height: 40px; /* Đặt chiều cao tối đa của logo */
+  max-width: 100px;
+  max-height: 40px;
 }
+
+.top-bar nav {
+  display: flex;
+  align-items: center;
+}
+
 .top-bar .menu {
   display: flex;
   align-items: center;
@@ -57,11 +63,6 @@ main {
 .top-bar .menu a.cta:hover {
   background-color: #0056b3;
 }
-.top-bar nav {
-  display: flex;
-  align-items: center;
-  margin-right: 30px;
-}
 
 .top-bar .user-info {
   position: relative;
@@ -76,11 +77,11 @@ main {
   top: 100%;
   right: 0;
   background-color: #fff;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 100;
   display: none;
-  width: 200px; /* Set a custom width for the dropdown menu */
-  padding: 15px; /* Add padding to increase space inside the dropdown menu */
+  width: 200px;
+  padding: 15px;
 }
 
 .top-bar .dropdown-menu a {
@@ -123,6 +124,7 @@ main {
 .top-bar .logout-btn:hover {
   background-color: #555;
 }
+
 .top-bar .profile-btn {
   color: #fff;
   background-color: #333;
@@ -138,6 +140,30 @@ main {
 .top-bar .profile-btn:hover {
   background-color: #555;
 }
+
+.top-bar .notification {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 30px; /* Thay đổi margin-right thành margin-left */
+}
+
+.top-bar .notification .dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0; /* Thay đổi right thành left */
+  background-color: #fff;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  display: none;
+  width: 200px;
+  padding: 15px;
+}
+
+.top-bar .notification .dropdown p {
+  margin: 0;
+}
+
 
 nav a {
   color: #fff;
@@ -187,7 +213,7 @@ form.register {
 input,
 .custom-button {
   display: block;
-  margin-bottom: 15px;
+  /* margin-bottom: 15px; */
   width: 100%;
   padding: 10px;
   border: 2px solid #ddd;
@@ -439,8 +465,28 @@ div.post-page a.edit-btn {
   margin-top: 50px;
 }
 
+.delete-button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #dc3545; /* Màu đỏ cho nút Delete */
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+  margin-top: 10px; /* Giảm khoảng cách giữa nút Delete và các nút khác */
+  margin-left: 50px; /* Đảm bảo nút Delete được căn chỉnh bên cạnh các nút khác */
+  margin-right: 100px; /* Khoảng cách bên phải của nút Delete */
+}
+
+.delete-button:hover {
+  background-color: #bd2130; /* Đổi màu hover của nút Delete */
+}
+
+
 .post-button:hover,
-.update-button:hover {
+.update-button:hover
+{
   background-color: #0056b3;
 }
 footer {
@@ -996,4 +1042,105 @@ footer a {
 .likes-count {
   font-size: 16px;
   margin: 0 10px;
+}
+.notification {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.notification .dropdown {
+  margin-right: 30px;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 100;
+  display: none;
+  width: 200px; /* Set a custom width for the dropdown menu */
+  padding: 15px; /* Add padding to increase space inside the dropdown menu */
+}
+
+
+.notification:hover .dropdown {
+  display: block; /* Hiển thị dropdown khi di chuột qua phần notification */
+}
+
+.notification p {
+  display: block;
+  padding: 10px;
+  color: #333;
+  text-decoration: none;
+}
+
+.notification button {
+  margin-top: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.notification button + button {
+  margin-left: 5px;
+}
+
+.notification button:hover {
+  background-color: #0056b3;
+}
+.notification img{
+  width: 15%;
+  height: 10%;
+  margin-left: 50px;
+}
+.select-wrapper {
+  position: relative;
+  margin-bottom: 20px; /* Adjust as needed */
+}
+
+.select-wrapper select {
+  padding: 8px 16px; /* Adjust padding as needed */
+  font-size: 16px; /* Adjust font size as needed */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  outline: none;
+  appearance: none; /* Remove default arrow */
+  cursor: pointer;
+}
+
+/* Styling for the search input and button */
+.search-wrapper {
+  position: relative;
+  display: flex; /* Change to flex to align items horizontally */
+  align-items: center; /* Align items vertically in the center */
+}
+
+.search-wrapper input[type="text"] {
+  padding: 8px 12px; /* Adjust padding as needed */
+  font-size: 16px; /* Adjust font size as needed */
+  border: 1px solid #ccc;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  margin-right: 10px;
+  flex: 1; /* Allow input to grow and fill remaining space */
+}
+
+.search-wrapper button {
+  padding: 8px 16px; /* Adjust padding as needed */
+  font-size: 16px; /* Adjust font size as needed */
+  border: 1px solid #ccc;
+  border-left: none;
+  border-radius: 0 5px 5px 0;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+/* Adjust the position of the search wrapper */
+.search-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
 }

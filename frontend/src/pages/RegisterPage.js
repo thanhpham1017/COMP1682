@@ -35,7 +35,7 @@ export default function RegisterPage() {
     }
     const response = await fetch('http://localhost:4000/register', {
       method: 'POST',
-      body: JSON.stringify({ email, username,password, role }), // Bao gồm trường role trong dữ liệu gửi đi
+      body: JSON.stringify({ email, username, password, role }), // Bao gồm trường role trong dữ liệu gửi đi
       headers: { 'Content-Type': 'application/json' },
     });
     if (response.status === 200) {
@@ -62,11 +62,16 @@ export default function RegisterPage() {
             placeholder="User Name"
             value={username}
             onChange={ev => setUserName(ev.target.value)} />
-          <input
+          <select
             type="text"
             placeholder="Role"
             value={role}
-            onChange={ev => setRole(ev.target.value)} />
+            onChange={ev => setRole(ev.target.value)}>
+              <option value="">Select role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Blogger">Blogger</option>
+                        <option value="Guest">Guest</option>
+          </select>
           <div className="password-input-container" style={{ position: "relative" }}>
             <input
               type={showPassword ? "text" : "password"}

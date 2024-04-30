@@ -64,6 +64,7 @@ router.put('/post', verifyToken, checkBlogger , uploadMiddleware.single('file'),
     const {id,title,summary,content} = req.body;
     const postDoc = await Post.findById(id);
     const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(accountId);
+    //console.log(isAuthor);
     if (!isAuthor) {
       return res.status(400).json('you are not the author');
     }
@@ -97,25 +98,29 @@ router.get('/post/:id', async (req, res) => {
 
 router.delete('/post/delete/:id', verifyToken, async (req, res) => {
   try {
+    const accountId = req.accountId._id;
+    const { id } = req.params; // Sử dụng req.params thay vì req.body để lấy id
+    const postDoc = await Post.findById(id);
 
-      const accountId = req.accountId._id;
-      const {id} = req.body;
-      const postDoc = await Post.findById(id);
-      const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(accountId);
-      if (!isAuthor) {
-        return res.status(400).json('you are not the author');
-      }
+    if (!postDoc) {
+      return res.status(404).json({ success: false, error: "Post not found" });
+    }
 
-      const DeletePost = await Post.findByIdAndDelete(id);
+    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(accountId);
+    if (!isAuthor) {
+      return res.status(400).json('You are not the author');
+    }
 
-      if (!DeletePost) {
-          res.status(404).json({ success: false, error: "account not found" });
-          return;
-      }
-      res.status(200).json({ success: true, message: "blogger deleted successfully" });
+    const deletePost = await Post.findByIdAndDelete(id);
+
+    if (!deletePost) {
+      return res.status(404).json({ success: false, error: "Post not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Post deleted successfully" });
   } catch (error) {
-      console.error("Error while deleting category:", error);
-      res.status(500).json({ success: false, error: "Internal Server Error" });
+    console.error("Error while deleting post:", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 });
 

@@ -51,7 +51,7 @@ const PinSchema = new mongoose.Schema(
     },
     averagerate: {
         type: Number,
-        required: true,
+        required: false,
         min: 0,
         max: 5,
     },
