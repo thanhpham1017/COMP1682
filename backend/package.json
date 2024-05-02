@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node backend/index.js",
-    "build": "yarn add && yarn add --prefix frontend && yarn build --prefix frontend"
+    "build": "npm install && npm install --prefix front-end && npm run build --prefix front-end"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.6",
