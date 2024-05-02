@@ -1,4 +1,11 @@
 {
+  "name": "comp1682",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node backend/index.js",
+    "build": "yarn add && yarn add --prefix frontend && yarn build --prefix frontend"
+  },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.6",
     "all": "^0.0.0",

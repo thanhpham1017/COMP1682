@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require("mongoose");
 const cookieParser = require('cookie-parser');
+const path = require('path');
+
 
 const postRouter = require('./routes/post');
 const pinRouter = require("./routes/pin");
@@ -45,6 +47,24 @@ app.use(bloggerRouter);
 app.use(authRouter);
 app.use(roleRouter);
 app.use(categoryRouter);
+
+
+// Deployment routes
+
+const __dirname1 = path.resolve();
+if(process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname1, '/frontend/build')));
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname1, 'front-end', 'build', 'index.html'));
+    });
+} else {
+    app.get('/', (req, res) => {
+        res.send("API is running success");
+    });
+}
+
+// Deployment routes
 
 const port = process.env.PORT || 4000
 
