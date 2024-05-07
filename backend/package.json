@@ -1,4 +1,11 @@
 {
+  "name": "comp1682",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node backend/index.js",
+    "build": "npm install && npm install --prefix front-end && npm run build --prefix front-end"
+  },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.6",
     "all": "^0.0.0",
