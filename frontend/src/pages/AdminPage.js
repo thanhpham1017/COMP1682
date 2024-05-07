@@ -6,7 +6,7 @@ export default function AdminPage() {
     const [newCategory, setNewCategory] = useState({ name: '' });
     const [editCategory, setEditCategory] = useState({ _id: '', name: '' });
     const [guests, setGuests] = useState([]);
-    const [pins, setPins] = useState([]);
+    const [pendingPins, setPendingPins] = useState([]);
     const [newGuest, setNewGuest] = useState({ name: '', dob: '', gender: '', address: '',username:'', email: '' ,password: '' });
     const [editGuest, setEditGuest] = useState({ _id: '', name: '', dob: '', gender: '', address: '', username: '',email: '' ,password: '' });
     const [bloggers, setBloggers] = useState([]);
@@ -19,6 +19,20 @@ export default function AdminPage() {
     const [sidebarItem, setSidebarItem] = useState('');
     const [errorMessage, setErrorMessage] = useState(''); 
     const navigate = useNavigate();
+
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+
+    // Hàm hiển thị Toast
+    const showToastMessage = (message) => {
+        setToastMessage(message);
+        setShowToast(true);
+
+        // Ẩn Toast sau 3 giây
+        setTimeout(() => {
+            setShowToast(false);
+        }, 3000);
+    };
 
     // Function to fetch categories from the server
     const fetchCategories = async () => {
@@ -35,6 +49,7 @@ export default function AdminPage() {
             console.error('Error fetching categories:', error);
         }
     };
+
 
     useEffect(() => {
         fetchCategories();
@@ -282,71 +297,118 @@ export default function AdminPage() {
         }
     };
 
-    const getPins = async () => {
-        try {    
-          const response = await fetch("http://localhost:4000/pins");
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          const pinsData = await response.json();
-          setPins(pinsData);
+    const fetchPendingPins = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/pins/pending', {
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch pending pins');
+            }
+            const data = await response.json();
+            setPendingPins(data);
         } catch (error) {
-          console.error('There was a problem with the fetch operation:', error);
+            console.error('Error fetching pending pins:', error);
+            setErrorMessage('Failed to fetch pending pins');
         }
-      };
-      useEffect(() => {
-        getPins();
+    };
+
+    useEffect(() => {
+        fetchPendingPins();
     }, []);
-    const renderPinReq = () => {
-        const formatDate = (dateString) => {
-            return dateString.split('T')[0]; // Cắt bớt chuỗi ngày tháng năm từ chuỗi đầu vào
-        };
+
+    const handleApprovePin = async (pinId) => {
+        try {
+            const response = await fetch(`http://localhost:4000/pin/approve/${pinId}`, {
+                method: 'PUT',
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to approve pin');
+            }
+            showToastMessage("Pin đã được thêm vào bản đồ!");
+            // Cập nhật lại danh sách pins đang chờ duyệt
+            await fetchPendingPins();
+            
+            // Hiển thị thông báo hoặc thực hiện các hành động khác
+        } catch (error) {
+            console.error('Error approving pin:', error);
+        }
+    };
+    
+    const handleRejectPin = async (pinId) => {
+        try {
+            const response = await fetch(`http://localhost:4000/pin/delete/${pinId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to reject pin');
+            }
+            // Cập nhật lại danh sách pins đang chờ duyệt
+            showToastMessage("Pin đã bị từ chối!");
+            await fetchPendingPins();
+            // Hiển thị thông báo hoặc thực hiện các hành động khác
+        } catch (error) {
+            console.error('Error rejecting pin:', error);
+        }
+    };
+
+    const confirmPinApproval = async (pinId) => {
+        if (window.confirm('Are you sure you want to add this pin to the map?')) {
+            await handleApprovePin(pinId);
+        } else {
+            console.log('User refused to add pin to map.');
+        }
+    };
+    const confirmPinRejection = async (pinId) => {
+        if (window.confirm('Are you sure you want to decline adding this pin to the map?')) {
+            await handleRejectPin(pinId);
+        } else {
+            console.log('User refused to add pin to map.');
+        }
+    };
+
+    const renderPendingPinsTable = () => {
         return (
             <div className="guest-container">
-                <h2>Pin</h2>
-                {guests.length === 0 && <p>No repuest yet</p>}
-                <div className="add-guest">
-                </div>
-                {guests.length > 0 && (
-                    <table className="guest-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Email</th>
-                                <th>Title</th>
-                                <th>Desc</th>
-                                <th>Date</th>
-                                <th>Long</th>
-                                <th>Lat</th>
+            <h2>Pending Pins</h2>
+            {pendingPins.length === 0 && <p>No pending pins</p>}
+            {pendingPins.length > 0 && (
+                <table className="guest-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Rating</th>
+                            <th>Long</th>
+                            <th>Lat</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {pendingPins.map(pin => (
+                            <tr key={pin._id}>
+                                <td>{pin._id}</td>
+                                <td>{pin.title}</td>
+                                <td>{pin.desc}</td>
+                                <td>{pin.rating}</td>
+                                <td>{pin.long}</td>
+                                <td>{pin.lat}</td>
+                                <td>
+                                    <button onClick={() => confirmPinApproval(pin._id)}>Yes</button>
+                                    <button onClick={() => confirmPinRejection(pin._id)}>No</button>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {guests.map(guest => (
-                                <tr key={pins._id}>
-                                    <td>{guest._id}</td>
-                                    <td>{guest.name}</td>
-                                    <td>{formatDate(guest.dob)}</td>
-                                    <td>{guest.gender}</td>
-                                    <td>{guest.address}</td>
-                                    <td>{guest.account.email}</td>
-                                    <td>{guest.account.username}</td>
-                                    <td>
-                                        <button onClick={() => {
-                                            setEditGuest({ _id: guest._id, ...guest });
-                                            setShowEditGuestTab(true);
-                                        }}>Edit</button>
-                                        <button onClick={() => {
-                                            setShowDeleteConfirmation(true);
-                                        }}>Delete</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+        </div>
         );
     };
+
 
     const renderDeleteConfirmation = () => {
         return (
@@ -380,6 +442,7 @@ export default function AdminPage() {
         return (
             <div className="category-container">
                 <h2>Categories</h2>
+                {console.log(categories)}
                 {categories.length === 0 && <p>No category, please add</p>}
                 <div className="add-category">
                     <h3>Add Category</h3>
@@ -722,7 +785,7 @@ export default function AdminPage() {
         const file = e.target.files[0]; // Get the first file from the list of selected files
         if (file) {
             const imageUrl = URL.createObjectURL(file); // Create a temporary URL for the file
-            setNewBlogger({ ...newBlogger, image: imageUrl }); // Save the image URL to the new blogger state
+            setNewBlogger({ ...newBlogger, image: imageUrl }); // Save the image URL to the new blogger state 
         }
     };
 
@@ -734,17 +797,20 @@ export default function AdminPage() {
                 <button onClick={() => setSidebarItem('category')}>Category</button>
                 <button onClick={() => setSidebarItem('guest')}>Guest</button>
                 <button onClick={() => setSidebarItem('blogger')}>Blogger</button>
+                <button onClick={() => setSidebarItem('pin')}>Pins</button>
             </div>
         );
     };
 
     return (
         <div className="admin-container">
+            {showToast && <div className="toast">{toastMessage}</div>}
             {renderSidebar()}
             <div className="content">
                 {sidebarItem === 'category' && renderCategoryList()}
                 {sidebarItem === 'guest' && renderGuestList()}
                 {sidebarItem === 'blogger' && renderBloggerList()}
+                {sidebarItem === 'pin' && renderPendingPinsTable()}
                 {showDeleteConfirmation && renderDeleteConfirmation()}
                 {showEditCategoryTab && renderEditCategoryTab()}
                 {showEditGuestTab && renderEditGuestTab()}

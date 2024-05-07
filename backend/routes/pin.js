@@ -3,24 +3,69 @@ const router = express.Router();
 const Category = require("../models/Category");
 const Pin = require("../models/Pin");
 const Package = require("../models/Package");
-const { verifyToken , checkAdmin} = require("../middlewares/auth");
+const io = require('socket.io-client');
+const { verifyToken, checkAdmin } = require("../middlewares/auth");
+
+//const socket = io.connect('http://localhost:4000');
+
+
+
 //create a pin
-router.post("/pinCreate", async (req, res) => {
-    const newPin = new Pin(req.body);
+router.post("/pinCreate",  verifyToken,async (req, res) => {
+    debugger;
     try {
+        // Kiểm tra xem người dùng hiện tại có phải là admin hay không
+        const accountID = req.accountId;
+        if(!accountID){
+            return res.status(400).json({success: false, error: "Not found user"});
+        } 
+        const accountRole = accountID.role;
+        const isAdmin = accountRole === "Admin";
+        console.log(isAdmin);
+        // Tạo pin mới với trường "chờ" được thiết lập tương ứng
+        const newPinData = { ...req.body, pending: !isAdmin };
+        const newPin = new Pin(newPinData);
         const savedPin = await newPin.save();
+        // if (!isAdmin) {
+        //     socket.emit('new-pin', savedPin);
+        // }
         res.status(200).json(savedPin);
     } catch (err) {
         res.status(500).json(err);
     }
 });
 
-//get all pins
 router.get("/pins", async (req, res) => {
     try {
-        const choosenPin = await Pin.find();
-        const pins = await choosenPin.filter(Pin => Pin.choosen === "Yes");
+        const pins = await Pin.find({ pending: false });
         res.status(200).json(pins);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+router.get("/pins/pending", verifyToken, checkAdmin, async (req, res) => {
+    try {
+        const pendingPins = await Pin.find({ pending: true });
+        res.status(200).json(pendingPins);
+    } catch (err) {
+        console.error("Error while fetching pins list:", error);
+        res.json({ success: false, error: "Internal Server Error" });
+    }
+});
+
+router.put('/pin/approve/:id', verifyToken, checkAdmin, async (req, res) => {
+    try {
+        const pinId = req.params.id;
+        const pin = await Pin.findById(pinId);
+        if (pin) {
+            pin.pending = false; // Đánh dấu pin không còn ở trạng thái chờ nữa
+            await pin.save();
+            res.status(200).json({ success: true, message: "Pin approved successfully" });
+        } else {
+            res.status(404).json({ success: false, error: "Pin not found" });
+            return;
+        }
     } catch (err) {
         res.status(500).json(err);
     }
@@ -35,9 +80,9 @@ router.delete('/pin/delete/:id', verifyToken, checkAdmin, async (req, res) => {
             res.status(404).json({ success: false, error: "Pin not found" });
             return;
         }
-        res.status(200).json({ success: true, message: "pin deleted successfully" });
+        res.status(200).json({ success: true, message: "Pin deleted successfully" });
     } catch (error) {
-        console.error("Error while deleting category:", error);
+        console.error("Error while deleting pin:", error);
         res.status(500).json({ success: false, error: "Internal Server Error" });
     }
 });
@@ -51,98 +96,68 @@ router.get("/categories", async (req, res) => {
     }
 });
 
-
 router.get("/category/:id", async (req, res) => {
     try {
         const categoryId = req.params.id;
-        const pinscategory = await Pin.find({category: categoryId});
+        const pinscategory = await Pin.find({ category: categoryId });
         res.status(200).json(pinscategory);
     } catch (err) {
         res.status(500).json(err);
     }
 });
 
-
 // Search pins by title
 router.get("/search", async (req, res) => {
     try {
-      const { title } = req.query; // Get the search term from the query parameter
-  
-      if (!title) {
-        return res.status(400).json({ success: false, error: "Please provide a search term" });
-      }
-  
-      // Search by title using regular expression for partial matches (optional)
-      const searchRegex = new RegExp(title, 'i'); // 'i' flag for case-insensitive search
-  
-      const pins = await Pin.find({ title: searchRegex });
-  
-      res.status(200).json(pins);
+        const { title } = req.query; // Get the search term from the query parameter
+
+        if (!title) {
+            return res.status(400).json({ success: false, error: "Please provide a search term" });
+        }
+
+        // Search by title using regular expression for partial matches (optional)
+        const searchRegex = new RegExp(title, 'i'); // 'i' flag for case-insensitive search
+
+        const pins = await Pin.find({ title: searchRegex });
+
+        res.status(200).json(pins);
     } catch (err) {
-      res.status(500).json(err);
+        res.status(500).json(err);
     }
 });
 
-router.put('/pin/comment/:id', verifyToken, async (req, res, next) => {
+router.put('/pin/comment/:id', verifyToken, async (req, res) => {
     const accountId = req.accountId._id;
     const { comment } = req.body;
     const pinId = req.params.id;
-    const pinrating = await Pin.findById(pinId);
-    const pinrate = req.body.rate;
     try {
-        // const existingComment = await Pin.findById(pinId, {
-        //     comments: { $elemMatch: { postedBy: accountId } } // Check comments array for user's id
-        // });
-        
-        // if (existingComment.comments.length > 0) {
-        //     return res.status(400).json({ success: false, message: 'You have already rated on this pin.' });
-        // }
-
-        // pinrating.totalrating = pinrating.totalrating + pinrate;
-        // pinrating.totalpeoplerating = pinrating.totalpeoplerating + 1;
-        // pinrating.averagerate = pinrating.totalrating / pinrating.totalpeoplerating;
-        
-        // await pinrating.save();
-
-        const pinComment = await Pin.findByIdAndUpdate(req.params.id, {
+        const pinComment = await Pin.findByIdAndUpdate(pinId, {
             $push: { comments: { text: comment, postedBy: accountId } }
         },
             { new: true }
         );
         const pin = await Pin.findById(pinComment._id).populate('comments.postedBy', 'username email');
-        res.status(200).json({success: true, pin});
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
-router.get("/pin/comments/:id", verifyToken,async (req, res) => {
-    try {
-        const pinId = req.params.id;
-        const pin = await Pin.findById(pinId);
-        if (!pin) {
-            return res.status(404).json({ success: false, error: "Pin not found" });
-        }
-        res.status(200).json({ success: true, comments: pin.comments });
+        res.status(200).json({ success: true, pin });
     } catch (err) {
         res.status(500).json(err);
     }
 });
 
-router.get('/pin/select/:id', verifyToken, checkAdmin,async (req, res) => {
+
+router.get('/pin/select/:id', verifyToken, checkAdmin, async (req, res) => {
     try {
         const pinId = req.params.id;
         const pin = await Pin.findById(pinId);
         if (pin) {
-            res.status(200).json({success: true, pin});
+            res.status(200).json({ success: true, pin });
         } else {
-            res.status(404).json({success: false, error: "Pin not found"});
+            res.status(404).json({ success: false, error: "Pin not found" });
             return;
         }
-    }  catch (err) {
+    } catch (err) {
         res.status(500).json(err);
-    };
+    }
 });
-
 
 router.put('/pin/select/:id', verifyToken, checkAdmin, async (req, res) => {
     try {
@@ -151,28 +166,23 @@ router.put('/pin/select/:id', verifyToken, checkAdmin, async (req, res) => {
         if (pin) {
             pin.choosen = req.body.choosen;
             await pin.save();
-            res.status(200).json({success: true, message: "Choose successfully"});
+            res.status(200).json({ success: true, message: "Pin selected successfully" });
         } else {
-            res.status(404).json({success: false, error: "Pin not found"});
+            res.status(404).json({ success: false, error: "Pin not found" });
             return;
         }
-    }  catch (err) {
+    } catch (err) {
         res.status(500).json(err);
-    };
+    }
 });
-
-//Nếu lỗi thì dùng api dưới
 
 router.put('/pin/rate/:id', verifyToken, async (req, res) => {
     try {
-        debugger;
         const pinId = req.params.id;
         const pin = await Pin.findById(pinId);
-        
-        const accountId = req.user._id; // Assuming accountId is obtained from the token
-        console,log(accountId);
+
+        const accountId = req.user._id;
         const existingRating = pin.ratings.find(rating => rating.postedBy.toString() === accountId);
-        console.log(existingRating);
         if (existingRating) {
             return res.status(400).json({ success: false, message: 'You have already rated on this pin.' });
         }
@@ -182,21 +192,16 @@ router.put('/pin/rate/:id', verifyToken, async (req, res) => {
         pin.totalpeoplerating = pin.totalpeoplerating + 1;
         pin.averagerate = pin.totalrating / pin.totalpeoplerating;
 
-        // Add the new rating to the ratings array
         pin.ratings.push({ rate: pinrate, postedBy: accountId });
 
         await pin.save();
         res.json({ success: true, message: "Pin updated successfully" });
-
     } catch (err) {
         res.status(500).json(err);
     }
 });
 
-
-
-
-router.get("pin/package/:id", async (req, res) => {
+router.get("/pin/package/:id", async (req, res) => {
     try {
         const pinId = req.params.id;
         const pin = await Pin.findById(pinId);
@@ -221,24 +226,16 @@ router.get("pin/package/:id", async (req, res) => {
 
 router.get("/popular", async (req, res) => {
     try {
-        const pin = await Pin.find();
-        if (pin) {
-            const now = new Date();
-            const pinData = await pin.filter(Pin => Pin.time >= now.getTime());
-            if (pinData) {
-                res.status(200).json({success: true, pinData});
-            } else {
-                res.status(404).json({success: false, error: "No popular restaurant"});
-                return;
-            }
+        const now = new Date();
+        const pinData = await Pin.find({ time: { $gte: now } });
+        if (pinData) {
+            res.status(200).json({ success: true, pinData });
         } else {
-            res.status(404).json({success: false, error: "No restaurant"});
-                return;
+            res.status(404).json({ success: false, error: "No popular pin" });
+            return;
         }
     } catch (err) {
         res.status(500).json(err);
     }
 });
-
-
 module.exports = router;

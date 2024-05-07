@@ -43,7 +43,6 @@ export default function PostPage() {
             const data = await response.json();
             if (data.success === true) {
                 setComment('');
-                // Update postInfo state with the updated post including comments
                 setPostInfo(data.blog);
                 toast.success("Comment added");
             }
@@ -131,6 +130,6 @@ export default function PostPage() {
                     <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Write your comment here"></textarea>
                     <button onClick={addComment}>Add Comment</button>
                 </div>
-            </div>
+        </div>
     );
 }

@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require("mongoose");
 const cookieParser = require('cookie-parser');
-
+const Pin = require("../backend/models/Pin");
 const postRouter = require('./routes/post');
 const pinRouter = require("./routes/pin");
 const adminRouter = require('./routes/admin');
@@ -28,9 +28,15 @@ app.use('/uploads', express.static(__dirname + '/uploads'));
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const io = new Server(server);
+//const io = new Server(server);
 
 mongoose.connect('mongodb+srv://thanhpqgch210568:1@cluster0.gac1iv3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+
+const io = new Server({
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
 
 app.use((req, res, next) => {
   req.io = io;
@@ -52,6 +58,7 @@ io.on('connection', (socket) => {
     socket.on('comment', (msg) => {
       io.emit("new-comment", msg);
     })
+    //('new-pin', savedPin)
 });
 
 server.listen(port, () => {

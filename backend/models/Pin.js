@@ -68,10 +68,15 @@ const PinSchema = new mongoose.Schema(
             },
         },
     ],
+    pending: {
+        type: Boolean,
+        default: true // Mặc định là true (chờ)
+    },
     time: {
         type: Date,
     },
     category:{type:Schema.Types.ObjectId, ref:'Category'},
+
     
 },
 { timestamps: true }

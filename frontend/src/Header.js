@@ -3,11 +3,12 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "./UserContext";
 import logoImage from '../src/img/logo.png';
 import { FaBell } from 'react-icons/fa';
-
+import { io } from 'socket.io-client';
+const socket = io.connect('http://localhost:4000');
 export default function Header() {
   const { setUserInfo, userInfo } = useContext(UserContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notification, setNotification] = useState(null);
+  const [notifications, setNotifications] = useState([]); 
 
   useEffect(() => {
     fetch('http://localhost:4000/profile', {
@@ -19,6 +20,7 @@ export default function Header() {
     });
   }, []);
 
+
   function logout() {
     fetch('http://localhost:4000/logout', {
       credentials: 'include',
@@ -26,8 +28,19 @@ export default function Header() {
     });
     setUserInfo(null);
   }
-
   const username = userInfo?.username;
+  
+  useEffect(() => {
+    console.log(socket);
+    socket.on('new-pin', (newPin) => {
+      setNotifications([...notifications, newPin]);
+    });
+    // Hủy kết nối khi component unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
 
   return (
     <header className="top-bar">
@@ -62,11 +75,16 @@ export default function Header() {
             </div>
           )}
         </div>
-        <div className="notification" onClick={() => setNotification(!notification)}>
-          <FaBell />
-          {notification && (
-            <div className="dropdown">
-              <p>Ngoc123 wants to add pin</p>
+        <div className="notification">
+          <FaBell onClick={() => setDropdownOpen(!dropdownOpen)} />
+          {dropdownOpen && (
+            <div className="notification-list">
+              {notifications.map((notification, index) => (
+                <div key={index} className="notification-item">
+                  {/* Hiển thị nội dung của thông báo */}
+                  <p>{notification.message}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>

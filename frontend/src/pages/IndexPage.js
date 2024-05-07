@@ -9,7 +9,10 @@ import { FaMapMarker,FaStar,FaTimes,FaDirections   } from 'react-icons/fa';
 import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
 
+import 'react-toastify/dist/ReactToastify.css';
+
 export default function IndexPage(){
+  const [isAdmin, setIsAdmin] = useState(false); // Trạng thái lưu trữ vai trò của người dùng
   const [posts,setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [pins, setPins] = useState([]);
@@ -30,19 +33,30 @@ export default function IndexPage(){
   const [comments, setComments] = useState([]); // Trạng thái lưu trữ tất cả các comment của địa điểm được chọn
   const [showDirections, setShowDirections] = useState(false);
   const [userRating, setUserRating] = useState(0);
+  const [pinInfo,setPinInfo] = useState(null);
   const mapRef = useRef(); 
  // const [directionsLayer, setDirectionsLayer] = useState(null);
+ const { notifications, setNotifications } = useContext(UserContext);
   const [directionsSource, setDirectionsSource] = useState(null);
   const [viewport, setViewport] = useState({
     zoom: 10,
   });
   const GeolocateController = useRef();
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
-  const [previousRating, setPreviousRating] = useState(0); // Đánh giá trước đó
+  const [previousRating, setPreviousRating] = useState(0); 
+  const [searchTerm, setSearchTerm] = useState("");// Đánh giá trước đó
   const socket = io('/', {
     reconnection: true
 })
-  
+  useEffect(() => {
+    // Kiểm tra xem người dùng có vai trò là admin hay không
+    if (userInfo && userInfo.role === 'Admin') {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
+  }, [userInfo]);
+
   useEffect(() => {
       fetch('http://localhost:4000/post').then(reponse => {
           reponse.json().then(posts => {
@@ -112,20 +126,10 @@ export default function IndexPage(){
     });
   };
 
-
-
-  // useEffect(() => {
-  //   // Kiểm tra localStorage hoặc sessionStorage để lấy dữ liệu comment khi trang được load lại
-  //   const savedComments = localStorage.getItem('comments');
-  //   if (savedComments) {
-  //     setComments(JSON.parse(savedComments));
-  //   }
-  // }, []);
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newPin = {
+    // if (isAdmin) {
+      const newPin = {
       email : currentUserEmail,
       title,
       desc,
@@ -135,45 +139,79 @@ export default function IndexPage(){
       long: newPlace.long,
       image: image,
       address:address
-    };
-  
-    try {
-      const response = await fetch("http://localhost:4000/pinCreate", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newPin),
-      });
-  
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      };
+    
+      try {
+        const response = await fetch("http://localhost:4000/pinCreate", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newPin),
+          credentials: 'include',
+        });
+    
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+      } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
       }
-    } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
-    }
-  };
+    // } else {
+    //   try {
+    //     const response = await fetch("http://localhost:4000/sendPinRequestNotification", {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //       body: JSON.stringify({ title, desc, price, star, lat: newPlace.lat, long: newPlace.long, image, address }),
+    //     });
+  
+    //     if (!response.ok) {
+    //       throw new Error('Network response was not ok');
+    //     }
+    //   } catch (error) {
+    //     console.error('There was a problem with the fetch operation:', error);
+    //   }
+    
+  }
+
+
 
   useEffect(() => {
-    if (currentPinId) {
-      fetchComments();
-    }
+    const fetchPinInfo = async () => {
+      try {
+        if (currentPinId) {
+          const response = await fetch(`http://localhost:4000/pin/${currentPinId}`);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const pinData = await response.json();
+          setPinInfo(pinData);
+        }
+      } catch (error) {
+        console.error('There was a problem fetching pin info:', error);
+      }
+    };
+  
+    fetchPinInfo();
   }, [currentPinId]);
   
-  // Hàm để gửi yêu cầu GET đến API endpoint để lấy comment của pin hiện tại
-  const fetchComments = async () => {
-    try {
-      const response = await fetch(`http://localhost:4000/pin/comments/${currentPinId}`, {
-        credentials: 'include',
+  useEffect(() => {
+  }, [pinInfo]);
+
+  const updatePinComments = (pinId, newComments) => {
+    setPins(prevPins => {
+      return prevPins.map(pin => {
+        if (pin._id === pinId) {
+          return {
+            ...pin,
+            comments: newComments
+          };
+        }
+        return pin;
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      setComments(data.comments);
-    } catch (error) {
-      console.error('There was a problem with the fetch operation:', error);
-    }
+    });
   };
 
   const addComment = async (e) => {
@@ -193,22 +231,15 @@ export default function IndexPage(){
       const data = await response.json();
       if (data.success === true) {
         setComment('');
-        const newComment = {
-          text: comment,
-        };
-        // Update comments state with new comment
-        setComments(prevComments => ({
-          ...prevComments,
-          [currentPinId]: [...(prevComments[currentPinId] || []), newComment]
-        }));
+        updatePinComments(currentPinId, data.pin.comments); // Cập nhật danh sách comment của pin tương ứng
         toast.success("comment added");
-        // socket.emit('comment', data.pin.comments);
+        console.log(data.pin.comments);
       }
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
       toast.error("There was a problem adding the comment");
     }
-  }  
+  };
   
   const fetchCategories = async () => {
     try {
@@ -245,7 +276,6 @@ export default function IndexPage(){
   };
   useEffect(() => {
     const previousRatingFromStorage = parseInt(localStorage.getItem('previousRating'));
-    console.log('previousRatingFromStorage', previousRatingFromStorage);
     if (!isNaN(previousRatingFromStorage)) {
       setPreviousRating(previousRatingFromStorage);
     }
@@ -366,6 +396,20 @@ export default function IndexPage(){
       console.error('Lỗi khi lấy hướng dẫn:', error);
     }
   };  
+
+  const handleSearch = async () => {
+    try {
+        const response = await fetch(`http://localhost:4000/search?title=${searchTerm}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const searchData = await response.json();
+        setPins(searchData); // Cập nhật danh sách pin với kết quả tìm kiếm
+    } catch (error) {
+        console.error('There was a problem with the search operation:', error);
+    }
+};
+
   
   return(
     <div style={{position: "relative"}}>
@@ -378,8 +422,14 @@ export default function IndexPage(){
           </select>
         </div>
         <div className="search-wrapper">
-          <input className="searchInput" type="text" placeholder="Search..." />
-          <button>Search</button>
+                <input
+                    className="searchInput"
+                    type="text"
+                    placeholder="Search..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <button onClick={handleSearch}>Search</button>
         </div>
         <MapGL
           ref={mapRef}
@@ -493,7 +543,7 @@ export default function IndexPage(){
             </button>
             {selectedMarkerInfo && (
               <div className="marker-info">
-                <div style={{position: "absolute", top: "50%", transform: "translateY(-50%)", left: 0, right: 0, textAlign: "center"}}>
+                <div style={{position: "absolute", top: "30%", transform: "translateY(-50%)", left: 0, right: 0, textAlign: "center"}}>
                   <button onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? selectedMarkerInfo.image.length - 1 : prevIndex - 1))}>Previous</button>
                   <button onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex === selectedMarkerInfo.image.length - 1 ? 0 : prevIndex + 1))}>Next</button>
                 </div>
@@ -530,19 +580,12 @@ export default function IndexPage(){
                   ></textarea>
                   <button className="formSubmitButton" type="submit">Submit</button>
                 </form>   
-                {/* Danh sách các comment */}
-                {console.log(comments[currentPinId])};
-                {comments[currentPinId] && (
-                  <div className="comments">
-                    <h3>Comments:</h3>
-                    {comments[currentPinId].map((comment, index) => (
-                      <div key={index}>
-                        <p>Text: {comment.text}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                </div>
+                {pinInfo && pinInfo.comments && pinInfo.comments.map((comment, index) => (
+                    <div key={index} className="comment">
+                        <p>Comment: {comment.text}</p>
+                    </div>
+                ))}
+              </div>
             )}
           </div>
         )}

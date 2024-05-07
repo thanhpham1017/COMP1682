@@ -3,20 +3,20 @@ const AccountModel = require('../models/Account');
 
 const verifyToken = (req, res, next) => {
    const token = req.cookies.token; 
-    if (!token)
-        return res
-            .status(401)
-            .json({ success: false, message: 'Access token not found' })
+   if (!token)
+         return res
+               .status(401)
+               .json({ success: false, message: 'Access token not found' })
 
-    try {
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET) //verify: kiểm tra, cho 2 dữ liệu vào bao gồm token và khóa
+      try {
+         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET) //verify: kiểm tra, cho 2 dữ liệu vào bao gồm token và khóa
 
-        req.accountId = decoded.id 
-        next()
-    } catch (error) {
-        console.log(error)
-        return res.status(403).json({ success: false, message: 'Invalid token' })
-    }
+         req.accountId = decoded.id 
+         next()
+      } catch (error) {
+         console.log(error)
+         return res.status(403).json({ success: false, message: 'Invalid token' })
+      }
 };
 
 

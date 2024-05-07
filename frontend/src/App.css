@@ -151,7 +151,7 @@ main {
 .top-bar .notification .dropdown {
   position: absolute;
   top: 100%;
-  left: 0; /* Thay đổi right thành left */
+  /* left: 0; Thay đổi right thành left */
   background-color: #fff;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 100;
@@ -327,11 +327,10 @@ label {
 }
 div.post div.texts h2 {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 2rem; /* Kích thước lớn hơn cho tiêu đề */
   font-family: 'Arial', sans-serif; /* Chọn phông chữ */
   transition: color 0.3s; 
-  color: white; 
-  text-decoration: none; 
+  color: #333; /* Màu sắc tiêu đề */
 }
 
 .post-container .texts h2:hover {
@@ -349,7 +348,6 @@ div.post p.info {
 
 div.post p.info a.author {
   color: #333;
-  
 }
 
 div.post p.summary {
@@ -375,6 +373,8 @@ div.post-page div.image img {
 div.post-page h1 {
   text-align: center;
   margin: 20px 0 10px;
+  font-size: 2.5rem; /* Kích thước lớn hơn cho tiêu đề */
+  color: #333; /* Màu sắc tiêu đề */
 }
 
 div.post-page time {
@@ -390,16 +390,19 @@ div.post-page div.author {
   margin-bottom: 20px;
   font-size: 0.8rem;
   font-weight: bold;
+  color: #666; /* Màu sắc tác giả */
 }
 
-div.content p {
+div.post-page .content p {
   line-height: 1.6rem;
   margin: 20px 0;
+  color: #444; /* Màu sắc nội dung */
 }
 
-div.content li {
-  margin-bottom: 10px;
+div.post-page .content li {
+  margin-bottom: 10px; /* Khoảng cách giữa các mục trong danh sách */
 }
+
 
 div.edit-row {
   text-align: center;
