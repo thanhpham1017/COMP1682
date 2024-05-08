@@ -13,6 +13,8 @@ const { nextTick } = require('process');
 const AdminModel = require('../models/Admin');
 const AccountModel = require('../models/Account');
 
+const main = require('../index');
+
 
 router.post('/post', verifyToken, uploadMiddleware.single('file'), async (req,res) => {
   try {
@@ -149,7 +151,7 @@ router.put('/post/addLike/:id', verifyToken, async (req, res) => {
     { new: true }
     );
     const posts = await Post.find().sort({ createdAt: -1 }).populate('author', 'username');
-    req.io.emit('add-like', posts); // Emitting add-like event to all connected clients
+    main.io.emit('add-like', posts); // Emitting add-like event to all connected clients
 
     res.status(200).json({
       success: true,
@@ -175,7 +177,7 @@ router.put('/post/removeLike/:id', verifyToken, async (req, res) => {
     );
 
     const posts = await Post.find().sort({ createdAt: -1 }).populate('author', 'username');
-    req.io.emit('remove-like', posts); // Emitting remove-like event to all connected clients
+    main.io.emit('remove-like', posts); // Emitting remove-like event to all connected clients
 
     res.status(200).json({
         success: true,
