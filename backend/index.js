@@ -32,10 +32,16 @@ const io = new Server(server);
 
 mongoose.connect('mongodb+srv://thanhpqgch210568:1@cluster0.gac1iv3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 
-// app.use((req, res, next) => {
-//   req.io = io;
-//   next();
-// });
+const io = new Server({
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 app.use(pinRouter);
 app.use(postRouter);
@@ -49,36 +55,36 @@ app.use(categoryRouter);
 
 // Deployment routes
 
-// const __dirname1 = path.resolve();
-// if(process.env.NODE_ENV === 'production') {
-//     app.use(express.static(path.join(__dirname1, '/frontend/build')));
+const __dirname1 = path.resolve();
+if(process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname1, '/frontend/build')));
 
-//     app.get('*', (req, res) => {
-//         res.sendFile(path.resolve(__dirname1, 'frontend', 'build', 'index.html'));
-//     });
-// } else {
-//     app.get('/', (req, res) => {
-//         res.send("API is running success");
-//     });
-// }
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname1, 'frontend', 'build', 'index.html'));
+    });
+} else {
+    app.get('/', (req, res) => {
+        res.send("API is running success");
+    });
+}
 
 // Deployment routes
 
 const port = process.env.PORT || 4000
 
+// io.on('connection', (socket) => {
+//     socket.on('comment', (msg) => {
+//       io.emit("new-comment", msg);
+//     })
+//     //('new-pin', savedPin)
+// });
+
 io.on('connection', (socket) => {
-    console.log('user connected', socket.id);
     socket.on('comment', (msg) => {
-      console.log('new comment received', msg);
       io.emit("new-comment", msg);
     })
-    socket.on('new-pin', (newPin) => {
-      console.log(`New pin created: ${newPin}`);
-      io.emit("new-pin", newPin); 
-    });
+    //('new-pin', savedPin)
 });
-
-
 
 server.listen(port, () => {
   console.log(` Server running on port ${port}`);

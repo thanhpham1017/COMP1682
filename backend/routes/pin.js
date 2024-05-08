@@ -3,34 +3,30 @@ const router = express.Router();
 const Category = require("../models/Category");
 const Pin = require("../models/Pin");
 const Package = require("../models/Package");
-const io = require('socket.io-client');
 const { verifyToken, checkAdmin } = require("../middlewares/auth");
 
-const socket = io('http://localhost:4000', { transports: ['websocket'] });
-//console.log(socket);
+//const socket = io.connect('http://localhost:4000');
+
 
 
 //create a pin
-router.post("/pinCreate",  verifyToken,async (req, res) => {
+router.post("/pinCreate",  verifyToken, async (req, res) => {
     debugger;
     try {
-        // Kiểm tra xem người dùng hiện tại có phải là admin hay không
         const accountID = req.accountId;
         if(!accountID){
             return res.status(400).json({success: false, error: "Not found user"});
         } 
         const accountRole = accountID.role;
         const isAdmin = accountRole === "Admin";
-        //console.log(isAdmin);
+        console.log(isAdmin);
         // Tạo pin mới với trường "chờ" được thiết lập tương ứng
         const newPinData = { ...req.body, pending: !isAdmin };
         const newPin = new Pin(newPinData);
         const savedPin = await newPin.save();
-        console.log(savedPin.title); // In ra title của savedPin
-        if (!isAdmin) {
-            // Gửi chỉ tiêu title của savedPin qua socket
-            socket.emit('new-pin', savedPin.title);
-        }
+        // if (!isAdmin) {
+        //     socket.emit('new-pin', savedPin);
+        // }
         res.status(200).json(savedPin);
     } catch (err) {
         res.status(500).json(err);
