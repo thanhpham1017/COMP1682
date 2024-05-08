@@ -1,0 +1,161 @@
+.formCard {
+    padding: 20px;
+    border-radius: 5px;
+    width: 300px;
+  }
+  
+  .formInput {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .formSubmitButton {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .formSubmitButton:hover {
+    background-color: #0056b3;
+  }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px; /* Đặt chiều rộng của sidebar */
+    height: 200px; /* Đặt chiều cao của sidebar */
+    background-color: #f9f9f9; /* Đặt màu nền của sidebar */
+    overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
+    padding: 20px; /* Đặt padding để tạo khoảng cách giữa nội dung và biên của sidebar */
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng bóng đổ cho sidebar */
+    z-index: 1000; /* Đảm bảo sidebar hiển thị trên các phần tử khác */
+  }
+  
+  .sidebar h2 {
+    font-size: 1.5rem; /* Đặt kích thước font cho tiêu đề */
+    margin-bottom: 10px; /* Đặt margin dưới cho tiêu đề */
+  }
+  
+  .sidebar p {
+    margin-bottom: 10px; /* Đặt margin dưới cho các đoạn văn bản */
+  }
+  
+  .sidebar .price {
+    font-weight: bold; /* Đặt chữ in đậm cho giá cả */
+  }
+  
+  .sidebar .ratings {
+    margin-top: 10px; /* Đặt margin trên cho phần đánh giá */
+  }
+  
+  .sidebar .ratings .star {
+    color: #ffd700; /* Đặt màu cho sao */
+    margin-right: 5px; /* Đặt khoảng cách bên phải giữa các sao */
+  }
+  
+  .sidebar a {
+    color: #007bff; /* Đặt màu cho các liên kết */
+    text-decoration: none; /* Loại bỏ gạch chân cho liên kết */
+    display: block; /* Hiển thị liên kết như một khối */
+    margin-top: 10px; /* Đặt margin trên cho mỗi liên kết */
+  }
+  .select-wrapper {
+    position: relative;
+    margin-bottom: 20px; /* Adjust as needed */
+  }
+  
+  .select-wrapper select {
+    padding: 8px 16px; /* Adjust padding as needed */
+    font-size: 16px; /* Adjust font size as needed */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    outline: none;
+    appearance: none; /* Remove default arrow */
+    cursor: pointer;
+  }
+  .search-wrapper {
+    position: relative;
+    display: flex; /* Change to flex to align items horizontally */
+    align-items: center; /* Align items vertically in the center */
+  }
+  
+  .search-wrapper input[type="text"] {
+    padding: 8px 12px; /* Adjust padding as needed */
+    font-size: 16px; /* Adjust font size as needed */
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+    margin-right: 10px;
+    flex: 1; /* Allow input to grow and fill remaining space */
+  }
+  
+  .search-wrapper button {
+    padding: 8px 16px; /* Adjust padding as needed */
+    font-size: 16px; /* Adjust font size as needed */
+    border: 1px solid #ccc;
+    border-left: none;
+    border-radius: 0 5px 5px 0;
+    background-color: #f0f0f0;
+    cursor: pointer;
+  }
+  
+  /* Adjust the position of the search wrapper */
+  .search-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .comments {
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 20px;
+  }
+  
+  .comment {
+    margin-bottom: 20px;
+  }
+  
+  .comment p {
+    margin-bottom: 5px;
+  }
+  
+  .comment p:first-child {
+    font-weight: bold;
+  }
+  
+  /* Phần thêm bình luận */
+  .add-comment {
+    margin-top: 20px;
+  }
+  
+  .add-comment textarea {
+    width: 10%;
+    height: 50px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .add-comment button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .add-comment button:hover {
+    background-color: #0056b3;
+  }

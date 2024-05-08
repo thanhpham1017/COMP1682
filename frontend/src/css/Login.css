@@ -1,0 +1,120 @@
+.login-page {
+    display: flex;
+    align-items: center; /* Vertically align the content */
+  }
+  
+  .login-page-background {
+    background-image: url('../img/background.jpg');
+    background-size: cover;
+    background-position: right; /* Adjust as needed */
+    flex: 1; /* Take up remaining space */
+    height: 100vh;
+  }
+  .form-container {
+    max-width: 700px; /* Adjust as needed */
+    margin: 0 auto; /* Center the container horizontally */
+    padding: 20px;
+    width: 100%;
+  }
+  /* .form-container {
+    width: 50%; /* Đặt chiều rộng của form container */
+    /* padding: 20px; /* Thêm padding cho form container */
+    /* background-color: rgba(255, 255, 255, 0.8); Tạo màu nền cho form container */
+    /* border-radius: 8px; Bo tròn góc của form container */
+    /* margin-right: 20px; Tạo khoảng cách giữa form container và background */
+    /* align-self: center; Căn form container vào giữa theo chiều dọc */ 
+  /* } */ 
+  nav a:hover {
+    text-decoration: underline;
+  }
+  form.login,
+  form.register {
+    margin-top: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  input,
+  .custom-button {
+    display: block;
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .custom-button {
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .custom-button:hover {
+    background-color: #0056b3;
+  }
+  
+  form.login h1,
+  form.register h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  form.login h2{
+    font-family: Garamond, sans-serif;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 14px; /* Adjust the font size as needed */
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    font-weight: bold;
+  }
+  .alternative-login-options {
+    text-align: center;
+    margin-top: 20px; /* Đặt margin-top để tạo khoảng cách giữa các phần tử */
+  }
+  
+  .alternative-login-options p {
+    display: inline-block; /* Để chữ "Or" nằm cạnh hai nút */
+    margin: 0 10px; /* Đặt margin để tạo khoảng cách giữa "Or" và nút */
+  }
+  
+  .facebook-custom,
+  .google-custom {
+    width: 50px; /* Thiết lập kích thước */
+    height: 50px; /* Thiết lập kích thước */
+    border-radius: 5px; /* Bo tròn góc */
+    border: 2px solid #ddd; /* Định dạng viền */
+    cursor: pointer; /* Con trỏ */
+    margin: 0 10px; /* Đặt margin để tạo khoảng cách giữa các nút */
+    /* display: flex; Sử dụng flexbox để căn chỉnh các phần tử bên trong */
+    justify-content: center; /* Căn chỉnh nội dung theo chiều ngang */
+    align-items: center; /* Căn chỉnh nội dung theo chiều dọc */
+    padding: 5px; /* Thêm padding để tạo không gian xung quanh biểu tượng */
+    flex-direction: row;
+  }
+  
+  .facebook-custom:hover,
+  .google-custom:hover {
+    background-color: #ccc; /* Màu nền khi di chuột qua */
+  }
+  .custom-span-style {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }

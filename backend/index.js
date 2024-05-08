@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require("mongoose");
 const cookieParser = require('cookie-parser');
-
+const path = require('path');
 const postRouter = require('./routes/post');
 const pinRouter = require("./routes/pin");
 const adminRouter = require('./routes/admin');
@@ -28,20 +28,14 @@ app.use('/uploads', express.static(__dirname + '/uploads'));
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-//const io = new Server(server);
+const io = new Server(server);
 
 mongoose.connect('mongodb+srv://thanhpqgch210568:1@cluster0.gac1iv3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 
-const io = new Server({
-  cors: {
-    origin: "http://localhost:3000",
-  },
-});
-
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
+// app.use((req, res, next) => {
+//   req.io = io;
+//   next();
+// });
 
 app.use(pinRouter);
 app.use(postRouter);
@@ -55,30 +49,38 @@ app.use(categoryRouter);
 
 // Deployment routes
 
-const __dirname1 = path.resolve();
-if(process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname1, '/frontend/build')));
+// const __dirname1 = path.resolve();
+// if(process.env.NODE_ENV === 'production') {
+//     app.use(express.static(path.join(__dirname1, '/frontend/build')));
 
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname1, 'frontend', 'build', 'index.html'));
-    });
-} else {
-    app.get('/', (req, res) => {
-        res.send("API is running success");
-    });
-}
+//     app.get('*', (req, res) => {
+//         res.sendFile(path.resolve(__dirname1, 'frontend', 'build', 'index.html'));
+//     });
+// } else {
+//     app.get('/', (req, res) => {
+//         res.send("API is running success");
+//     });
+// }
 
 // Deployment routes
 
 const port = process.env.PORT || 4000
 
 io.on('connection', (socket) => {
+    console.log('user connected', socket.id);
     socket.on('comment', (msg) => {
+      console.log('new comment received', msg);
       io.emit("new-comment", msg);
     })
-    //('new-pin', savedPin)
+    socket.on('new-pin', (newPin) => {
+      console.log(`New pin created: ${newPin}`);
+      io.emit("new-pin", newPin); 
+    });
 });
+
+
 
 server.listen(port, () => {
   console.log(` Server running on port ${port}`);
+  console.log(`Server Socket.IO is listening at http://localhost:${port}`);
 });

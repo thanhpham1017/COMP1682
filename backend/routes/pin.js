@@ -6,8 +6,8 @@ const Package = require("../models/Package");
 const io = require('socket.io-client');
 const { verifyToken, checkAdmin } = require("../middlewares/auth");
 
-//const socket = io.connect('http://localhost:4000');
-
+const socket = io('http://localhost:4000', { transports: ['websocket'] });
+//console.log(socket);
 
 
 //create a pin
@@ -21,14 +21,16 @@ router.post("/pinCreate",  verifyToken,async (req, res) => {
         } 
         const accountRole = accountID.role;
         const isAdmin = accountRole === "Admin";
-        console.log(isAdmin);
+        //console.log(isAdmin);
         // Tạo pin mới với trường "chờ" được thiết lập tương ứng
         const newPinData = { ...req.body, pending: !isAdmin };
         const newPin = new Pin(newPinData);
         const savedPin = await newPin.save();
-        // if (!isAdmin) {
-        //     socket.emit('new-pin', savedPin);
-        // }
+        console.log(savedPin.title); // In ra title của savedPin
+        if (!isAdmin) {
+            // Gửi chỉ tiêu title của savedPin qua socket
+            socket.emit('new-pin', savedPin.title);
+        }
         res.status(200).json(savedPin);
     } catch (err) {
         res.status(500).json(err);

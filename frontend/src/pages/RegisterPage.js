@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
-
+import '../css/Login.css';
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

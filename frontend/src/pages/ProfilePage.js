@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaUser, FaCog, FaBell, FaLock, FaQuestionCircle } from 'react-icons/fa';
+import '../css/Profile.css';
 export default function ProfilePage() {
     return (
         <div class = "user-profile">

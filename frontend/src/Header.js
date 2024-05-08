@@ -3,8 +3,12 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "./UserContext";
 import logoImage from '../src/img/logo.png';
 import { FaBell } from 'react-icons/fa';
-import { io } from 'socket.io-client';
-const socket = io.connect('http://localhost:4000');
+import {io} from 'socket.io-client'; 
+import './css/Header.css';
+const socket = io('/', {
+  reconnection: true,
+});
+
 export default function Header() {
   const { setUserInfo, userInfo } = useContext(UserContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -29,18 +33,18 @@ export default function Header() {
     setUserInfo(null);
   }
   const username = userInfo?.username;
-  
-  useEffect(() => {
-    console.log(socket);
-    socket.on('new-pin', (newPin) => {
-      setNotifications([...notifications, newPin]);
-    });
-    // Hủy kết nối khi component unmount
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
 
+  // useEffect(() => {
+  //   console.log(socket);
+  //   socket.on('new-pin', (newPin) => {
+  //     console.log('Received new pin:', newPin);
+  //     setNotifications([...notifications, newPin]);
+  //   });
+  //   //console.log('new-pin:', newPin);
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [notifications]);
 
   return (
     <header className="top-bar">
@@ -79,12 +83,12 @@ export default function Header() {
           <FaBell onClick={() => setDropdownOpen(!dropdownOpen)} />
           {dropdownOpen && (
             <div className="notification-list">
-              {notifications.map((notification, index) => (
+              {/* {notifications.map((notification, index) => (
                 <div key={index} className="notification-item">
-                  {/* Hiển thị nội dung của thông báo */}
-                  <p>{notification.message}</p>
+                  
+                  <p>{notification}</p>
                 </div>
-              ))}
+              ))} */}
             </div>
           )}
         </div>

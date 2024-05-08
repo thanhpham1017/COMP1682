@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import '../css/AdminPage.css';
 export default function AdminPage() {
     const [categories, setCategories] = useState([]);
     const [newCategory, setNewCategory] = useState({ name: '' });

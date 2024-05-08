@@ -1,0 +1,54 @@
+.profile-container {
+    display: flex;
+    gap: 200px;
+  }
+  .profile-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  .setting-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .setting-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  
+  .setting-item:hover {
+    color: #007bff;
+  }
+  
+  .username {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  
+  .username svg {
+    font-size: 1.2rem;
+  }
+  
+  .user-level {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #888;
+  }
+  
+  /* Các biểu tượng Font Awesome */
+  .fa-cog,
+  .fa-bell,
+  .fa-lock,
+  .fa-question-circle,
+  .fa-user {
+    font-size: 1.2rem;
+  }

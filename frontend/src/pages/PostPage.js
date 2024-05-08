@@ -4,11 +4,20 @@ import { formatISO9075 } from "date-fns";
 import { UserContext } from "../UserContext";
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import {io} from 'socket.io-client'; 
+import '../css/Post.css';
+const socket = io('/', {
+    reconnection: true
+})
 export default function PostPage() {
     const [postInfo,setPostInfo] = useState(null);
     const {userInfo} = useContext(UserContext);
     const [comment, setComment] = useState('');
     const {id} = useParams();
+    useEffect(() => {
+        console.log(socket);
+    }, []);
+    
     useEffect(() => {
         fetch(`http://localhost:4000/post/${id}`,{
             credentials: 'include',

@@ -2,7 +2,7 @@ import React from 'react';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { FaFacebook, FaInstagramSquare, FaTiktok, FaYoutubeSquare,FaEnvelopeSquare } from "react-icons/fa";
-
+import './css/Footer.css';
 library.add(fab);
 
 export default function Footer() {

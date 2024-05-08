@@ -1,0 +1,250 @@
+.admin-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .add-admin-title {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .admin-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .submit-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
+  }
+  .admin-container {
+    max-width: 1000px; /* Đặt chiều rộng tối đa của container */
+    margin: 50px auto; /* Canh giữa container */
+    display: flex; /* Sử dụng flexbox để căn chỉnh các phần tử con */
+  }
+  
+  .admin-container h1 {
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+    color: #333; /* Màu chữ */
+  }
+  
+  .admin-sidebar {
+    width: 200px; /* Độ rộng của sidebar */
+    padding: 20px; /* Khoảng cách bên trong của sidebar */
+    background-color: #f9f9f9; /* Màu nền của sidebar */
+  }
+  
+  .admin-sidebar button {
+    display: block; /* Hiển thị nút như một khối */
+    width: 100%; /* Độ rộng của nút */
+    padding: 10px; /* Khoảng cách bên trong của nút */
+    margin-bottom: 10px; /* Khoảng cách dưới giữa các nút */
+    border: none; /* Loại bỏ viền */
+    background-color: #007bff; /* Màu nền của nút */
+    color: #fff; /* Màu chữ của nút */
+    cursor: pointer; /* Con trỏ khi di chuột qua */
+    border-radius: 5px; /* Bo tròn góc của nút */
+    transition: background-color 0.3s; /* Hiệu ứng chuyển đổi màu nền */
+  }
+  
+  .admin-sidebar button:hover {
+    background-color: #0056b3; /* Màu nền khi di chuột qua */
+  }
+  
+  .content {
+    flex: 1; /* Chia sẻ không gian còn lại với sidebar */
+    padding: 20px; /* Khoảng cách bên trong của content */
+  }
+  
+  .content h2 {
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+    color: #333; /* Màu chữ */
+  }
+  
+  .category-container {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .add-category {
+    margin-bottom: 20px;
+  }
+  
+  .add-category input[type="text"] {
+    padding: 8px;
+    width: calc(100% - 100px);
+    margin-right: 10px;
+  }
+  
+  .add-category button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .add-category button:hover {
+    background-color: #0056b3;
+  }
+  
+  .category-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .category-table th, .category-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .category-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .category-table td {
+    text-align: center;
+  }
+  
+  .category-table button {
+    padding: 6px 12px;
+    margin-right: 6px;
+    background-color: gray;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .category-table button:hover {
+    background-color: gray;
+  }
+  /* CSS for Blogger Table */
+  /* Guest List Container */
+  .guest-container {
+    margin-bottom: 20px;
+  }
+  
+  .guest-container h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .guest-container p {
+    font-size: 16px;
+    color: #888;
+  }
+  
+  .add-guest {
+    margin-top: 20px;
+  }
+  
+  .add-guest h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .add-guest input,
+  .add-guest select {
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 8px;
+  }
+  
+  .guest-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .guest-table th,
+  .guest-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .guest-table th {
+    background-color: #f2f2f2;
+    font-size: 16px;
+  }
+  
+  /* Blogger List Container */
+  .blogger-container {
+    margin-bottom: 20px;
+  }
+  
+  .blogger-container h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .blogger-container p {
+    font-size: 16px;
+    color: #888;
+  }
+  
+  .add-blogger {
+    margin-top: 20px;
+  }
+  
+  .add-blogger h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .add-blogger input,
+  .add-blogger select {
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 8px;
+  }
+  
+  .blogger-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .blogger-table th,
+  .blogger-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .blogger-table th {
+    background-color: #f2f2f2;
+    font-size: 16px;
+  }
+  

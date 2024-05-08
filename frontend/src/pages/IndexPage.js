@@ -8,7 +8,7 @@ import Dropzone from 'react-dropzone';
 import { FaMapMarker,FaStar,FaTimes,FaDirections   } from 'react-icons/fa';
 import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
-
+import '../css/IndexPage.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function IndexPage(){
@@ -537,7 +537,7 @@ export default function IndexPage(){
         </MapGL>
         {selectedMarkerInfo && isMarkerSelected &&(
           
-          <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "300px", height: "460px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto"}}>
+          <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "300px", height: "460px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto", marginTop: "63px"}}>
             <button onClick={handleCloseSidebar} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "0", right: "10px"}}>
               <FaTimes style={{fontSize: "1.5rem"}} />
             </button>
