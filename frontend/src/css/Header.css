@@ -131,24 +131,38 @@
   }
   
   .top-bar .notification {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    margin-left: 30px; /* Thay đổi margin-right thành margin-left */
-  }
-  
-  .top-bar .notification .dropdown {
+    position: relative;
+    margin-left: 30px;
+}
+
+.top-bar .notification .notification-list {
     position: absolute;
     top: 100%;
-    /* left: 0; Thay đổi right thành left */
+    right: 0;
     background-color: #fff;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 100;
     display: none;
-    width: 200px;
-    padding: 15px;
-  }
-  
-  .top-bar .notification .dropdown p {
+    width: 250px; /* Adjust width as needed */
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.top-bar .notification .notification-list .notification-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.top-bar .notification .notification-list .notification-item:last-child {
+    border-bottom: none;
+}
+
+.top-bar .notification .notification-list .notification-item p {
     margin: 0;
-  }
+    color: #333;
+}
+
+/* Show notification list when notification icon is hovered */
+.top-bar .notification:hover .notification-list {
+    display: block;
+}

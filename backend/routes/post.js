@@ -141,7 +141,6 @@ router.put('/post/comment/:id', verifyToken, async (req, res) => {
     next(error);
   }
 });
-
 router.put('/post/addLike/:id', verifyToken, async (req, res) => {
   try {
     const accountId = req.accountId._id;
@@ -151,8 +150,8 @@ router.put('/post/addLike/:id', verifyToken, async (req, res) => {
     { new: true }
     );
     const posts = await Post.find().sort({ createdAt: -1 }).populate('author', 'username');
-    main.io.emit('add-like', posts); // Emitting add-like event to all connected clients
-
+    //main.io.emit('add-like', posts); // Emitting add-like event to all connected clients
+    main.io.emit('add-like', { postId: req.params.id, likes: post.likes });
     res.status(200).json({
       success: true,
       post,
@@ -164,9 +163,6 @@ router.put('/post/addLike/:id', verifyToken, async (req, res) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 });
-
-
-
 router.put('/post/removeLike/:id', verifyToken, async (req, res) => {
   try {
     const accountId = req.accountId._id;
@@ -175,10 +171,9 @@ router.put('/post/removeLike/:id', verifyToken, async (req, res) => {
     },
         { new: true }
     );
-
     const posts = await Post.find().sort({ createdAt: -1 }).populate('author', 'username');
-    main.io.emit('remove-like', posts); // Emitting remove-like event to all connected clients
-
+    //main.io.emit('remove-like', posts); // Emitting remove-like event to all connected 
+    main.io.emit('remove-like', { postId: req.params.id, likes: post.likes });
     res.status(200).json({
         success: true,
         post

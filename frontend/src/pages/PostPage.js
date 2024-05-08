@@ -6,16 +6,45 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {io} from 'socket.io-client'; 
 import '../css/Post.css';
-const socket = io('/', {
-    reconnection: true
-})
+var socket;
+const ENDPOINT = "http://localhost:4000";
 export default function PostPage() {
     const [postInfo,setPostInfo] = useState(null);
     const {userInfo} = useContext(UserContext);
     const [comment, setComment] = useState('');
     const {id} = useParams();
     useEffect(() => {
+        socket = io(ENDPOINT);
         console.log(socket);
+        socket.on("new-comment", (msg) => {
+            console.log('New comment received:', msg);
+            // Update comments in state
+            setPostInfo(prevPostInfo => {
+                if (!prevPostInfo) return null;
+                return {
+                    ...prevPostInfo,
+                    comments: [...prevPostInfo.comments, msg] // Assuming msg contains new comment data
+                };
+            });
+        });
+        socket.on("add-like", (data) => {
+            console.log('Like added:', data);
+            if (postInfo && postInfo._id === data.postId) {
+                setPostInfo(prevPostInfo => ({
+                    ...prevPostInfo,
+                    likes: data.likes
+                }));
+            }
+        });
+        socket.on("remove-like", (data) => {
+            console.log('Like removed:', data);
+            if (postInfo && postInfo._id === data.postId) {
+                setPostInfo(prevPostInfo => ({
+                    ...prevPostInfo,
+                    likes: data.likes
+                }));
+            }
+        });
     }, []);
     
     useEffect(() => {
@@ -51,8 +80,10 @@ export default function PostPage() {
             }
             const data = await response.json();
             if (data.success === true) {
+                if (socket) {
+                    socket.emit("comment", { text: comment }); // Sending the comment text
+                }
                 setComment('');
-                setPostInfo(data.blog);
                 toast.success("Comment added");
             }
         } catch (error) {
@@ -73,8 +104,6 @@ export default function PostPage() {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            const postData = await response.json();
-            setPostInfo(postData.post);
         } catch (error) {
             console.error('There was a problem with the fetch operation:', error);
         }
@@ -92,8 +121,6 @@ export default function PostPage() {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            const postData = await response.json();
-            setPostInfo(postData.post);
         } catch (error) {
             console.error('There was a problem with the fetch operation:', error);
         }
@@ -123,17 +150,16 @@ export default function PostPage() {
             <div className="likes-container">
                 <button className="like-button" onClick={handleLike}>Like</button>
                 <span className="likes-count">Likes: {postInfo.likes.length}</span>
-                {/* <button className="dislike-button" onClick={handleDislike}>Dislike</button> */}
+                <button className="dislike-button" onClick={handleDislike}>Dislike</button>
             </div>
             <div className="comments">
                     {postInfo.comments && postInfo.comments.map((comment, index) => (
                         <div key={index} className="comment">
                             <p>{comment.text}</p>
-                            <p>Posted by: {comment.postedBy.username}</p>
+                            <p>Posted by: {comment.postedBy?.username}</p>
                         </div>
                     ))}
                 </div>
-
                 {/* Add comment section */}
                 <div className="add-comment">
                     <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Write your comment here"></textarea>

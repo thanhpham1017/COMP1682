@@ -4,8 +4,7 @@ const Category = require("../models/Category");
 const Pin = require("../models/Pin");
 const Package = require("../models/Package");
 const { verifyToken, checkAdmin } = require("../middlewares/auth");
-
-//const socket = io.connect('http://localhost:4000');
+const main = require('../index');
 
 
 
@@ -19,14 +18,18 @@ router.post("/pinCreate",  verifyToken, async (req, res) => {
         } 
         const accountRole = accountID.role;
         const isAdmin = accountRole === "Admin";
-        console.log(isAdmin);
-        // Tạo pin mới với trường "chờ" được thiết lập tương ứng
         const newPinData = { ...req.body, pending: !isAdmin };
         const newPin = new Pin(newPinData);
         const savedPin = await newPin.save();
         // if (!isAdmin) {
-        //     socket.emit('new-pin', savedPin);
+        //     main.io.emit('newPin', savedPin);
         // }
+        if (!isAdmin) {
+            const adminSockets = await main.io.adapter.sockets('admin-room'); // Join rooms for identification
+            if (adminSockets.length > 0) {
+                main.io.to('admin-room').emit('newPin', savedPin);
+            } 
+        }
         res.status(200).json(savedPin);
     } catch (err) {
         res.status(500).json(err);
@@ -37,6 +40,21 @@ router.get("/pins", async (req, res) => {
     try {
         const pins = await Pin.find({ pending: false });
         res.status(200).json(pins);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+router.get("/pin/:id", async (req, res) => {
+    try {
+        const pinId = req.params.id;
+        const pin = await Pin.findById(pinId);
+        if (pin) {
+            res.status(200).json(pin);
+        } else {
+            res.status(404).json({ success: false, error: "Pin not found" });
+            return;
+        }
     } catch (err) {
         res.status(500).json(err);
     }

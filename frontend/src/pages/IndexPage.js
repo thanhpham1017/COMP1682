@@ -10,7 +10,8 @@ import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
 import '../css/IndexPage.css';
 import 'react-toastify/dist/ReactToastify.css';
-
+var socket;
+const ENDPOINT = "http://localhost:4000";
 export default function IndexPage(){
   const [isAdmin, setIsAdmin] = useState(false); // Trạng thái lưu trữ vai trò của người dùng
   const [posts,setPosts] = useState([]);
@@ -45,9 +46,7 @@ export default function IndexPage(){
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [previousRating, setPreviousRating] = useState(0); 
   const [searchTerm, setSearchTerm] = useState("");// Đánh giá trước đó
-  const socket = io('/', {
-    reconnection: true
-})
+
   useEffect(() => {
     // Kiểm tra xem người dùng có vai trò là admin hay không
     if (userInfo && userInfo.role === 'Admin') {
@@ -66,12 +65,12 @@ export default function IndexPage(){
   }, []);
 
   useEffect(() => {
-    const savedComments = localStorage.getItem('comments');
-    if (savedComments) {
-      setComments(JSON.parse(savedComments));
-    } else {
-      setComments([]); // Ensure comments is always an array
-    }
+    // const savedComments = localStorage.getItem('comments');
+    // if (savedComments) {
+    //   setComments(JSON.parse(savedComments));
+    // } else {
+    //   setComments([]); // Ensure comments is always an array
+    // }
   
     const getPins = async () => {
       try {    
@@ -200,6 +199,23 @@ export default function IndexPage(){
   useEffect(() => {
   }, [pinInfo]);
 
+
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    console.log(socket);
+    socket.on('new-comment', (newComment) => {
+      console.log('New comment received:', newComment);
+      // Update the UI with the new comment
+      setComments(prevComments => {
+        if (Array.isArray(prevComments)) {
+          return [...prevComments, newComment];
+        } else {
+          return [newComment];
+        }
+      });
+    });
+}, []);
+
   const updatePinComments = (pinId, newComments) => {
     setPins(prevPins => {
       return prevPins.map(pin => {
@@ -230,8 +246,9 @@ export default function IndexPage(){
       }
       const data = await response.json();
       if (data.success === true) {
+        socket.emit('comment', { comment });
         setComment('');
-        updatePinComments(currentPinId, data.pin.comments); // Cập nhật danh sách comment của pin tương ứng
+        //updatePinComments(currentPinId, data.pin.comments); // Cập nhật danh sách comment của pin tương ứng
         toast.success("comment added");
         console.log(data.pin.comments);
       }

@@ -5,10 +5,8 @@ import logoImage from '../src/img/logo.png';
 import { FaBell } from 'react-icons/fa';
 import {io} from 'socket.io-client'; 
 import './css/Header.css';
-const socket = io('/', {
-  reconnection: true,
-});
-
+var socket;
+const ENDPOINT = "http://localhost:4000";
 export default function Header() {
   const { setUserInfo, userInfo } = useContext(UserContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -34,18 +32,25 @@ export default function Header() {
   }
   const username = userInfo?.username;
 
-  // useEffect(() => {
-  //   console.log(socket);
-  //   socket.on('new-pin', (newPin) => {
-  //     console.log('Received new pin:', newPin);
-  //     setNotifications([...notifications, newPin]);
-  //   });
-  //   //console.log('new-pin:', newPin);
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [notifications]);
-
+  useEffect(() => {
+    const storedNotifications = JSON.parse(localStorage.getItem('notifications'));
+    if (storedNotifications) {
+      setNotifications(storedNotifications);
+    }
+  }, []);
+  
+  // Khi nhận được một thông báo mới
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.on('newPin', (newPin) => {
+      console.log('New notification received:', newPin);
+      setNotifications(prevNotifications => {
+        const updatedNotifications = [...prevNotifications, newPin];
+        localStorage.setItem('notifications', JSON.stringify(updatedNotifications)); // Lưu thông báo vào Local Storage
+        return updatedNotifications;
+      });
+    });  
+  }, []);
   return (
     <header className="top-bar">
       <div className="logo">
@@ -83,12 +88,17 @@ export default function Header() {
           <FaBell onClick={() => setDropdownOpen(!dropdownOpen)} />
           {dropdownOpen && (
             <div className="notification-list">
-              {/* {notifications.map((notification, index) => (
-                <div key={index} className="notification-item">
-                  
-                  <p>{notification}</p>
+              {notifications.length === 0 ? (
+                <div className="notification-item">
+                  <p>No notification</p>
                 </div>
-              ))} */}
+              ) : (
+                notifications.map((notification, index) => (
+                  <div key={index} className="notification-item">
+                    <p>{notification.email} requests to add new location</p>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>
