@@ -30,23 +30,31 @@ export default function Header() {
     });
     setUserInfo(null);
   }
+
   const username = userInfo?.username;
 
-  useEffect(() => {
-    const storedNotifications = JSON.parse(localStorage.getItem('notifications'));
-    if (storedNotifications) {
-      setNotifications(storedNotifications);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const storedNotifications = JSON.parse(localStorage.getItem('notifications'));
+  //   if (storedNotifications) {
+  //     setNotifications(storedNotifications);
+  //   }
+  // }, []);
   
   // Khi nhận được một thông báo mới
+  
   useEffect(() => {
-    socket = io(ENDPOINT);
+    if (!socket) {
+      socket = io(ENDPOINT);
+    }
+    console.log(socket);
+
+    // Hủy bỏ tất cả các lắng nghe trước đó
+    socket.removeAllListeners();
     socket.on('newPin', (newPin) => {
       console.log('New notification received:', newPin);
       setNotifications(prevNotifications => {
         const updatedNotifications = [...prevNotifications, newPin];
-        localStorage.setItem('notifications', JSON.stringify(updatedNotifications)); // Lưu thông báo vào Local Storage
+        //localStorage.setItem('notifications', JSON.stringify(updatedNotifications)); // Lưu thông báo vào Local Storage
         return updatedNotifications;
       });
     });  
@@ -72,6 +80,7 @@ export default function Header() {
                 <div className="dropdown-menu">
                   <Link to="/create" className="create-post">Create new post</Link>
                   <Link to="/profile/settings" className="profile-username">Profile</Link>
+                  {/* {isAdmin && <a href="/admin">Admin</a>}  */}
                   <button onClick={logout} className="logout-btn">Logout</button>
                 </div>
               )}

@@ -21,15 +21,15 @@ router.post("/pinCreate",  verifyToken, async (req, res) => {
         const newPinData = { ...req.body, pending: !isAdmin };
         const newPin = new Pin(newPinData);
         const savedPin = await newPin.save();
-        // if (!isAdmin) {
-        //     main.io.emit('newPin', savedPin);
-        // }
         if (!isAdmin) {
-            const adminSockets = await main.io.adapter.sockets('admin-room'); // Join rooms for identification
-            if (adminSockets.length > 0) {
-                main.io.to('admin-room').emit('newPin', savedPin);
-            } 
+            main.io.emit('newPin', savedPin);
         }
+        // if (!isAdmin) {
+        //     const adminSockets = await main.io.adapter.sockets('admin-room'); // Join rooms for identification
+        //     if (adminSockets.length > 0) {
+        //         main.io.to('admin-room').emit('newPin', savedPin);
+        //     } 
+        // }
         res.status(200).json(savedPin);
     } catch (err) {
         res.status(500).json(err);

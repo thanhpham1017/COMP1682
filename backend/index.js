@@ -39,12 +39,6 @@ const io = require("socket.io")(server, {
 
 mongoose.connect('mongodb+srv://thanhpqgch210568:1@cluster0.gac1iv3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 
-// const io = new Server({
-//   cors: {
-//     origin: "http://localhost:3000",
-//   },
-// });
-
 app.use((req, res, next) => {
   req.io = io;
   next();
@@ -63,19 +57,12 @@ app.use(categoryRouter);
 
 const port = process.env.PORT || 4000
 
-// io.on('connection', (socket) => {
-//     socket.on('comment', (msg) => {
-//       io.emit("new-comment", msg);
-//     })
-//     //('new-pin', savedPin)
-// });
 
 io.on('connection', (socket) => {
   socket.on('comment', (msg) => {
     console.log('new comment received', msg);
     io.emit("new-comment", msg);
   });
-
 });
 
 exports.io = io;

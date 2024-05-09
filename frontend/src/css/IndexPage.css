@@ -15,7 +15,7 @@
   .formSubmitButton {
     width: 100%;
     padding: 10px;
-    background-color: #007bff;
+    background-color: #f33c3c;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -24,7 +24,7 @@
   }
   
   .formSubmitButton:hover {
-    background-color: #0056b3;
+    background-color: gray;
   }
   .sidebar {
     position: fixed;
@@ -39,81 +39,184 @@
     z-index: 1000; /* Đảm bảo sidebar hiển thị trên các phần tử khác */
   }
   
-  .sidebar h2 {
-    font-size: 1.5rem; /* Đặt kích thước font cho tiêu đề */
-    margin-bottom: 10px; /* Đặt margin dưới cho tiêu đề */
+  .sidebar .marker-info {
+    position: relative;
   }
   
-  .sidebar p {
-    margin-bottom: 10px; /* Đặt margin dưới cho các đoạn văn bản */
+  .sidebar .marker-info img {
+    width: 100%;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
   }
   
-  .sidebar .price {
-    font-weight: bold; /* Đặt chữ in đậm cho giá cả */
+  .sidebar .marker-info h2 {
+    font-size: 24px;
+    margin-top: 20px;
   }
   
-  .sidebar .ratings {
-    margin-top: 10px; /* Đặt margin trên cho phần đánh giá */
+  .sidebar .marker-info p {
+    font-size: 16px;
+    margin-top: 5px;
   }
   
-  .sidebar .ratings .star {
-    color: #ffd700; /* Đặt màu cho sao */
-    margin-right: 5px; /* Đặt khoảng cách bên phải giữa các sao */
+  .sidebar .marker-info .previous-ratings {
+    margin-top: 10px;
   }
   
-  .sidebar a {
-    color: #007bff; /* Đặt màu cho các liên kết */
-    text-decoration: none; /* Loại bỏ gạch chân cho liên kết */
-    display: block; /* Hiển thị liên kết như một khối */
-    margin-top: 10px; /* Đặt margin trên cho mỗi liên kết */
+  .sidebar .marker-info .previous-ratings .star {
+    font-size: 20px;
+    color: #f33c3c; /* Màu vàng cho ngôi sao */
   }
+  
+  .sidebar .marker-info label {
+    font-weight: bold;
+  }
+  
+  .sidebar .marker-info select {
+    margin-top: 5px;
+    padding: 5px;
+    font-size: 16px;
+  }
+  
+  .sidebar .marker-info textarea {
+    margin-top: 10px;
+    padding: 5px;
+    width: 100%;
+    min-height: 80px;
+    font-size: 16px;
+  }
+  .sidebar .arrow-buttons {
+    display: flex;
+    justify-content: space-between; /* Cách đều các nút mũi tên ở hai đầu */
+    align-items: center; /* Căn giữa các phần tử bên trong theo chiều dọc */
+    top: 50%;
+    width: 100%;
+  }
+  
+  .sidebar .arrow-buttons .left-arrow,
+  .sidebar .arrow-buttons .right-arrow {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .sidebar .arrow-buttons .left-arrow:focus,
+  .sidebar .arrow-buttons .right-arrow:focus {
+    outline: none;
+  }
+  
+  .sidebar .arrow-buttons .left-arrow:hover,
+  .sidebar .arrow-buttons .right-arrow:hover {
+    color: #f33c3c;
+  }
+  
+  .sidebar .arrow-buttons .left-arrow .FaChevronLeft,
+  .sidebar .arrow-buttons .right-arrow .FaChevronRight {
+    font-size: 1.5rem;
+  }
+  
+  .sidebar .arrow-buttons .left-arrow {
+    /* position: absolute; */
+    left: 0;
+  }
+  
+  .sidebar .arrow-buttons .right-arrow {
+    /* position: absolute; */
+    right: 0;
+  }
+  
   .select-wrapper {
     position: relative;
-    margin-bottom: 20px; /* Adjust as needed */
+    margin-bottom: 20px; /* Duy trì khoảng cách dưới phần select */
+    margin-left: 10px;
   }
   
   .select-wrapper select {
-    padding: 8px 16px; /* Adjust padding as needed */
-    font-size: 16px; /* Adjust font size as needed */
+    padding: 12px 20px; /* Tăng độ lớn của padding cho phần select */
+    font-size: 16px; /* Điều chỉnh kích thước font chữ */
     border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #fff;
+    border-radius: 8px; /* Tăng độ cong của góc */
+    background-color: #f9f9f9; /* Màu nền cho phần select */
     outline: none;
-    appearance: none; /* Remove default arrow */
-    cursor: pointer;
-  }
-  .search-wrapper {
-    position: relative;
-    display: flex; /* Change to flex to align items horizontally */
-    align-items: center; /* Align items vertically in the center */
-  }
-  
-  .search-wrapper input[type="text"] {
-    padding: 8px 12px; /* Adjust padding as needed */
-    font-size: 16px; /* Adjust font size as needed */
-    border: 1px solid #ccc;
-    border-radius: 5px 0 0 5px;
-    outline: none;
-    margin-right: 10px;
-    flex: 1; /* Allow input to grow and fill remaining space */
-  }
-  
-  .search-wrapper button {
-    padding: 8px 16px; /* Adjust padding as needed */
-    font-size: 16px; /* Adjust font size as needed */
-    border: 1px solid #ccc;
-    border-left: none;
-    border-radius: 0 5px 5px 0;
-    background-color: #f0f0f0;
+    appearance: none; /* Loại bỏ mũi tên mặc định */
     cursor: pointer;
   }
   
-  /* Adjust the position of the search wrapper */
-  .search-wrapper {
+  /* Hiệu ứng hover */
+  .select-wrapper select:hover {
+    border-color: #aaa; /* Đổi màu viền khi di chuột vào */
+  }
+  
+  /* Hiệu ứng focus */
+  .select-wrapper select:focus {
+    border-color: #f33c3c; /* Đổi màu viền khi focus */
+    box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2); /* Đổ bóng */
+  }
+  
+  /* Hiệu ứng khi select được mở */
+  .select-wrapper select:active {
+    border-color: #f33c3c; /* Đổi màu viền khi mở select */
+    box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2); /* Đổ bóng */
+  }
+  
+  /* Hiệu ứng khi select được disable */
+  .select-wrapper select:disabled {
+    opacity: 0.5; /* Giảm độ mờ */
+    cursor: not-allowed; /* Đổi con trỏ chuột */
+  }
+  
+  .input-box {
+    position: fixed;
+    top: 70px; /* Điều chỉnh khoảng cách từ phía trên của màn hình */
+    right: 20px; /* Điều chỉnh khoảng cách từ phía bên phải của màn hình */
+    height: 50px;
+    max-width: 400px;
+    width: calc(100% - 40px); /* Chiều rộng tối đa của hộp tìm kiếm */
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .input-box i {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 10px;
+    font-size: 20px;
+    color: #707070;
   }
+  
+  .input-box input {
+    height: 100%;
+    width: calc(100% - 80px);
+    outline: none;
+    font-size: 16px;
+    font-weight: 400;
+    border: none;
+    padding: 0 40px 0 40px;
+    background-color: transparent;
+  }
+  
+  .input-box .button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 10px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    background-color: #f33c3c;
+    cursor: pointer;
+  }
+  
+  .input-box .button:active {
+    transform: translateY(-50%) scale(0.98);
+  }
+  
   .comments {
     margin-top: 20px;
     border-top: 1px solid #ccc;

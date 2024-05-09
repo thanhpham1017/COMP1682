@@ -63,6 +63,7 @@ export default function RegisterPage() {
             value={username}
             onChange={ev => setUserName(ev.target.value)} />
           <select
+            className="select-container"
             type="text"
             placeholder="Role"
             value={role}
@@ -91,11 +92,11 @@ export default function RegisterPage() {
           )}
           <button className="custom-button">Register</button>
           <p>Already have an account? <Link to="/Login">Login</Link></p>
-          <div className="alternative-login-options">
+          {/* <div className="alternative-login-options">
             <p>Or</p>
             <button className="facebook-custom"><FaFacebook /></button>
             <button className="google-custom"><FaGoogle /></button>
-          </div>
+          </div> */}
         </form>
       </div>
     </div>

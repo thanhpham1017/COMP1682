@@ -33,7 +33,7 @@
     max-width: 400px;
     margin: 0 auto;
     background-color: #fff;
-    padding: 20px;
+    padding: 40px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
@@ -69,7 +69,7 @@
     color: #333;
   }
   form.login h2{
-    font-family: Garamond, sans-serif;
+    /* font-family: Garamond, sans-serif; */
     text-align: center;
     margin-bottom: 20px;
     color: #333;
@@ -118,3 +118,28 @@
     transform: translateY(-50%);
     cursor: pointer;
   }
+  .select-container {
+    position: relative; /* Cho phần tử cha làm điểm tham chiếu cho phần tử con tương đối */
+    margin-bottom: 15px; /* Khoảng cách giữa các phần tử */
+  }
+  
+  .select-container select {
+    width: 100%; /* Đảm bảo select điền đầy phần tử cha */
+    padding: 10px; /* Khoảng cách bên trong */
+    border: 2px solid #ddd; /* Viền */
+    border-radius: 5px; /* Bo tròn góc */
+    background-color: #f9f9f9; /* Màu nền */
+    cursor: pointer; /* Con trỏ */
+  }
+  
+  /* Biểu tượng mũi tên cho select */
+  .select-container::after {
+    content: '\25BC'; /* Biểu tượng mũi tên */
+    position: absolute; /* Tuyệt đối vị trí */
+    top: 50%; /* Đặt vị trí theo chiều dọc */
+    right: 10px; /* Đặt vị trí theo chiều ngang */
+    transform: translateY(-50%); /* Dịch chuyển lên trên 50% */
+    pointer-events: none; /* Ngăn chặn sự kiện chuột */
+    color: #777; /* Màu của mũi tên */
+  }
+  

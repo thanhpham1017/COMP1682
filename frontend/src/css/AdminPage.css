@@ -1,6 +1,6 @@
 .admin-container {
     max-width: 600px;
-    margin: 50px auto;
+    /* margin: 50px auto; */
     padding: 20px;
     background-color: #fff;
     border-radius: 8px;
@@ -51,8 +51,8 @@
     background-color: #0056b3;
   }
   .admin-container {
-    max-width: 1000px; /* Đặt chiều rộng tối đa của container */
-    margin: 50px auto; /* Canh giữa container */
+    max-width: 95%; /* Đặt chiều rộng tối đa của container */
+    /* margin: 50px auto; Canh giữa container */
     display: flex; /* Sử dụng flexbox để căn chỉnh các phần tử con */
   }
   
@@ -73,7 +73,7 @@
     padding: 10px; /* Khoảng cách bên trong của nút */
     margin-bottom: 10px; /* Khoảng cách dưới giữa các nút */
     border: none; /* Loại bỏ viền */
-    background-color: #007bff; /* Màu nền của nút */
+    background-color: #f33c3c; /* Màu nền của nút */
     color: #fff; /* Màu chữ của nút */
     cursor: pointer; /* Con trỏ khi di chuột qua */
     border-radius: 5px; /* Bo tròn góc của nút */
@@ -81,12 +81,12 @@
   }
   
   .admin-sidebar button:hover {
-    background-color: #0056b3; /* Màu nền khi di chuột qua */
+    background-color: gray; /* Màu nền khi di chuột qua */
   }
   
   .content {
     flex: 1; /* Chia sẻ không gian còn lại với sidebar */
-    padding: 20px; /* Khoảng cách bên trong của content */
+    /* padding: 20px; Khoảng cách bên trong của content */
   }
   
   .content h2 {
@@ -113,14 +113,14 @@
   
   .add-category button {
     padding: 8px 16px;
-    background-color: #007bff;
+    background-color: #f33c3c;
     color: #fff;
     border: none;
     cursor: pointer;
   }
   
   .add-category button:hover {
-    background-color: #0056b3;
+    background-color: gray;
   }
   
   .category-table {
@@ -151,7 +151,7 @@
   }
   
   .category-table button:hover {
-    background-color: gray;
+    background-color: #f33c3c;
   }
   /* CSS for Blogger Table */
   /* Guest List Container */
@@ -184,7 +184,16 @@
     width: 100%;
     padding: 8px;
   }
-  
+
+  .add-guest button {
+    padding: 8px 16px;
+    background-color: #f33c3c;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+
   .guest-table {
     width: 100%;
     border-collapse: collapse;
@@ -199,6 +208,18 @@
   .guest-table th {
     background-color: #f2f2f2;
     font-size: 16px;
+  }
+  .guest-table button {
+    padding: 6px 12px;
+    margin-right: 6px;
+    background-color: gray;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .guest-table button:hover {
+    background-color: #f33c3c;
   }
   
   /* Blogger List Container */
@@ -224,6 +245,15 @@
     font-size: 20px;
     margin-bottom: 10px;
   }
+
+  .add-blogger button{
+    padding: 8px 16px;
+    background-color: #f33c3c;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
   
   .add-blogger input,
   .add-blogger select {
@@ -247,4 +277,15 @@
     background-color: #f2f2f2;
     font-size: 16px;
   }
+  .blogger-table button {
+    padding: 6px 12px;
+    margin-right: 6px;
+    background-color: gray;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
   
+  .blogger-table button:hover {
+    background-color: #f33c3c;
+  }

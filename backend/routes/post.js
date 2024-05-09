@@ -28,7 +28,7 @@ router.post('/post', verifyToken, uploadMiddleware.single('file'), async (req,re
     console.log(accountId);
     // Find the Blogger document based on the username
     const blogger = await AccountModel.findOne({ username: accountId });
-    console.log(blogger);
+    //console.log(blogger);
     if (!blogger) {
       return res.status(404).json({ success: false, error: "Blogger not found" });
     }
@@ -130,17 +130,18 @@ router.put('/post/comment/:id', verifyToken, async (req, res) => {
   const accountId = req.accountId._id;
   const { comment } = req.body;
   try {
-      const blogComment = await Post.findByIdAndUpdate(req.params.id, {
-        $push: { comments: { text: comment, postedBy: accountId } }
-      }, 
-        { new: true }
-      );
-      const blog = await Post.findById(blogComment._id).populate('comments.postedBy', 'username email');
-      res.status(200).json({success: true, blog});
+    const blogComment = await Post.findByIdAndUpdate(req.params.id, {
+      $push: { comments: { text: comment, postedBy: accountId } }
+    }, { new: true });
+
+    // Lấy thông tin về người đăng comment (username và email)
+    const blog = await Post.findById(blogComment._id).populate('comments.postedBy', 'username email');
+    res.status(200).json({ success: true, blog });
   } catch (error) {
     next(error);
   }
 });
+
 router.put('/post/addLike/:id', verifyToken, async (req, res) => {
   try {
     const accountId = req.accountId._id;

@@ -38,16 +38,15 @@ const checkAdmin = (req, res, next) => {
    }
 };
 
- 
+
 const checkBlogger = (req, res, next) => {
    const accountID = req.accountId;
-   const accountData = AccountModel.findById(accountID);
-   if(!accountData){
+   if(!accountID){
       return res.status(400).json({success: false, error: "Not found user"});
-  }
-  const accountRole = accountData.role;
+   }
+   const accountRole = accountID.role;
    console.log(accountRole);
-   if (accountRole === 'Admin' || accountRole === 'Blogger') {
+   if (accountRole === "Blogger") {
       next();
    }
    else {
@@ -58,12 +57,11 @@ const checkBlogger = (req, res, next) => {
 
 const checkGuest = (req, res, next) => {
    const accountID = req.accountId;
-   const accountData = AccountModel.findById(accountID);
-   if(!accountData){
+   if(!accountID){
       return res.status(400).json({success: false, error: "Not found user"});
-  }
-   const accountRole = accountData.role;
-   if (accountRole === 'Guest' || accountRole === 'Admin' || accountRole === 'Blogger') {
+   }
+   const accountRole = accountID.role;
+   if (accountRole === "Guest" || accountRole === "Admin" || accountRole === "Blogger") {
       next();
    }
    else {

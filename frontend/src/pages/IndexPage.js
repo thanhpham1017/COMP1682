@@ -1,6 +1,7 @@
 import Post from "../Post";
 import React, { useEffect, useState, useContext, useRef } from "react";
 import MapGL, {Marker, Source, Layer} from 'react-map-gl';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import {UserContext} from "../UserContext";
 import { GeolocateControl } from 'react-map-gl';
 import Dropzone from 'react-dropzone';
@@ -21,6 +22,7 @@ export default function IndexPage(){
   const [selectedPin, setSelectedPin] = useState(null);
   const [newPlace, setNewPlace] = useState(null);
   const [title, setTitle] = useState(null);
+  const [category, setCategory] = useState(null);
   const [desc, setDesc] = useState(null);
   const [price, setPrice] = useState(0);
   const [address, setAddress] = useState(0);
@@ -99,6 +101,7 @@ export default function IndexPage(){
     setCurrentPinId(id); // Lưu id của pin hiện tại
     setIsMarkerSelected(true);
     //debugger;
+    setCategory(pins.find(pin => pin._id === id).category.name); 
   }
 
   const handleAddClick = (e) => {
@@ -108,6 +111,8 @@ export default function IndexPage(){
       lat,
       long,
     });
+    const selectedCategory = categories.find(cat => cat._id === category);
+    setCategory(selectedCategory ? selectedCategory.name : null);
   }
 
   const currentUserEmail = localStorage.getItem('userEmail');
@@ -127,12 +132,11 @@ export default function IndexPage(){
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (isAdmin) {
       const newPin = {
       email : currentUserEmail,
       title,
       desc,
-      price,
+      category,
       rating: star,
       lat: newPlace.lat,
       long: newPlace.long,
@@ -156,26 +160,7 @@ export default function IndexPage(){
       } catch (error) {
         console.error('There was a problem with the fetch operation:', error);
       }
-    // } else {
-    //   try {
-    //     const response = await fetch("http://localhost:4000/sendPinRequestNotification", {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify({ title, desc, price, star, lat: newPlace.lat, long: newPlace.long, image, address }),
-    //     });
-  
-    //     if (!response.ok) {
-    //       throw new Error('Network response was not ok');
-    //     }
-    //   } catch (error) {
-    //     console.error('There was a problem with the fetch operation:', error);
-    //   }
-    
   }
-
-
 
   useEffect(() => {
     const fetchPinInfo = async () => {
@@ -199,36 +184,24 @@ export default function IndexPage(){
   useEffect(() => {
   }, [pinInfo]);
 
-
   useEffect(() => {
-    socket = io(ENDPOINT);
+    if (!socket) {
+      socket = io(ENDPOINT);
+    }
     console.log(socket);
+    // Hủy bỏ tất cả các lắng nghe trước đó
+    socket.removeAllListeners();
     socket.on('new-comment', (newComment) => {
-      console.log('New comment received:', newComment);
-      // Update the UI with the new comment
-      setComments(prevComments => {
-        if (Array.isArray(prevComments)) {
-          return [...prevComments, newComment];
-        } else {
-          return [newComment];
-        }
-      });
+      console.log('New comment pins received:', newComment);
+      setPinInfo(prevPinInfo => {
+            if (!prevPinInfo) return null;
+            return {
+                ...prevPinInfo,
+                comments: [...prevPinInfo.comments, newComment] // Assuming msg contains new comment data
+            };
+        });
     });
-}, []);
-
-  const updatePinComments = (pinId, newComments) => {
-    setPins(prevPins => {
-      return prevPins.map(pin => {
-        if (pin._id === pinId) {
-          return {
-            ...pin,
-            comments: newComments
-          };
-        }
-        return pin;
-      });
-    });
-  };
+  }, []); 
 
   const addComment = async (e) => {
     e.preventDefault();
@@ -246,11 +219,13 @@ export default function IndexPage(){
       }
       const data = await response.json();
       if (data.success === true) {
-        socket.emit('comment', { comment });
+        
+        socket.emit('comment', { text : comment });
         setComment('');
-        //updatePinComments(currentPinId, data.pin.comments); // Cập nhật danh sách comment của pin tương ứng
+        // const updatedComments = [...comments, data.comment];
+        // // Cập nhật state của comments với danh sách comments mới
+        // setComments(updatedComments);
         toast.success("comment added");
-        console.log(data.pin.comments);
       }
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
@@ -416,16 +391,28 @@ export default function IndexPage(){
 
   const handleSearch = async () => {
     try {
-        const response = await fetch(`http://localhost:4000/search?title=${searchTerm}`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const searchData = await response.json();
-        setPins(searchData); // Cập nhật danh sách pin với kết quả tìm kiếm
+      // Gửi yêu cầu tìm kiếm đến máy chủ
+      const response = await fetch(`http://localhost:4000/search?title=${searchTerm}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      // Nhận kết quả tìm kiếm từ máy chủ
+      const searchData = await response.json();
+      // Cập nhật danh sách pin trên bản đồ với kết quả tìm kiếm
+      setPins(searchData);
     } catch (error) {
-        console.error('There was a problem with the search operation:', error);
+      console.error('There was a problem with the search operation:', error);
     }
-};
+  };
+  
+  // Xử lý sự kiện nhập phím để thực hiện tìm kiếm khi người dùng ấn phím Enter
+  const handleKeyPress = (e) => {
+    // Kiểm tra xem phím mà người dùng ấn có phải là phím Enter không (mã phím 13)
+    if (e.key === 'Enter') {
+      // Thực hiện hành động tìm kiếm
+      handleSearch();
+    }
+  };
 
   
   return(
@@ -438,15 +425,16 @@ export default function IndexPage(){
             ))}
           </select>
         </div>
-        <div className="search-wrapper">
-                <input
-                    className="searchInput"
-                    type="text"
-                    placeholder="Search..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <button onClick={handleSearch}>Search</button>
+        <div className="input-box">
+          <i className="uil uil-search"></i>
+          <input
+            type="text"
+            placeholder="Search here..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleKeyPress}
+          />
+          <button className="button" onClick={handleSearch}>Search</button>
         </div>
         <MapGL
           ref={mapRef}
@@ -455,7 +443,7 @@ export default function IndexPage(){
           initialViewState={{
             ...viewport
           }}
-          style={{width: "100%", height: "500px", marginTop: "30px"}}
+          style={{width: "100%", height: "700px", marginTop: "30px"}}
           mapStyle="mapbox://styles/mapbox/streets-v12"
           onDblClick={handleAddClick}
           transitionDuration="200"
@@ -489,7 +477,7 @@ export default function IndexPage(){
             </Marker>
           ))}
           {newPlace && (
-            <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "460px", height: "460px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto"}}>
+            <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "460px", height: "500px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto"}}>
               <button onClick={() => setNewPlace(null)} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "10px", right: "10px"}}>
                 <FaTimes style={{fontSize: "1.5rem"}} />
               </button>
@@ -511,13 +499,18 @@ export default function IndexPage(){
                     placeholder="Address"
                     onChange={(e) => setAddress(e.target.value)}
                   ></textarea><br />
-                  <label>Price:</label><br />
-                  <input 
-                    className="formInput" 
-                    type="number" 
-                    placeholder="Price" 
-                    onChange={(e) => setPrice(e.target.value)}
-                  /><br />
+                  <label>Category:</label><br />
+                  <select
+                    className="formInput"
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map(category => (
+                      <option key={category._id} value={category._id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select><br />
                   <Dropzone onDrop={handleImageDrop} accept="image/*" multiple={true}>
                     {({ getRootProps, getInputProps }) => (
                         <div {...getRootProps()} style={{ cursor: 'pointer', border: '1px dashed #ccc', padding: '20px', textAlign: 'center' }}>
@@ -552,29 +545,33 @@ export default function IndexPage(){
             </div>
           )}
         </MapGL>
+        {/* {console.log(selectedMarkerInfo)} */}
         {selectedMarkerInfo && isMarkerSelected &&(
-          
-          <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "300px", height: "460px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto", marginTop: "63px"}}>
-            <button onClick={handleCloseSidebar} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "0", right: "10px"}}>
+          <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "400px", height: "650px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto", marginTop: "70px"}}>
+            <button onClick={handleCloseSidebar} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "0", right: "0px"}}>
               <FaTimes style={{fontSize: "1.5rem"}} />
             </button>
             {selectedMarkerInfo && (
               <div className="marker-info">
-                <div style={{position: "absolute", top: "30%", transform: "translateY(-50%)", left: 0, right: 0, textAlign: "center"}}>
-                  <button onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? selectedMarkerInfo.image.length - 1 : prevIndex - 1))}>Previous</button>
-                  <button onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex === selectedMarkerInfo.image.length - 1 ? 0 : prevIndex + 1))}>Next</button>
+                <div className="arrow-buttons">
+                  <button className="left-arrow" onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? selectedMarkerInfo.image.length - 1 : prevIndex - 1))}>
+                    <FaChevronLeft style={{}} />
+                  </button>
+                  <img src={selectedMarkerInfo.image[currentImageIndex]} alt="Marker" className="marker-image" />
+                  <button className="right-arrow" onClick={() => setCurrentImageIndex((prevIndex) => (prevIndex === selectedMarkerInfo.image.length - 1 ? 0 : prevIndex + 1))}>
+                    <FaChevronRight style={{}} />
+                  </button>
                 </div>
-                <img src={selectedMarkerInfo.image[currentImageIndex]} alt="Marker" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover' }} />
                 <h2>{selectedMarkerInfo.title}</h2>
                 <p>{selectedMarkerInfo.desc}</p>
-                <p>Price: {selectedMarkerInfo.price}</p>
+                <p>Category: {selectedMarkerInfo.category.name}</p>
                 <div>
                   <div className="previous-ratings">
                     {[...Array(previousRating)].map((_, index) => (
                       <FaStar key={index} className="star" />
                     ))}
                   </div>
-                  <label>Rating:</label><br />
+                  {/* <label>Rating: {selectedMarkerInfo.rating}</label><br /> */}
                   {/* Hiển thị dropdown để chọn số sao mới */}
                   <select className="formInput" value={userRating} onChange={(e) => handleStarClick(parseInt(e.target.value))}>
                     <option value="0">Select a rating</option>
@@ -586,7 +583,7 @@ export default function IndexPage(){
                   </select>
                   <br />
                 </div>
-                <p>Posted by: {selectedMarkerInfo.username}</p>
+                <p>Posted by: {selectedMarkerInfo.email}</p>
                 {/* Form để thêm comment */}
                 <form onSubmit={addComment}>
                   <textarea
@@ -600,6 +597,7 @@ export default function IndexPage(){
                 {pinInfo && pinInfo.comments && pinInfo.comments.map((comment, index) => (
                     <div key={index} className="comment">
                         <p>Comment: {comment.text}</p>
+                        
                     </div>
                 ))}
               </div>

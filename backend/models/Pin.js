@@ -25,7 +25,7 @@ const PinSchema = new mongoose.Schema(
     },
     price: {
         type: Number,
-        required: true,
+        // required: true,
     },
     long: {
         type: Number,
@@ -76,8 +76,6 @@ const PinSchema = new mongoose.Schema(
         type: Date,
     },
     category:{type:Schema.Types.ObjectId, ref:'Category'},
-
-    
 },
 { timestamps: true }
 );

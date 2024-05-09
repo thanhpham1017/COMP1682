@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {io} from 'socket.io-client'; 
 import '../css/Post.css';
+import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 var socket;
 const ENDPOINT = "http://localhost:4000";
 export default function PostPage() {
@@ -14,8 +15,13 @@ export default function PostPage() {
     const [comment, setComment] = useState('');
     const {id} = useParams();
     useEffect(() => {
-        socket = io(ENDPOINT);
+        if (!socket) {
+            socket = io(ENDPOINT);
+        }
         console.log(socket);
+    
+        // Hủy bỏ tất cả các lắng nghe trước đó
+        socket.removeAllListeners();
         socket.on("new-comment", (msg) => {
             console.log('New comment received:', msg);
             // Update comments in state
@@ -34,6 +40,7 @@ export default function PostPage() {
                     ...prevPostInfo,
                     likes: data.likes
                 }));
+                
             }
         });
         socket.on("remove-like", (data) => {
@@ -104,6 +111,10 @@ export default function PostPage() {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+            setPostInfo(prevPostInfo => ({
+                ...prevPostInfo,
+                likes: [...prevPostInfo.likes, userInfo.id]
+            }));
         } catch (error) {
             console.error('There was a problem with the fetch operation:', error);
         }
@@ -120,6 +131,14 @@ export default function PostPage() {
             });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
+                
+            }
+            const data = await response.json();
+            if (data.success === true) {
+                setPostInfo(prevPostInfo => ({
+                    ...prevPostInfo,
+                    likes: data.post.likes
+                }));
             }
         } catch (error) {
             console.error('There was a problem with the fetch operation:', error);
@@ -130,15 +149,13 @@ export default function PostPage() {
 
     return (
         <div className="post-page">
+            <div className="post-box">
             <h1>{postInfo.title}</h1>
             <time>{formatISO9075(new Date(postInfo.createdAt))}</time>
             <div className="author">by @{postInfo.author.username}</div>
             {userInfo.id === postInfo.author.id && (
                 <div className="edit-row">
                     <Link className="edit-btn" to={`/edit/${id}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                        </svg>
                         Edit
                     </Link>
                 </div>
@@ -148,9 +165,13 @@ export default function PostPage() {
             </div>
             <div className="content" dangerouslySetInnerHTML={{__html:postInfo.content}} />
             <div className="likes-container">
-                <button className="like-button" onClick={handleLike}>Like</button>
+                <button className="like-button" onClick={handleLike}>
+                    <FaThumbsUp />
+                </button>
                 <span className="likes-count">Likes: {postInfo.likes.length}</span>
-                <button className="dislike-button" onClick={handleDislike}>Dislike</button>
+                <button className="dislike-button" onClick={handleDislike}>
+                    <FaThumbsDown />
+                </button>
             </div>
             <div className="comments">
                     {postInfo.comments && postInfo.comments.map((comment, index) => (
@@ -165,6 +186,7 @@ export default function PostPage() {
                     <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Write your comment here"></textarea>
                     <button onClick={addComment}>Add Comment</button>
                 </div>
+            </div>
         </div>
     );
 }

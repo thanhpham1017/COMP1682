@@ -6,23 +6,21 @@ export default function Post({_id,title,summary,cover,content,createdAt,author})
 
   return (
     <div className="post-container">
-      <div className="image">
-        <Link to={`/post/${_id}`}>
-          <img src={'http://localhost:4000/'+cover} alt=""/>
-        </Link>
-      </div>
-      <div className="texts">
-        <Link to={`/post/${_id}`}>
-        <h2>{title}</h2>
-        </Link>
-        <p className="info">
-          <a className="author">{author.name}</a>
-          <div>
-            <time>{formatISO9075(new Date(createdAt))}</time>
-          </div>
-        </p>
-        <p className="summary">{summary}</p>
-      </div>
+      <div className="blog-box">
+        <div className="blog-img">
+          <Link to={`/post/${_id}`}>
+            <img src={`http://localhost:4000/${cover}`} alt="blog" />
+          </Link>
+        </div>
+        <div className="blog-text">
+          <span>{formatISO9075(new Date(createdAt))}</span>
+          <Link to={`/post/${_id}`} className="blog-title">
+            <h2>{title}</h2>
+          </Link>
+          <p>{summary}</p>
+          <Link to={`/post/${_id}`}>Read More</Link>
+        </div>
+    </div>
     </div>
   );
 }

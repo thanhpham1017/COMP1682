@@ -413,12 +413,12 @@ export default function AdminPage() {
     const renderDeleteConfirmation = () => {
         return (
             <div className="delete-confirmation">
-                {/* <p>Are you sure you want to delete this category?</p>
-                <button onClick={() => handleDeleteCategory(editCategory._id)}>Yes, Delete</button> */}
+                <p>Are you sure you want to delete this category?</p>
+                <button onClick={() => handleDeleteCategory(editCategory._id)}>Yes, Delete</button>
                 <p>Are you sure you want to delete this guest?</p>
                 <button onClick={() => handleDeleteGuest(editGuest._id)}>Yes, Delete</button>
-                {/* <p>Are you sure you want to delete this blogger?</p>
-                <button onClick={() => handleDeleteBlogger(editBlogger._id)}>Yes, Delete</button> */}
+                <p>Are you sure you want to delete this blogger?</p>
+                <button onClick={() => handleDeleteBlogger(editBlogger._id)}>Yes, Delete</button>
                 <button onClick={() => setShowDeleteConfirmation(false)}>Cancel</button>
             </div>
         );
@@ -567,24 +567,28 @@ export default function AdminPage() {
                         value={newGuest.address}
                         onChange={(e) => setNewGuest({ ...newGuest, address: e.target.value })}
                         placeholder="Enter address"
+                        style={{ width: '500px' }}
                     />
                     <input
                         type="text"
                         value={newGuest.username}
                         onChange={(e) => setNewGuest({ ...newGuest, username: e.target.value })}
                         placeholder="Enter username"
+                        style={{ width: '200px' }}
                     />
                     <input
                         type="text"
                         value={newGuest.email}
                         onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
                         placeholder="Enter email"
+                        style={{ width: '200px' }}
                     />
                     <input
                         type="text"
                         value={newGuest.password}
                         onChange={(e) => setNewGuest({ ...newGuest, password: e.target.value })}
                         placeholder="Enter password"
+                        style={{ width: '200px' }}
                     />
                     <button onClick={handleAddGuest}>Add Guest</button>
                     {errorMessage && <div className="error-message">{errorMessage}</div>}
@@ -710,24 +714,28 @@ export default function AdminPage() {
                         value={newBlogger.address}
                         onChange={(e) => setNewBlogger({ ...newBlogger, address: e.target.value })}
                         placeholder="Enter address"
+                        style={{ width: '500px' }}
                     />
                     <input
                         type="text"
                         value={newBlogger.username}
                         onChange={(e) => setNewBlogger({ ...newBlogger, username: e.target.value })}
                         placeholder="Enter username"
+                        style={{ width: '200px' }}
                     />
                     <input
                         type="text"
                         value={newBlogger.email}
                         onChange={(e) => setNewBlogger({ ...newBlogger, email: e.target.value })}
                         placeholder="Enter email"
+                        style={{ width: '200px' }}
                     />
                     <input
                         type="text"
                         value={newBlogger.password}
                         onChange={(e) => setNewBlogger({ ...newBlogger, password: e.target.value })}
                         placeholder="Enter password"
+                        style={{ width: '200px' }}
                     />
                     <button onClick={handleAddBlogger}>Add Blogger</button>
                     {errorMessage && <div className="error-message">{errorMessage}</div>}
@@ -755,13 +763,16 @@ export default function AdminPage() {
                                     <td>{blogger.gender}</td>
                                     <td>{blogger.address}</td>
                                     <td>{blogger.account.email}</td>
-                                    <td>{blogger.username}</td>
+                                    <td>{blogger.account.username}</td>
                                     {/* Render other blogger details */}
                                     <td className="action-buttons">
                                         <button onClick={() => {
                                             setEditBlogger({ _id: blogger._id, ...blogger });
                                             setShowEditBloggerTab(true);
                                         }}>Edit</button>
+                                        <button onClick={() => {
+                                            setShowDeleteConfirmation(true);
+                                        }}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
