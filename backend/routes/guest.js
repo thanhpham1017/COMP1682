@@ -223,7 +223,7 @@ router.get('/guest/profile', verifyToken, checkGuest, async (req, res) => {
         var accountId = req.accountId;
         var AccountData = await AccountModel.findById(accountId._id);
       if(AccountData){
-        var GuestData = await GuestModel.findById({account: accountId});
+        var GuestData = await GuestModel.findById({account: accountId._id});
       } else {
         res.status(500).json({ success: false, error: "Profile not found" });
       }

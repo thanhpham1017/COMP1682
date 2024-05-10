@@ -177,7 +177,7 @@ export default function PostPage() {
                     {postInfo.comments && postInfo.comments.map((comment, index) => (
                         <div key={index} className="comment">
                             <p>{comment.text}</p>
-                            <p>Posted by: {comment.postedBy?.username}</p>
+                            {/* <p>Posted by: {comment.postedBy?.username}</p> */}
                         </div>
                     ))}
                 </div>

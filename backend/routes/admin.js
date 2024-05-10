@@ -35,7 +35,7 @@ const upload = multer({ storage: storage });
 //for Admin
 //------------------------------------------------------------------------
 // Route to get all admins
-router.get('/', async (req, res) => {
+router.get('/admin', async (req, res) => {
     try {
         res.json(await AdminModel.find().populate('Account'));
     } catch (error) {
@@ -124,24 +124,27 @@ router.get('/', async (req, res) => {
 //     }
 // });
 
-router.get('/admin/profile', verifyToken , checkAdmin, async (req, res) => {
-    try{
+router.get('/admin/profile', verifyToken, checkAdmin, async (req, res) => {
+    try {
         var accountId = req.accountId;
         var AccountData = await AccountModel.findById(accountId._id);
-      if(AccountData){
-        var AdminData = await AdminModel.findById({account: accountId});
-      } else {
-        res.status(500).json({ success: false, error: "Profile not found" });
-      }
-      res.status(200).json({ success: true, message: "Render edit marketing manager form", AccountData, AdminData });
-    }catch(error){
+        if (AccountData) {
+            var AdminData = await AdminModel.findOne({ account: accountId });
+            console.log(AdminData);
+        } else {
+            res.status(500).json({ success: false, error: "Profile not found" });
+        }
+        res.status(200).json({ success: true, message: "Render edit admin form", AccountData, AdminData });
+    } catch (error) {
         console.error("Error while fetching Admin:", error);
         res.status(500).send("Internal Server Error");
     }
 });
 
+
 router.get('/editAdmin/:id', verifyToken , checkAdmin, async (req, res) => {
     const adminId = req.params.id;
+    console.log(adminId);
     const admin = await AdminModel.findById(adminId);
     if (!admin) {
         res.status(404).json({ success: false, error: "Admin not found" });
@@ -162,10 +165,12 @@ router.get('/editAdmin/:id', verifyToken , checkAdmin, async (req, res) => {
     }
     
 });
-
-router.post('/editAdmin/:id', verifyToken , checkAdmin, upload.single('image'), async (req, res) => {
+//upload.single('image')
+router.post('/editAdmin/:id', verifyToken , checkAdmin, async (req, res) => {
     const adminId = req.params.id;
+    console.log(adminId);
     const admin = await AdminModel.findById(adminId);
+    console.log(admin);
     if (!admin) {
         res.status(404).json({ success: false, error: "Admin not found" });
         return;
@@ -184,12 +189,11 @@ router.post('/editAdmin/:id', verifyToken , checkAdmin, upload.single('image'), 
         admin.gender = req.body.gender;
         admin.address = req.body.address;
         // If a new image is uploaded, update it
-        if (req.file) {
-            const imageData = fs.createReadStream(req.file.path);
-            blogger.image = imageData;  
-        } 
+        // if (req.file) {
+        //     const imageData = fs.createReadStream(req.file.path);
+        //     blogger.image = imageData;  
+        // } 
         await admin.save();
-        
         account.username = req.body.username;
         account.password = bcrypt.hashSync(req.body.password, salt);
         await account.save();
@@ -197,15 +201,15 @@ router.post('/editAdmin/:id', verifyToken , checkAdmin, upload.single('image'), 
         res.status(200).json({ success: true, message: "Update my Admin data success" });
     } catch (err) {
         if (err.name === 'ValidationError') {
-           let InputErrors = {};
-           for (let field in err.errors) {
-              InputErrors[field] = err.errors[field].message;
-           }
-           console.error("Error while updating admin:", err);
-            res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
+            let InputErrors = {};
+            for (let field in err.errors) {
+                InputErrors[field] = err.errors[field].message;
+            }
+            console.error("Error while updating admin:", err);
+                res.status(500).json({ success: false, err: "Internal Server Error", InputErrors });
+            }
         }
-     }
-   
+    
 });
 
 module.exports = router;

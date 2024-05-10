@@ -256,16 +256,27 @@ export default function IndexPage(){
     setIsMarkerSelected(false); // Đặt trạng thái marker đã được chọn là false khi người dùng đóng side bar
   };
 
-  const filterPinsByCategory = (categoryName) => {
-    if (categoryName === "") {
-      // Nếu người dùng chọn "Select a category", hiển thị tất cả các pins
+  // const filterPinsByCategory = (categoryName) => {
+  //   if (categoryName === "") {
+  //     // Nếu người dùng chọn "Select a category", hiển thị tất cả các pins
+  //     setPins(pins);
+  //   } else {
+  //     // Lọc pins dựa trên tên category
+  //     const filteredPins = pins.filter(pin => pin.title.toLowerCase().includes(categoryName.toLowerCase()));
+  //     setPins(filteredPins);
+  //   }
+  // };
+  const filterPinsByCategory = (categoryId) => {
+    if (!categoryId) {
+      // Nếu không có categoryId được chọn, hiển thị tất cả các pins
       setPins(pins);
     } else {
-      // Lọc pins dựa trên tên category
-      const filteredPins = pins.filter(pin => pin.title.toLowerCase().includes(categoryName.toLowerCase()));
+      // Lọc pins dựa trên categoryId
+      const filteredPins = pins.filter(pin => pin.category === categoryId);
       setPins(filteredPins);
     }
   };
+  
   useEffect(() => {
     const previousRatingFromStorage = parseInt(localStorage.getItem('previousRating'));
     if (!isNaN(previousRatingFromStorage)) {
@@ -421,7 +432,7 @@ export default function IndexPage(){
           <select onChange={(e) => filterPinsByCategory(e.target.value)}>
             <option value="">Select a category</option>
             {categories.map(category => (
-              <option key={category._id} value={category.name}>{category.name}</option>
+              <option key={category._id} value={category._id}>{category.name}</option>
             ))}
           </select>
         </div>
@@ -547,7 +558,7 @@ export default function IndexPage(){
         </MapGL>
         {/* {console.log(selectedMarkerInfo)} */}
         {selectedMarkerInfo && isMarkerSelected &&(
-          <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "400px", height: "650px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto", marginTop: "70px"}}>
+          <div className="sidebar" style={{position: "absolute", top: 0, right: 0, width: "400px", height: "650px", backgroundColor: "#fff", boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)", zIndex: 1000, overflowY: "auto", marginTop: "75px"}}>
             <button onClick={handleCloseSidebar} style={{background: "none", border: "none", cursor: "pointer", position: "absolute", top: "0", right: "0px"}}>
               <FaTimes style={{fontSize: "1.5rem"}} />
             </button>
@@ -564,7 +575,7 @@ export default function IndexPage(){
                 </div>
                 <h2>{selectedMarkerInfo.title}</h2>
                 <p>{selectedMarkerInfo.desc}</p>
-                <p>Category: {selectedMarkerInfo.category.name}</p>
+                {/* <p>Category: {selectedMarkerInfo.category.name}</p> */}
                 <div>
                   <div className="previous-ratings">
                     {[...Array(previousRating)].map((_, index) => (
@@ -592,7 +603,7 @@ export default function IndexPage(){
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                   ></textarea>
-                  <button className="formSubmitButton" type="submit">Submit</button>
+                  <button className="formSubmitButton" type="submit">Comment</button>
                 </form>   
                 {pinInfo && pinInfo.comments && pinInfo.comments.map((comment, index) => (
                     <div key={index} className="comment">

@@ -78,11 +78,7 @@ export default function LoginPage() {
                     <button className="custom-button">Login</button>
                     {error && <p className="error-message">{error}</p>}
                     <p>Don't have an account? <Link to="/register">Register</Link></p>
-                    {/* <div className="alternative-login-options">
-                        <p>Or</p>
-                        <button className="facebook-custom"><FaFacebook /></button>
-                        <button className="google-custom"><FaGoogle /></button>
-                    </div> */}
+
                 </form>
             </div>
         </div>

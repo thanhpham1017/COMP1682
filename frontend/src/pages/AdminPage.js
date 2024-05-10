@@ -171,10 +171,10 @@ export default function AdminPage() {
 
     // Function to edit a guest
     const handleEditGuest = async () => {
-        if (!editGuest.name.trim() || !editGuest.dob || !editGuest.gender || !editGuest.address || !editGuest.username || !editGuest.email || !editGuest.password) {
-            setErrorMessage('Please enter all guest details');
-            return;
-        }
+        // if (!editGuest.name.trim() || !editGuest.dob || !editGuest.gender || !editGuest.address || !editGuest.username || !editGuest.email || !editGuest.password) {
+        //     setErrorMessage('Please enter all guest details');
+        //     return;
+        // }
         try {
             const response = await fetch(`http://localhost:4000/guest/edit/${editGuest._id}`, {
                 method: 'POST',
@@ -257,10 +257,10 @@ export default function AdminPage() {
     };
 
     const handleEditBlogger = async () => {
-        if (!editBlogger.name.trim() || !editBlogger.dob || !editBlogger.gender || !editBlogger.address || !editBlogger.username || !editBlogger.email || !editBlogger.password) {
-            setErrorMessage('Please enter all blogger details');
-            return;
-        }
+        // if (!editBlogger.name.trim() || !editBlogger.dob || !editBlogger.gender || !editBlogger.address || !editBlogger.username || !editBlogger.email || !editBlogger.password) {
+        //     setErrorMessage('Please enter all blogger details');
+        //     return;
+        // }
         try {
             const response = await fetch(`http://localhost:4000/blogger/edit/${editBlogger._id}`, {
                 method: 'POST',

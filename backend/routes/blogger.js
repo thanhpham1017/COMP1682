@@ -221,7 +221,7 @@ router.get('/blogger/profile', verifyToken, checkBlogger, async (req, res) => {
         var accountId = req.accountId;
         var AccountData = await AccountModel.findById(accountId._id);
       if(AccountData){
-        var bloggerData = await BloggerModel.find({account: accountId});
+        var bloggerData = await BloggerModel.find({account: accountId._id});
       } else {
         res.status(500).json({ success: false, error: "Profile not found" });
       }
