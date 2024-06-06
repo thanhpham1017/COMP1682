@@ -22,14 +22,14 @@ export default function PostPage() {
     
         // Hủy bỏ tất cả các lắng nghe trước đó
         socket.removeAllListeners();
-        socket.on("new-comment", (msg) => {
-            console.log('New comment received:', msg);
-            // Update comments in state
+        socket.on("new-comment", (newComment) => {
+            console.log('New comment received:', newComment);
+            // Update comments in state with the complete comment object
             setPostInfo(prevPostInfo => {
                 if (!prevPostInfo) return null;
                 return {
                     ...prevPostInfo,
-                    comments: [...prevPostInfo.comments, msg] // Assuming msg contains new comment data
+                    comments: [...prevPostInfo.comments, newComment]
                 };
             });
         });
@@ -78,7 +78,7 @@ export default function PostPage() {
                 method: 'PUT',
                 credentials: 'include',
                 headers: {
-                    'Content-Type': 'application/json',  
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ comment })
             });
@@ -88,7 +88,12 @@ export default function PostPage() {
             const data = await response.json();
             if (data.success === true) {
                 if (socket) {
-                    socket.emit("comment", { text: comment }); // Sending the comment text
+                    socket.emit("comment", {
+                        text: comment,
+                        postedBy: {
+                            username: userInfo.username
+                        }
+                    });
                 }
                 setComment('');
                 toast.success("Comment added");
@@ -98,6 +103,7 @@ export default function PostPage() {
             toast.error("There was a problem adding the comment");
         }
     }
+    
 
     const handleLike = async () => {
         try {
@@ -177,7 +183,7 @@ export default function PostPage() {
                     {postInfo.comments && postInfo.comments.map((comment, index) => (
                         <div key={index} className="comment">
                             <p>{comment.text}</p>
-                            {/* <p>Posted by: {comment.postedBy?.username}</p> */}
+                            <p>Posted by: {comment.postedBy?.username}</p>
                         </div>
                     ))}
                 </div>

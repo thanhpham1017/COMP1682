@@ -126,21 +126,47 @@ router.delete('/post/delete/:id', verifyToken, async (req, res) => {
   }
 });
 
-router.put('/post/comment/:id', verifyToken, async (req, res) => {
+// router.put('/post/comment/:id', verifyToken, async (req, res) => {
+//   const accountId = req.accountId._id;
+//   const { comment } = req.body;
+//   try {
+//     const blogComment = await Post.findByIdAndUpdate(req.params.id, {
+//       $push: { comments: { text: comment, postedBy: accountId } }
+//     }, { new: true });
+
+//     // Lấy thông tin về người đăng comment (username và email)
+//     const blog = await Post.findById(blogComment._id).populate('comments.postedBy', 'username email');
+//     res.status(200).json({ success: true, blog });
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+router.put('/post/comment/:id', verifyToken, async (req, res, next) => {
   const accountId = req.accountId._id;
   const { comment } = req.body;
   try {
-    const blogComment = await Post.findByIdAndUpdate(req.params.id, {
-      $push: { comments: { text: comment, postedBy: accountId } }
-    }, { new: true });
+    const blogComment = await Post.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: { comments: { text: comment, postedBy: accountId } }
+      },
+      { new: true }
+    );
 
-    // Lấy thông tin về người đăng comment (username và email)
-    const blog = await Post.findById(blogComment._id).populate('comments.postedBy', 'username email');
-    res.status(200).json({ success: true, blog });
+    // Populate the comment's postedBy field with username and email
+    const populatedBlog = await Post.findById(blogComment._id).populate('comments.postedBy', 'username email');
+
+    // Emit the complete comment object including postedBy details
+    const newComment = populatedBlog.comments[populatedBlog.comments.length - 1];
+    req.io.emit("new-comment", newComment);
+
+    res.status(200).json({ success: true, blog: populatedBlog });
   } catch (error) {
     next(error);
   }
 });
+
 
 router.put('/post/addLike/:id', verifyToken, async (req, res) => {
   try {

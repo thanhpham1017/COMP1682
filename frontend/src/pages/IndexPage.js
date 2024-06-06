@@ -219,13 +219,16 @@ export default function IndexPage(){
       }
       const data = await response.json();
       if (data.success === true) {
-        
-        socket.emit('comment', { text : comment });
+        if (socket) {
+          socket.emit("comment", {
+              text: comment,
+              postedBy: {
+                  username: userInfo.username
+              }
+          });
+        }
         setComment('');
-        // const updatedComments = [...comments, data.comment];
-        // // Cập nhật state của comments với danh sách comments mới
-        // setComments(updatedComments);
-        toast.success("comment added");
+        toast.success("Comment added");
       }
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
@@ -608,7 +611,7 @@ export default function IndexPage(){
                 {pinInfo && pinInfo.comments && pinInfo.comments.map((comment, index) => (
                     <div key={index} className="comment">
                         <p>Comment: {comment.text}</p>
-                        
+                        <p>Posted by: {comment.postedBy?.username}</p>
                     </div>
                 ))}
               </div>

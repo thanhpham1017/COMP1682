@@ -13,6 +13,9 @@ export default function AdminPage() {
     const [newBlogger, setNewBlogger] = useState({ name: '', dob: '', gender: '', address: '',username: '',email: '',password: ''});
     const [editBlogger, setEditBlogger] = useState({ _id: '', name: '', dob: '', gender: '', address: '',username: '',email: '',password: '' });
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [showDeleteCategoryConfirmation, setShowDeleteCategoryConfirmation] = useState(false);
+    const [showDeleteGuestConfirmation, setShowDeleteGuestConfirmation] = useState(false);
+    const [showDeleteBloggerConfirmation, setShowDeleteBloggerConfirmation] = useState(false);
     const [showEditCategoryTab, setShowEditCategoryTab] = useState(false);
     const [showEditGuestTab, setShowEditGuestTab] = useState(false);
     const [showEditBloggerTab, setShowEditBloggerTab] = useState(false);
@@ -413,27 +416,45 @@ export default function AdminPage() {
     const renderDeleteConfirmation = () => {
         return (
             <div className="delete-confirmation">
-                <p>Are you sure you want to delete this category?</p>
-                <button onClick={() => handleDeleteCategory(editCategory._id)}>Yes, Delete</button>
-                <p>Are you sure you want to delete this guest?</p>
-                <button onClick={() => handleDeleteGuest(editGuest._id)}>Yes, Delete</button>
-                <p>Are you sure you want to delete this blogger?</p>
-                <button onClick={() => handleDeleteBlogger(editBlogger._id)}>Yes, Delete</button>
-                <button onClick={() => setShowDeleteConfirmation(false)}>Cancel</button>
+                {showDeleteCategoryConfirmation && (
+                    <>
+                        <p>Are you sure you want to delete this category?</p>
+                        <button onClick={() => handleDeleteCategory(editCategory._id)}>Yes, Delete</button>
+                    </>
+                )}
+                {showDeleteGuestConfirmation && (
+                    <>
+                        <p>Are you sure you want to delete this guest?</p>
+                        <button onClick={() => handleDeleteGuest(editGuest._id)}>Yes, Delete</button>
+                    </>
+                )}
+                {showDeleteBloggerConfirmation && (
+                    <>
+                        <p>Are you sure you want to delete this blogger?</p>
+                        <button onClick={() => handleDeleteBlogger(editBlogger._id)}>Yes, Delete</button>
+                    </>
+                )}
+                <button onClick={() => {
+                    setShowDeleteCategoryConfirmation(false);
+                    setShowDeleteGuestConfirmation(false);
+                    setShowDeleteBloggerConfirmation(false);
+                }}>Cancel</button>
             </div>
         );
     };
 
     const renderEditCategoryTab = () => {
         return (
-            <div>
+            <div className="edit-table">
                 <h2>Edit Category</h2>
                 <input
                     type="text"
                     value={editCategory.name}
                     onChange={(e) => setEditCategory({ ...editCategory, name: e.target.value })}
+                    style={{ width: '200px' }}
                 />
                 <button onClick={handleEditCategory}>Edit Category</button>
+                <button onClick={() => {setShowEditCategoryTab(false)}}>Cancel</button>
             </div>
         );
     };
@@ -475,9 +496,10 @@ export default function AdminPage() {
                                             setShowEditCategoryTab(true);
                                         }}>Edit</button>
                                         <button onClick={() => {
-                                            setShowDeleteConfirmation(true);
-                                            setEditCategory({ _id: category._id, name: category.name });
-                                        }}>Delete Category</button>
+                                            setShowDeleteCategoryConfirmation(true);
+                                            setShowDeleteGuestConfirmation(false);
+                                            setShowDeleteBloggerConfirmation(false);
+                                        }}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
@@ -494,7 +516,7 @@ export default function AdminPage() {
             return dateString.split('T')[0]; // Cắt bớt chuỗi ngày tháng năm từ chuỗi đầu vào
         };
         return (
-            <div>
+            <div className="edit-table">
                 <h2>Edit Guest</h2>
                 <input
                     type="text"
@@ -511,7 +533,7 @@ export default function AdminPage() {
                 <select
                     value={editGuest.gender}
                     onChange={(e) => setEditGuest({ ...editGuest, gender: e.target.value })}
-                    style={{ width: '200px' }}
+                    style={{ width: '200px' , marginBottom: '20px' }}
                 >
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
@@ -521,8 +543,10 @@ export default function AdminPage() {
                     type="text"
                     value={editGuest.address}
                     onChange={(e) => setEditGuest({ ...editGuest, address: e.target.value })}
+                    style={{ width: '300px' }}
                 />
                 <button onClick={handleEditGuest}>Edit Guest</button>
+                <button onClick={() => {setShowEditGuestTab(false)}}>Cancel</button>
                 {errorMessage && <div className="error-message">{errorMessage}</div>}
             </div>
         );
@@ -623,7 +647,9 @@ export default function AdminPage() {
                                             setShowEditGuestTab(true);
                                         }}>Edit</button>
                                         <button onClick={() => {
-                                            setShowDeleteConfirmation(true);
+                                            setShowDeleteCategoryConfirmation(false);
+                                            setShowDeleteGuestConfirmation(true);
+                                            setShowDeleteBloggerConfirmation(false);
                                         }}>Delete</button>
                                     </td>
                                 </tr>
@@ -640,7 +666,7 @@ export default function AdminPage() {
             return dateString.split('T')[0]; // Cắt bớt chuỗi ngày tháng năm từ chuỗi đầu vào
         };
         return (
-            <div>
+            <div className="edit-table">
                 <h2>Edit Blogger</h2>
                 <input
                     type="text"
@@ -657,7 +683,7 @@ export default function AdminPage() {
                 <select
                     value={editBlogger.gender}
                     onChange={(e) => setEditBlogger({ ...editBlogger, gender: e.target.value })}
-                    style={{ width: '200px' }}
+                    style={{ width: '200px', marginBottom: '20px'}}
                 >
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
@@ -667,9 +693,11 @@ export default function AdminPage() {
                     type="text"
                     value={editBlogger.address}
                     onChange={(e) => setEditBlogger({ ...editBlogger, address: e.target.value })}
+                    style={{ width: '300px' }}
                 />
                 
                 <button onClick={handleEditBlogger}>Edit Blogger</button>
+                <button onClick={() => {setShowEditBloggerTab(false)}}>Cancel</button>
                 {errorMessage && <div className="error-message">{errorMessage}</div>}
             </div>
         );
@@ -771,7 +799,9 @@ export default function AdminPage() {
                                             setShowEditBloggerTab(true);
                                         }}>Edit</button>
                                         <button onClick={() => {
-                                            setShowDeleteConfirmation(true);
+                                            setShowDeleteCategoryConfirmation(false);
+                                            setShowDeleteGuestConfirmation(false);
+                                            setShowDeleteBloggerConfirmation(true);
                                         }}>Delete</button>
                                     </td>
                                 </tr>
@@ -805,10 +835,46 @@ export default function AdminPage() {
     const renderSidebar = () => {
         return (
             <div className="admin-sidebar">
-                <button onClick={() => setSidebarItem('category')}>Category</button>
-                <button onClick={() => setSidebarItem('guest')}>Guest</button>
-                <button onClick={() => setSidebarItem('blogger')}>Blogger</button>
-                <button onClick={() => setSidebarItem('pin')}>Pins</button>
+                <button onClick={() => {
+                    setSidebarItem('category');
+                    // Đặt các state liên quan về false khi chuyển sang mục Category
+                    setShowDeleteCategoryConfirmation(false);
+                    setShowDeleteGuestConfirmation(false);
+                    setShowDeleteBloggerConfirmation(false);
+                    setShowEditCategoryTab(false);
+                    setShowEditGuestTab(false);
+                    setShowEditBloggerTab(false)
+                }}>Category</button>
+                <button onClick={() => {
+                    setSidebarItem('guest');
+                    // Đặt các state liên quan về false khi chuyển sang mục Guest
+                    setShowDeleteCategoryConfirmation(false);
+                    setShowDeleteGuestConfirmation(false);
+                    setShowDeleteBloggerConfirmation(false);
+                    setShowEditCategoryTab(false);
+                    setShowEditGuestTab(false);
+                    setShowEditBloggerTab(false)
+                }}>Guest</button>
+                <button onClick={() => {
+                    setSidebarItem('blogger');
+                    // Đặt các state liên quan về false khi chuyển sang mục Blogger
+                    setShowDeleteCategoryConfirmation(false);
+                    setShowDeleteGuestConfirmation(false);
+                    setShowDeleteBloggerConfirmation(false);
+                    setShowEditCategoryTab(false);
+                    setShowEditGuestTab(false);
+                    setShowEditBloggerTab(false)
+                }}>Blogger</button>
+                <button onClick={() => {
+                    setSidebarItem('pin');
+                    // Đặt các state liên quan về false khi chuyển sang mục Pins
+                    setShowDeleteCategoryConfirmation(false);
+                    setShowDeleteGuestConfirmation(false);
+                    setShowDeleteBloggerConfirmation(false);
+                    setShowEditCategoryTab(false);
+                    setShowEditGuestTab(false);
+                    setShowEditBloggerTab(false)
+                }}>Pins</button>
             </div>
         );
     };
@@ -822,7 +888,9 @@ export default function AdminPage() {
                 {sidebarItem === 'guest' && renderGuestList()}
                 {sidebarItem === 'blogger' && renderBloggerList()}
                 {sidebarItem === 'pin' && renderPendingPinsTable()}
-                {showDeleteConfirmation && renderDeleteConfirmation()}
+                {showDeleteCategoryConfirmation && renderDeleteConfirmation()}
+                {showDeleteGuestConfirmation && renderDeleteConfirmation()}
+                {showDeleteBloggerConfirmation && renderDeleteConfirmation()}
                 {showEditCategoryTab && renderEditCategoryTab()}
                 {showEditGuestTab && renderEditGuestTab()}
                 {showEditBloggerTab && renderEditBloogerTab()}

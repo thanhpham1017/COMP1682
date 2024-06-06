@@ -113,50 +113,79 @@ router.get('/profile', verifyToken, async (req, res) => {
   }
 });
 
-
 router.get('/auth/profile', verifyToken, async (req, res) => {
-  var accountRole = req.accountId.role;
-  if (accountRole === "Blogger") {
-      try{
-        var accountId = req.accountId;
-      if(accountId){
-        var bloggerData = await BloggerModel.find({account: accountId._id});
-      } else {
-        res.status(500).json({ success: false, error: "Profile not found" });
-      }
-      res.status(200).json({ success: true, message: "Render edit blogger form", accountId, bloggerData });
-    }catch(error){
-        console.error("Error while fetching Blogger:", error);
-        res.status(500).send("Internal Server Error");
+  try {
+    const accountRole = req.accountId.role;  // Lấy vai trò từ token
+    const accountId = req.accountId._id;     // Lấy ID tài khoản từ token
+
+    let userData;  // Khởi tạo biến để lưu dữ liệu người dùng
+
+    // Sử dụng phương thức truy vấn phù hợp dựa trên vai trò
+    if (accountRole === "blogger") {
+      userData = await BloggerModel.findOne({ account: accountId }).populate('account');
+    } else if (accountRole === "Guest") {
+      userData = await GuestModel.findOne({ account: accountId }).populate('account');
+    } else if (accountRole === "Admin") {
+      userData = await AdminModel.findOne({ account: accountId }).populate('account');
+    } else {
+      return res.status(400).json({ success: false, error: "Invalid role" });
     }
-  } else if (accountRole === "Guest") {
-      try{
-        var accountId = req.accountId;
-      if(accountId){
-        var GuestData = await GuestModel.findById({account: accountId._id});
-      } else {
-        res.status(500).json({ success: false, error: "Profile not found" });
-      }
-      res.status(200).json({ success: true, message: "Render edit guest form", accountId, GuestData });
-    }catch(error){
-        console.error("Error while fetching Guest:", error);
-        res.status(500).send("Internal Server Error");
+
+    if (!userData) {
+      return res.status(404).json({ success: false, error: "Profile not found" });
     }
-  } else if (accountRole === "Admin") {
-      try{
-        var accountId = req.accountId;
-      if(accountId){
-        var AdminData = await AdminModel.findById({account: accountId._id});
-      } else {
-        res.status(500).json({ success: false, error: "Profile not found" });
-      }
-      res.status(200).json({ success: true, message: "Render edit admin form", accountId, AdminData });
-    }catch(error){
-        console.error("Error while fetching Admin:", error);
-        res.status(500).send("Internal Server Error");
-    }
+
+    res.status(200).json({ success: true, userData });  // Gửi dữ liệu người dùng trong phản hồi
+  } catch (error) {
+    console.error("Error while fetching profile:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
+
+
+// router.get('/auth/profile', verifyToken, async (req, res) => {
+//   var accountRole = req.accountId.role;
+//   if (accountRole === "Blogger") {
+//       try{
+//         var accountId = req.accountId;
+//       if(accountId){
+//         var bloggerData = await BloggerModel.find({account: accountId._id});
+//       } else {
+//         res.status(500).json({ success: false, error: "Profile not found" });
+//       }
+//       res.status(200).json({ success: true, message: "Render edit blogger form", accountId, bloggerData });
+//     }catch(error){
+//         console.error("Error while fetching Blogger:", error);
+//         res.status(500).send("Internal Server Error");
+//     }
+//   } else if (accountRole === "Guest") {
+//       try{
+//         var accountId = req.accountId;
+//       if(accountId){
+//         var GuestData = await GuestModel.findById({account: accountId._id});
+//       } else {
+//         res.status(500).json({ success: false, error: "Profile not found" });
+//       }
+//       res.status(200).json({ success: true, message: "Render edit guest form", accountId, GuestData });
+//     }catch(error){
+//         console.error("Error while fetching Guest:", error);
+//         res.status(500).send("Internal Server Error");
+//     }
+//   } else if (accountRole === "Admin") {
+//       try{
+//         var accountId = req.accountId;
+//       if(accountId){
+//         var AdminData = await AdminModel.findById({account: accountId._id});
+//       } else {
+//         res.status(500).json({ success: false, error: "Profile not found" });
+//       }
+//       res.status(200).json({ success: true, message: "Render edit admin form", accountId, AdminData });
+//     }catch(error){
+//         console.error("Error while fetching Admin:", error);
+//         res.status(500).send("Internal Server Error");
+//     }
+//   }
+// });
 
 router.post('/auth/edit/:id', verifyToken, async (req, res) => {
   var accountrole = req.accountId.role;

@@ -1,54 +1,92 @@
+
+.user-profile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* height: 100vh; */
+}
+
+/* Profile container */
 .profile-container {
-    display: flex;
-    gap: 200px;
-  }
-  .profile-container {
-    max-width: 90%;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  .setting-bar {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .setting-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-  }
-  
-  .setting-item:hover {
-    color: #007bff;
-  }
-  
-  .username {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-  }
-  
-  .username svg {
-    font-size: 1.2rem;
-  }
-  
-  .user-level {
-    margin-top: 10px;
-    font-size: 1rem;
-    color: #888;
-  }
-  
-  /* Các biểu tượng Font Awesome */
-  .fa-cog,
-  .fa-bell,
-  .fa-lock,
-  .fa-question-circle,
-  .fa-user {
-    font-size: 1.2rem;
-  }
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 800px;
+  width: 100%;
+  margin-bottom: 80px;
+}
+
+/* Setting bar */
+.setting-bar {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.setting-bar button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.setting-bar button:hover {
+  background-color: #0056b3;
+}
+
+/* User info */
+.user-info div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.user-info div svg {
+  margin-right: 10px;
+}
+
+/* Edit profile form */
+.edit-profile-form input[type="text"],
+.edit-profile-form input[type="date"],
+.edit-profile-form select {
+  width: calc(50% - 10px);
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: none;
+}
+
+.edit-profile-form select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23212121'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px top 50%;
+}
+
+.edit-profile-form button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-right: 10px;
+}
+
+.edit-profile-form button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.edit-profile-form button[type="button"] {
+  background-color: #ccc;
+  color: #000;
+}
+
+.edit-profile-form button[type="button"]:hover {
+  background-color: #999;
+}

@@ -79,7 +79,7 @@ export default function Header() {
               {dropdownOpen && (
                 <div className="dropdown-menu">
                   <Link to="/create" className="create-post">Create new post</Link>
-                  {/* <Link to="/profile/settings" className="profile-username">Profile</Link> */}
+                  <Link to="/profile/settings" className="profile-username">Profile</Link>
                   {/* {isAdmin && <a href="/admin">Admin</a>}  */}
                   <button onClick={logout} className="logout-btn">Logout</button>
                 </div>

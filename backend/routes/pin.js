@@ -45,20 +45,19 @@ router.get("/pins", async (req, res) => {
     }
 });
 
-router.get("/pin/:id", async (req, res) => {
+router.get('/pin/:id', async (req, res) => {
     try {
-        const pinId = req.params.id;
-        const pin = await Pin.findById(pinId);
-        if (pin) {
-            res.status(200).json(pin);
-        } else {
-            res.status(404).json({ success: false, error: "Pin not found" });
-            return;
-        }
+      const pin = await Pin.findById(req.params.id).populate('comments.postedBy', 'username email');
+      if (!pin) {
+        return res.status(404).json({ success: false, message: 'Pin not found' });
+      }
+      res.status(200).json(pin);
     } catch (err) {
-        res.status(500).json(err);
+      res.status(500).json({ success: false, message: 'Server error' });
     }
-});
+  });
+
+
 
 router.get("/pins/pending", verifyToken, checkAdmin, async (req, res) => {
     try {
@@ -143,21 +142,24 @@ router.get("/search", async (req, res) => {
 });
 
 router.put('/pin/comment/:id', verifyToken, async (req, res) => {
-    const accountId = req.accountId._id;
-    const { comment } = req.body;
-    const pinId = req.params.id;
-    try {
-        const pinComment = await Pin.findByIdAndUpdate(pinId, {
-            $push: { comments: { text: comment, postedBy: accountId } }
-        },
-            { new: true }
-        );
-        const pin = await Pin.findById(pinComment._id).populate('comments.postedBy', 'username email');
-        res.status(200).json({ success: true, pin });
-    } catch (err) {
-        res.status(500).json(err);
-    }
+  const accountId = req.accountId._id;
+  const { comment } = req.body;
+  const pinId = req.params.id;
+
+  try {
+    const pinComment = await Pin.findByIdAndUpdate(pinId, {
+      $push: { comments: { text: comment, postedBy: accountId } }
+    }, { new: true }).populate('comments.postedBy', 'username email');
+
+    const newComment = pinComment.comments[pinComment.comments.length - 1];
+    req.io.emit('new-comment', newComment);
+
+    res.status(200).json({ success: true, pin: pinComment });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
+
 
 
 router.get('/pin/select/:id', verifyToken, checkAdmin, async (req, res) => {
